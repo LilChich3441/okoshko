@@ -316,6 +316,23 @@ h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
 /* ===== сворачиваемые блоки и телефонный вид ===== */
 .demo{font-family:var(--body);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;vertical-align:middle;padding:3px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent-text)}
 .m-hint{display:none}
+/* жидкое стекло сверху и снизу: контент прокручивается под ними */
+.stage{position:relative;flex:1;min-height:0;display:flex;flex-direction:column}
+.stage .screen{flex:1;min-height:0;--pt:66px;padding-top:var(--pt);padding-bottom:calc(var(--fh,0px) + 16px);scroll-padding-top:var(--pt)}
+.stage.noroles .screen{--pt:16px}
+.stage .hero{margin-top:calc(-1 * var(--pt))}
+.t-light{--glass:color-mix(in srgb,var(--surface) 58%,transparent);--glass-hi:rgba(255,255,255,.7);--glass-sh:0 10px 30px -14px rgba(60,25,30,.4)}
+.t-dark{--glass:color-mix(in srgb,#2A2230 55%,transparent);--glass-hi:rgba(255,255,255,.14);--glass-sh:0 10px 30px -12px rgba(0,0,0,.6)}
+.phone .stage .roles,.phone .stage .foot{-webkit-backdrop-filter:blur(22px) saturate(1.8);backdrop-filter:blur(22px) saturate(1.8);background:var(--glass);border:0;box-shadow:inset 0 1px 0 var(--glass-hi),inset 0 0 0 .5px color-mix(in srgb,var(--glass-hi) 50%,transparent),var(--glass-sh)}
+.phone .stage .roles{position:absolute;top:10px;left:16px;right:16px;margin:0;z-index:6;border-radius:99px;padding:4px}
+.phone .stage .roles button{border-radius:99px;min-height:40px}
+.phone .stage .roles button[aria-pressed="true"]{background:color-mix(in srgb,var(--surface) 88%,transparent);box-shadow:0 2px 10px -4px rgba(0,0,0,.25)}
+.t-dark .phone .stage .roles button[aria-pressed="true"]{background:rgba(255,255,255,.14);color:var(--ink)}
+.phone .stage .foot{position:absolute;left:10px;right:10px;bottom:10px;z-index:6;border-radius:28px;padding:10px}
+.phone .stage .foot .main-btn{border-radius:20px}
+.phone .stage .foot .back-btn{border-radius:20px}
+body.tgapp .phone .stage .foot{bottom:max(10px,var(--tg-safe-area-inset-bottom,0px));padding-bottom:10px}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.stage .roles,.stage .foot{background:var(--surface)}}
 /* общий цвет кнопок: графит (в тёмной теме — светлые) */
 .t-light{--btn:#2B2530;--btn-ink:#FFFFFF}
 .t-dark{--btn:#F2EBEE;--btn-ink:#1A1418}
@@ -705,12 +722,14 @@ button:active{opacity:.85}
         <div class="ttl"><b id="tg-title"></b><small>мини-приложение</small></div>
         <button class="ghost" aria-label="Меню" data-act="toast:Меню Telegram">⋯</button>
       </div>
+      <div class="stage" id="stage">
       <div class="roles">
         <button data-act="role:client" id="r-client">Я клиент</button>
         <button data-act="role:master" id="r-master">Я мастер</button>
       </div>
       <div class="screen" id="screen"></div>
       <div class="foot" id="foot"></div>
+      </div>
       <div id="overlay"></div>
     </div>
     <aside class="side">
@@ -1709,7 +1728,7 @@ function render(){
   document.getElementById('r-master').setAttribute('aria-pressed',S.role==='master');
   const tl=document.getElementById('tg-left'),inFlow=(S.role==='client'&&(S.step>=1&&S.step<=3||S.step>=10))||(S.role==='master'&&S.mview);
   tl.textContent=inFlow?'‹ Назад':'Закрыть';
-  document.querySelector('.roles').hidden=S.role==='client'&&inFlow;
+  document.querySelector('.roles').hidden=S.role==='client'&&inFlow;document.getElementById('stage').classList.toggle('noroles',S.role==='client'&&inFlow);
   tl.dataset.act=inFlow?'back':(inTG?'tgclose':'toast:Закроет мини-приложение и вернёт в чат');
   S._inFlow=inFlow;
   const v=S.role==='client'?clientScreen():masterScreen();
@@ -1723,9 +1742,11 @@ function render(){
   lastOv=ovKey;
   const bw=document.querySelector('#screen .bigwin[data-light]');
   tgSync();
+  {const f=document.getElementById('foot');document.getElementById('stage').style.setProperty('--fh',(f.offsetHeight?f.offsetHeight+10:0)+'px')}
   if(bw){if(lastLit!==bw.dataset.light&&!matchMedia('(prefers-reduced-motion: reduce)').matches){lastLit=bw.dataset.light;setTimeout(()=>bw.classList.add('on'),300)}else{lastLit=bw.dataset.light;bw.classList.add('on')}}
 }
 let lastLit='',lastKey='';
+try{new ResizeObserver(()=>{const f=document.getElementById('foot');document.getElementById('stage').style.setProperty('--fh',(f.offsetHeight?f.offsetHeight+10:0)+'px')}).observe(document.getElementById('foot'))}catch(e){}
 let lastOv='';
 let toastT;
 function toast(t){
