@@ -433,9 +433,14 @@ body.tgapp .foot{padding-bottom:max(10px,var(--tg-safe-area-inset-bottom,0px))}
 .pop-works{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
 .modal .pop-works .art{height:auto;aspect-ratio:1;border-radius:14px}
 .pop-more{background:var(--sunk);color:var(--muted);font-weight:600;font-size:18px}
-.hint-btn.got{animation:got .7s ease-out}
-@keyframes got{0%{transform:scale(1)}35%{transform:scale(1.25);box-shadow:0 0 0 8px var(--accent-soft)}100%{transform:scale(1);box-shadow:0 0 0 0 transparent}}
-@media (prefers-reduced-motion:reduce){.hint-btn.got{animation:none}}
+.hint-btn.got{animation:got .65s cubic-bezier(.34,1.56,.64,1)}
+.hint-btn.got .cw{animation:cwon .7s ease-out}
+.cw{display:inline-block;width:11px;height:14px;margin-right:6px;vertical-align:-2px;border-radius:50% 50% 2px 2px / 40% 40% 2px 2px;background:color-mix(in srgb,var(--accent) 35%,transparent);position:relative;overflow:hidden;transition:background .4s}
+.cw::after{content:"";position:absolute;left:0;right:0;top:45%;height:1.5px;background:rgba(255,255,255,.7)}
+.cw.on{background:radial-gradient(120% 90% at 50% 75%,#FFE7B0 0,var(--glow) 45%,var(--glow-2) 100%);box-shadow:0 0 6px rgba(255,159,67,.8)}
+@keyframes cwon{0%{transform:scale(.4);filter:brightness(2)}60%{transform:scale(1.3)}100%{transform:scale(1);filter:none}}
+@keyframes got{0%{transform:scale(.9)}45%{transform:scale(1.1);box-shadow:0 0 0 6px color-mix(in srgb,var(--glow) 40%,transparent),0 8px 18px -6px rgba(255,159,67,.7)}100%{transform:scale(1);box-shadow:0 0 0 0 transparent}}
+@media (prefers-reduced-motion:reduce){.hint-btn.got,.hint-btn.got .cw{animation:none}.cw{transition:none}}
 .fold{display:flex;flex-direction:column}
 .fold summary{cursor:pointer;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;padding:6px 0;list-style-position:inside}
 .fold-in{display:flex;flex-direction:column;gap:12px;margin-top:8px}
@@ -1200,7 +1205,7 @@ function clientScreen(){
 }
 
 const hasMemos=()=>Object.keys(M().hints).some(k=>St().hintsOn[k]);
-function memoIcons(){const m=M();return`<div class="mini">${hasMemos()?'<button class="hint-btn" data-pop="memo" data-act="memos">Памятка</button>':''}${m.works.length?'<button class="hint-btn" data-pop="works" data-act="worksheet">Работы мастера</button>':''}</div>`}
+function memoIcons(){const m=M(),p=popStage();return`<div class="mini">${hasMemos()?`<button class="hint-btn" data-pop="memo" data-act="memos"><span class="cw ${p>=1?'on':''}" aria-hidden="true"></span>Памятка</button>`:''}${m.works.length?`<button class="hint-btn" data-pop="works" data-act="worksheet"><span class="cw ${p>=2?'on':''}" aria-hidden="true"></span>Работы мастера</button>`:''}</div>`}
 // всплывашки на экране выбора времени: сначала памятка, потом работы; «Спасибо, понятно» — карточка улетает в кнопку сверху
 function popStage(){
   const m=M(),st=St();if(st.memoSeen)return 2;
@@ -1226,17 +1231,35 @@ function memoModal(){
     <div class="pop-works">${m.works.slice(0,3).map(w=>artHtml(m,w)).join('')}${more>0?`<div class="art pop-more">+${more}</div>`:''}</div>
     <div class="btns"><button class="main-btn" data-act="pop-ok:works">Спасибо, понятно</button><button class="no" data-act="pop-open:works">Смотреть все</button></div></div></div>`;
 }
+// «Спасибо, понятно»: содержимое гаснет, карточка по дуге перетекает в кнопку (размер, скругление, цвет), кнопка пружинит, окошко в ней загорается
+let flyGhost=null;
 function flyAway(kind,cb){
-  let fired=false;const done=()=>{if(!fired){fired=true;cb()}};setTimeout(done,900);
-  const md=document.querySelector('#overlay .modal'),bk=document.querySelector('#overlay .modal-back'),tg=document.querySelector(`#screen [data-pop="${kind}"]`);
+  let fired=false;const done=()=>{if(!fired){fired=true;cb()}};
+  const ph=document.getElementById('phone'),md=document.querySelector('#overlay .modal'),bk=document.querySelector('#overlay .modal-back'),tg=document.querySelector(`#screen [data-pop="${kind}"]`);
   if(!md||!tg||matchMedia('(prefers-reduced-motion: reduce)').matches||!md.animate){done();return}
-  const a=md.getBoundingClientRect(),b=tg.getBoundingClientRect();
-  const dx=(b.left+b.width/2)-(a.left+a.width/2),dy=(b.top+b.height/2)-(a.top+a.height/2),sc=Math.max(.05,b.width/a.width*.6);
-  bk.animate([{backgroundColor:getComputedStyle(bk).backgroundColor},{backgroundColor:'rgba(0,0,0,0)'}],{duration:520,fill:'forwards'});
-  const an=md.animate([{transform:'translate(0,0) scale(1)',opacity:1,borderRadius:'22px'},{transform:`translate(${dx*.35}px,${dy*.2}px) scale(.7)`,opacity:1,offset:.35},{transform:`translate(${dx}px,${dy}px) scale(${sc})`,opacity:.15,borderRadius:'60px'}],{duration:560,easing:'cubic-bezier(.55,0,.6,1)',fill:'forwards'});
+  setTimeout(done,1200);
+  const P=ph.getBoundingClientRect(),A=md.getBoundingClientRect(),B=tg.getBoundingClientRect(),ms=getComputedStyle(md),ts=getComputedStyle(tg);
+  const g=md.cloneNode(true);g.removeAttribute('role');g.removeAttribute('tabindex');g.setAttribute('aria-hidden','true');g.classList.add('flyghost');
+  const x0=A.left-P.left,y0=A.top-P.top,x1=B.left-P.left,y1=B.top-P.top;
+  Object.assign(g.style,{position:'absolute',left:x0+'px',top:y0+'px',width:A.width+'px',height:A.height+'px',margin:'0',maxHeight:'none',zIndex:'9',overflow:'hidden',animation:'none'});
+  ph.appendChild(g);md.style.visibility='hidden';flyGhost=g;
+  [...g.children].forEach(c=>c.animate([{opacity:1,transform:'none',filter:'blur(0)'},{opacity:0,transform:'scale(.94)',filter:'blur(3px)'}],{duration:170,easing:'cubic-bezier(.4,0,1,1)',fill:'forwards'}));
+  bk.animate([{backgroundColor:getComputedStyle(bk).backgroundColor},{backgroundColor:'rgba(0,0,0,0)'}],{duration:460,easing:'ease-out',fill:'forwards'});
+  const lerp=(p,q,t)=>p+(q-p)*t,cxA=x0+A.width/2,cyA=y0+A.height/2,cxB=x1+B.width/2,cyB=y1+B.height/2;
+  const mid=(t,lift)=>{const w=lerp(A.width,B.width,Math.min(1,t*1.5)),h=lerp(A.height,B.height,Math.min(1,t*1.6));return{left:(lerp(cxA,cxB,t)-w/2)+'px',top:(lerp(cyA,cyB,t)-lift-h/2)+'px',width:w+'px',height:h+'px'}};
+  const an=g.animate([
+    {left:x0+'px',top:y0+'px',width:A.width+'px',height:A.height+'px',borderRadius:'22px',backgroundColor:ms.backgroundColor,boxShadow:ms.boxShadow},
+    {offset:.4,...mid(.4,26),borderRadius:'28px',backgroundColor:ms.backgroundColor},
+    {offset:.75,...mid(.8,10),borderRadius:(B.height/2+2)+'px',backgroundColor:ts.backgroundColor},
+    {left:x1+'px',top:y1+'px',width:B.width+'px',height:B.height+'px',borderRadius:(B.height/2)+'px',backgroundColor:ts.backgroundColor,boxShadow:'0 0 0 0 transparent'}
+  ],{duration:620,easing:'cubic-bezier(.45,0,.15,1)',fill:'forwards'});
   an.onfinish=done;
 }
-function landOn(kind){const tg=document.querySelector(`#screen [data-pop="${kind}"]`);if(tg){tg.classList.add('got');setTimeout(()=>tg.classList.remove('got'),700)}}
+function landOn(kind){
+  const g=flyGhost;flyGhost=null;
+  if(g){g.animate([{opacity:1},{opacity:0}],{duration:140,fill:'forwards'}).onfinish=()=>g.remove();setTimeout(()=>g.remove(),400)}
+  const tg=document.querySelector(`#screen [data-pop="${kind}"]`);if(tg){tg.classList.add('got');setTimeout(()=>tg.classList.remove('got'),800)}
+}
 const REASONS=['Болезнь','Форс-мажор','Накладка в расписании','Другое'];
 const WLD=['Любой день','Будни','Выходные'],WLT=['Любое время','Утро','День','Вечер'];
 function freedFor(m,st,b){
