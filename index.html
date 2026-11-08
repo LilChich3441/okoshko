@@ -1,13 +1,14 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#F2F3F5">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; media-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#F5EFE9" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#141017" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Окошко — запись к частному мастеру в Telegram">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%23B0265A%27/%3E%3Crect x=%279%27 y=%279%27 width=%2714%27 height=%2714%27 rx=%273%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272.5%27/%3E%3Cpath d=%27M16 9v14M9 16h14%27 stroke=%27white%27 stroke-width=%272%27/%3E%3C/svg%3E">
 <script src="https://telegram.org/js/telegram-web-app.js?59"></script>
 </head><body>
 <title>Окошко</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Unbounded:wght@500;600&display=swap">
+<link rel="stylesheet" href="fonts/fonts.css">
 <style>
 /* Layout: короткий интро-блок, затем «телефон» с мини-приложением и рядом лента сообщений бота */
 :root{
@@ -315,6 +316,21 @@ h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
 /* ===== сворачиваемые блоки и телефонный вид ===== */
 .demo{font-family:var(--body);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;vertical-align:middle;padding:3px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent-text)}
 .m-hint{display:none}
+/* зоны нажатия не меньше 44px (ui-ux-pro-max: touch targets) */
+.switch::before{content:"";position:absolute;inset:-9px -4px}
+.wcell button::before{content:"";position:absolute;inset:-6px}
+.sw{width:40px;height:40px;position:relative}.sw::before{content:"";position:absolute;inset:-4px}
+.swatches{gap:8px}
+.cname{padding:10px 0;margin:-10px 0}
+.allworks,.who .rate,.back.small,.st-more{min-height:44px}
+.st-off{min-height:44px}
+input[type=time]{min-height:44px}
+/* мелкий текст не меньше 12px */
+.cal .wd,.tl .hr span{font-size:12px}
+.cal-d i{font-size:11px}
+.pill{font-size:11.5px}
+.st-shape b{font-size:12.5px}
+.who p{text-wrap:balance}
 .cname{font:inherit;font-weight:700;color:var(--accent-text);background:none;border:0;padding:0;cursor:pointer;min-height:24px}.cname::after{content:' ›';font-weight:600}
 .cmeta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px}
 .cmeta .vis{padding:2px 8px;border-radius:99px;background:var(--sunk);color:var(--muted);font-weight:600}
@@ -1181,7 +1197,7 @@ function clientScreen(){
     <div class="who"><h1>${esc(m.name)}</h1><p>${esc(m.about)}</p>${m.rating?`<button class="rate" data-act="toreviews"><em>★ ${String(m.rating[0]).replace('.',',')}</em> · ${pl(m.rating[1],'отзыв','отзыва','отзывов')}</button>`:'<span class="rate">Новый мастер</span>'}</div>
     ${litHtml(m,st)}
     ${(()=>{const nb=st.hist&&st.hist.bid&&st.bookings.find(z=>z.id===st.hist.bid&&visitTs(m,z)>Date.now());return nb?`<div class="rev" style="background:var(--accent-soft)"><b style="font-size:15px">${nb.status==='hold'?'Бронь ждёт ответа мастера':order?'Ваш заказ':'Ваша запись'}: ${relDay(nb.date)}, ${whenOf(m,nb)}</b><span>${esc(sName(nb))}${ansShort(m,nb.svc,nb.ans)?' · '+esc(ansShort(m,nb.svc,nb.ans)):''}</span><div class="row-btns"><button class="btn2" data-act="resched:${nb.id}">Перенести</button><button class="btn2" data-act="cancelask:${nb.id}">Отменить</button></div></div>`:''})()}
-    ${st.hist&&svcOf(st.hist.svc)&&!(st.hist.bid&&st.bookings.some(z=>z.id===st.hist.bid&&visitTs(m,z)>Date.now()))?`<div class="rev" style="background:var(--accent-soft)"><b style="font-size:15px">С возвращением, ${esc(S.contact.name)}!</b><span>В прошлый раз, ${st.hist.date}: ${esc(svcOf(st.hist.svc).name)}</span>${ansShort(m,st.hist.svc,st.hist.ans)?`<span class="small muted">${esc(ansShort(m,st.hist.svc,st.hist.ans))}</span>`:''}<button class="main-btn" data-act="repeat">Записаться так же</button></div>`:''}
+    ${st.hist&&svcOf(st.hist.svc)&&!(st.hist.bid&&st.bookings.some(z=>z.id===st.hist.bid&&visitTs(m,z)>Date.now()))?`<div class="rev" style="background:var(--accent-soft)"><b style="font-size:15px">С возвращением, ${esc(S.contact.name)}!</b><span>В прошлый раз, ${st.hist.date}: ${esc(svcOf(st.hist.svc).name)}</span>${ansShort(m,st.hist.svc,st.hist.ans)?`<span class="small muted">${esc(ansShort(m,st.hist.svc,st.hist.ans))}</span>`:''}<button class="btn2 acc" data-act="repeat">Записаться так же</button></div>`:''}
     ${m.links.length?`<div class="links">${m.links.map(l=>`<button class="tag" data-act="toast:Откроет: ${esc(l)}">${esc(l)}</button>`).join('')}</div>`:''}
     ${hasHints?`<button class="memo" data-act="memos"><span class="q">?</span><span><b>Не знаете, что выбрать?</b><br><span class="small muted">${esc(m.memo)}</span></span></button>`:''}
     <h3 id="svc-list">${order?'Что можно заказать':'Услуги'}</h3>
