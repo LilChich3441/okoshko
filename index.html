@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Окошко — запись к частному мастеру в Telegram">
+<meta name="description" content="Очкошко — запись к частному мастеру в Telegram">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%23B0265A%27/%3E%3Crect x=%279%27 y=%279%27 width=%2714%27 height=%2714%27 rx=%273%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272.5%27/%3E%3Cpath d=%27M16 9v14M9 16h14%27 stroke=%27white%27 stroke-width=%272%27/%3E%3C/svg%3E">
 </head><body>
-<title>Окошко</title>
+<title>Очкошко</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Unbounded:wght@500;600&display=swap">
 <style>
@@ -331,7 +331,7 @@ h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
 
 <div class="wrap">
   <header class="intro">
-    <h1>Окошко</h1>
+    <h1>Очкошко</h1>
     <p>Мини-приложение в Telegram для любого частного мастера: ногти, брови, торты, автосервис, сварка, токарка. Клиент сам заполняет анкету, читает подсказки и записывается. Мастер не отвлекается от работы и видит готовую анкету.</p>
   </header>
   <div class="niche-h">
@@ -355,7 +355,7 @@ h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
     </div>
     <aside class="side">
       <div class="chan" id="chan"></div>
-      <div class="feed-h"><h3>Telegram: бот Окошка</h3><span class="small muted">так выглядят уведомления</span></div>
+      <div class="feed-h"><h3>Telegram: бот Очкошка</h3><span class="small muted">так выглядят уведомления</span></div>
       <div class="feed" id="feed"></div>
       <h3>Что попробовать</h3>
       <ul class="tips">
@@ -800,7 +800,7 @@ const HORIZONS=[[7,'неделю'],[14,'2 недели'],[30,'месяц'],[60,'
 const CONFIRMS=[['auto','Сразу, без меня'],['urgent','Срочные подтверждаю сам'],['manual','Все подтверждаю сам']];
 
 const DEP={nails:500,brows:300,mua:1000,hair:500,cakes:'30',photo:1000};
-const BOT='okoshko_bot';
+const BOT='ochkoshko_bot';
 const SLUG={nails:'anya_nails',brows:'liza_brows',mua:'karina_mua',epil:'renata_sugar',hair:'elvira_hair',cakes:'katya_cakes',auto:'sergey_garage',weld:'dima_weld',cnc:'oleg_tokar',photo:'artem_photo',tutor:'nail_math',custom:'my_page'};
 const linkOf=id=>'t.me/'+BOT+'?start='+(SLUG[id]||'my_page');
 const HIST={nails:{svc:'man',ans:{shape:2,base:1,design:1,removal:1},date:'12 октября',rep:['3 недели','Пора обновить покрытие?']},brows:{svc:'le',ans:{effect:1,volume:1,allergy:0},date:'20 октября',rep:['3 недели','Пора на коррекцию ресниц?']},hair:{svc:'col',ans:{hlen:1,hist:1,tone:0},date:'15 сентября',rep:['7 недель','Корни уже отросли, подкрасим?']},auto:{svc:'to',ans:{car:'Kia Rio 2017',parts:0},date:'в мае',rep:['полгода','Пора на следующее ТО?']},epil:{svc:'legs',ans:{method:0,hair:0,first:1,skin:0},date:'25 октября',rep:['4 недели','Волоски уже отросли до нужной длины.']}};
@@ -817,7 +817,7 @@ function initMaster(id){
   const work=[];for(let i=m.mode==='order'?m.leadDays:1;work.length<3&&i<40;i++){const d=addDays(today,i);if(st.sched[d.getDay()].on)work.push(keyOf(d))}
   (m.seed||[]).forEach((b,i)=>st.bookings.push({id:id+i,date:work[b.d],start:b.start,svc:b.svc,svcName:(m.services.find(x=>x.id===b.svc)||{}).name,dur:(m.services.find(x=>x.id===b.svc)||{}).dur||60,client:b.client,phone:b.phone,comment:b.comment||'',ans:b.ans,photo:!!b.photo,price:priceOf(m,b.svc,b.ans),status:'ok'}));
   if(work[2]&&id!=='custom')st.daysOff.push(work[2]);
-  st.feed.push({to:'Клиенту',when:'когда клиент нажал «Старт»',text:`Привет! Здесь запись к мастеру: ${m.name}. Записаться, посмотреть свободное время и памятки можно в приложении.`,btn:['Открыть Окошко','role:client']});
+  st.feed.push({to:'Клиенту',when:'когда клиент нажал «Старт»',text:`Привет! Здесь запись к мастеру: ${m.name}. Записаться, посмотреть свободное время и памятки можно в приложении.`,btn:['Открыть Очкошко','role:client']});
   if(st.hist){const h=st.hist,hs=m.services.find(x=>x.id===h.svc);st.feed.push({to:'Клиенту',when:`через ${h.rep[0]} после визита`,text:`Мария, прошло ${h.rep[0]} после «${hs.name}». ${h.rep[1]} Анкета уже заполнена, осталось выбрать время.`,btn:['Записаться так же','repeat']})}
   const first=st.bookings.slice().sort((a,b)=>a.date.localeCompare(b.date))[0];
   if(first)st.feed.push({to:'Мастеру',when:'сегодня, 08:00',text:`Доброе утро! Ближайшая запись: ${fmtDay(first.date)}, ${whenOf(m,first)}, ${first.client}.`,btn:['Открыть записи','openrec']});
@@ -1323,7 +1323,7 @@ document.addEventListener('click',e=>{
     case'memo-works':st.memoSeen=true;S.sheet='works';break;
     case'memo-no':st.memoSeen=true;toast('Памятки и работы останутся рядом с «Когда удобно?»');break;
     case'paid':{const s=svcOf(S.sel.svc);S.payNow=depOf(priceOf(m,s.id,S.sel.ans));S.sheet=null;book();S.payNow=0;toast('Оплата прошла (демо)');break}
-    case'startbot':st.feed.push({me:true,when:'клиент',text:'/start'});st.feed.push({to:'Бот Окошка',when:'сразу',text:`Привет! Это запись к мастеру: ${m.name}. Здесь можно записаться в пару касаний, без переписки. Сюда же придут подтверждение и напоминание.`,btn:['Открыть запись','home']});renderFeed();break;
+    case'startbot':st.feed.push({me:true,when:'клиент',text:'/start'});st.feed.push({to:'Бот Очкошка',when:'сразу',text:`Привет! Это запись к мастеру: ${m.name}. Здесь можно записаться в пару касаний, без переписки. Сюда же придут подтверждение и напоминание.`,btn:['Открыть запись','home']});renderFeed();break;
     case'calday':S.calDay=x;break;
     case'calm':S.calMonth=new Date(S.calMonth.getFullYear(),S.calMonth.getMonth()+(+x),1);break;
     case'block':(st.blocks[x]||(st.blocks[x]=[])).push([+y,+parts[3]]);toast('Окно закрыто. Клиенты его больше не видят');break;
