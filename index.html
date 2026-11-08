@@ -354,6 +354,7 @@ h3{font-size:15px;font-weight:600;margin:0;color:var(--ink)}
 /* ===== всплывающие окна ===== */
 .sheet-back{position:absolute;inset:0;background:rgba(15,10,14,.45);display:flex;align-items:flex-end;z-index:8}
 .sheet{background:var(--bg);width:100%;max-height:86%;overflow-y:auto;border-radius:24px 24px 0 0;padding:10px 16px max(20px,calc(env(safe-area-inset-bottom,0px) + 12px));display:flex;flex-direction:column;gap:14px;animation:up .22s cubic-bezier(.22,1,.36,1);overscroll-behavior:contain}
+.sheet>*,.modal>*{flex-shrink:0}
 .grab{width:40px;height:5px;border-radius:5px;background:var(--line);align-self:center}
 @keyframes up{from{transform:translateY(30px)}}
 .modal-back{position:absolute;inset:0;background:rgba(15,10,14,.5);display:grid;place-items:center;padding:16px;z-index:8}
