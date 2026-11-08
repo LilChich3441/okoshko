@@ -355,11 +355,11 @@ h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
     </div>
     <aside class="side">
       <div class="chan" id="chan"></div>
-      <div class="feed-h"><h3>Telegram: бот мастера</h3><span class="small muted">так выглядят уведомления</span></div>
+      <div class="feed-h"><h3>Telegram: бот Окошка</h3><span class="small muted">так выглядят уведомления</span></div>
       <div class="feed" id="feed"></div>
       <h3>Что попробовать</h3>
       <ul class="tips">
-        <li><b>0</b><span>Справа шапка канала мастера. Нажмите на @бота, как сделает клиент, и откройте запись из сообщения бота.</span></li>
+        <li><b>0</b><span>Справа шапка канала мастера со ссылкой на запись. У всех мастеров один бот, а ссылка у каждого своя. Нажмите на неё, как сделает клиент, и откройте запись из сообщения бота.</span></li>
         <li><b>1</b><span>Переключите мастера сверху. Ядро одно, а анкета, подсказки и способ записи у каждого свои.</span></li>
         <li><b>2</b><span>Ногти, брови, автосервис и сварка записывают на время. Приложение предлагает только время вплотную к другим записям, чтобы у мастера не было простоев.</span></li>
         <li><b>3</b><span>Торты и токарка принимают заказы к дате: клиент выбирает день готовности, а мастер задаёт, сколько заказов берёт в день.</span></li>
@@ -800,7 +800,9 @@ const HORIZONS=[[7,'неделю'],[14,'2 недели'],[30,'месяц'],[60,'
 const CONFIRMS=[['auto','Сразу, без меня'],['urgent','Срочные подтверждаю сам'],['manual','Все подтверждаю сам']];
 
 const DEP={nails:500,brows:300,mua:1000,hair:500,cakes:'30',photo:1000};
-const HANDLE={nails:'okoshko_nails_demo_bot',brows:'okoshko_brows_demo_bot',mua:'okoshko_mua_demo_bot',epil:'okoshko_epil_demo_bot',hair:'okoshko_hair_demo_bot',cakes:'okoshko_cakes_demo_bot',auto:'okoshko_auto_demo_bot',weld:'okoshko_weld_demo_bot',cnc:'okoshko_cnc_demo_bot',photo:'okoshko_photo_demo_bot',tutor:'okoshko_tutor_demo_bot',custom:'okoshko_custom_demo_bot'};
+const BOT='okoshko_bot';
+const SLUG={nails:'anya_nails',brows:'liza_brows',mua:'karina_mua',epil:'renata_sugar',hair:'elvira_hair',cakes:'katya_cakes',auto:'sergey_garage',weld:'dima_weld',cnc:'oleg_tokar',photo:'artem_photo',tutor:'nail_math',custom:'my_page'};
+const linkOf=id=>'t.me/'+BOT+'?start='+(SLUG[id]||'my_page');
 const HIST={nails:{svc:'man',ans:{shape:2,base:1,design:1,removal:1},date:'12 октября',rep:['3 недели','Пора обновить покрытие?']},brows:{svc:'le',ans:{effect:1,volume:1,allergy:0},date:'20 октября',rep:['3 недели','Пора на коррекцию ресниц?']},hair:{svc:'col',ans:{hlen:1,hist:1,tone:0},date:'15 сентября',rep:['7 недель','Корни уже отросли, подкрасим?']},auto:{svc:'to',ans:{car:'Kia Rio 2017',parts:0},date:'в мае',rep:['полгода','Пора на следующее ТО?']},epil:{svc:'legs',ans:{method:0,hair:0,first:1,skin:0},date:'25 октября',rep:['4 недели','Волоски уже отросли до нужной длины.']}};
 const WAIT={nails:[{client:'Лиана',svc:'ext',pref:'Будни, вечер'}],cakes:[{client:'Ольга',svc:'cake',pref:'Выходные'}]};
 const COVER_OF={cakes:'dots',auto:'metal',weld:'metal',cnc:'metal'};
@@ -815,7 +817,7 @@ function initMaster(id){
   const work=[];for(let i=m.mode==='order'?m.leadDays:1;work.length<3&&i<40;i++){const d=addDays(today,i);if(st.sched[d.getDay()].on)work.push(keyOf(d))}
   (m.seed||[]).forEach((b,i)=>st.bookings.push({id:id+i,date:work[b.d],start:b.start,svc:b.svc,svcName:(m.services.find(x=>x.id===b.svc)||{}).name,dur:(m.services.find(x=>x.id===b.svc)||{}).dur||60,client:b.client,phone:b.phone,comment:b.comment||'',ans:b.ans,photo:!!b.photo,price:priceOf(m,b.svc,b.ans),status:'ok'}));
   if(work[2]&&id!=='custom')st.daysOff.push(work[2]);
-  st.feed.push({to:'Клиенту',when:'когда клиент нажал «Старт»',text:`Привет! Это бот мастера: ${m.name}. Записаться, посмотреть свободное время и памятки можно в приложении.`,btn:['Открыть Окошко','role:client']});
+  st.feed.push({to:'Клиенту',when:'когда клиент нажал «Старт»',text:`Привет! Здесь запись к мастеру: ${m.name}. Записаться, посмотреть свободное время и памятки можно в приложении.`,btn:['Открыть Окошко','role:client']});
   if(st.hist){const h=st.hist,hs=m.services.find(x=>x.id===h.svc);st.feed.push({to:'Клиенту',when:`через ${h.rep[0]} после визита`,text:`Мария, прошло ${h.rep[0]} после «${hs.name}». ${h.rep[1]} Анкета уже заполнена, осталось выбрать время.`,btn:['Записаться так же','repeat']})}
   const first=st.bookings.slice().sort((a,b)=>a.date.localeCompare(b.date))[0];
   if(first)st.feed.push({to:'Мастеру',when:'сегодня, 08:00',text:`Доброе утро! Ближайшая запись: ${fmtDay(first.date)}, ${whenOf(m,first)}, ${first.client}.`,btn:['Открыть записи','openrec']});
@@ -1047,7 +1049,7 @@ function calScreen(tabs){
       <div class="legend"><span style="--c:var(--accent)">запись</span><span style="--c:var(--accent-soft)">бронь, ждёт ответа</span><span style="--c:var(--ok)">свободно, нажмите, чтобы закрыть</span><span style="--c:var(--line)">закрыто</span></div>
       <div class="tl" style="height:${(to-from)/30*px}px">${tl}</div>`;
   }
-  const steps=[['svc','Услуги и цены','mtab:svc'],['hours','Рабочие часы и правила брони','mtab:sched'],['prof','Фото, имя и описание','mtab:prof'],['link','Ссылка на бота в шапку канала','copylink']];
+  const steps=[['svc','Услуги и цены','mtab:svc'],['hours','Рабочие часы и правила брони','mtab:sched'],['prof','Фото, имя и описание','mtab:prof'],['link','Ссылка на запись в шапку канала','copylink']];
   const doneN=steps.filter(([k])=>st.setup[k]).length;
   const setup=doneN<4?`<div class="ed" style="border-color:var(--accent)"><div class="sec-h"><b>Настройка за 3 минуты</b><span class="small muted">${doneN} из 4</span></div>
     <div class="prog"><div class="bar"><i style="width:${doneN/4*100}%"></i></div></div>
@@ -1187,7 +1189,7 @@ function renderNiches(){
 }
 function renderChan(){const m=M();
   document.getElementById('chan').innerHTML=`<div class="chan-top"><div class="ava" style="width:44px;height:44px;font-size:16px;overflow:hidden">${m.avatar?`<img src="${m.avatar}" alt="">`:m.ini}</div><div><b>${esc(m.name.split(' ')[0])} · ${esc(m.tab.toLowerCase())}</b><span class="small muted">Telegram-канал мастера · описание</span></div></div>
-    <p>${esc(m.about)}. Работы — в канале. Записаться, узнать цены и свободные окна: <button class="linkbtn" data-act="startbot">@${HANDLE[S.cur]||'okoshko_demo_bot'}</button></p>
+    <p>${esc(m.about)}. Работы — в канале. Записаться, узнать цены и свободное время: <button class="linkbtn" data-act="startbot">${linkOf(S.cur)}</button></p>
     <p class="small muted">Клиенту не нужно регистрироваться: Telegram сам передаёт имя, номер — в одну кнопку.</p>`}
 function renderFeed(){
   const f=document.getElementById('feed');
@@ -1315,13 +1317,13 @@ document.addEventListener('click',e=>{
     case'wldel':st.waitlist=st.waitlist.filter(z=>z.id!==x);break;
     case'wlbook':{const w=st.waitlist.find(z=>z.id===x);if(!w){toast('Это предложение уже неактуально');return}st.waitlist=st.waitlist.filter(z=>z!==w);resetFlow();S.role='client';S.mview=null;S.sheet=null;
       S.nameBack=S.contact.name;S.contact.name=w.client;if(svcOf(w.svc))startFlow(w.svc);else{S.step=0;toast('Выберите услугу, и покажем свободное время')}break}
-    case'copylink':st.setup.link=true;try{navigator.clipboard.writeText('https://t.me/'+(HANDLE[S.cur]||'okoshko_demo_bot')).catch(()=>{})}catch(e){}toast('Ссылка t.me/'+(HANDLE[S.cur]||'okoshko_demo_bot')+' скопирована. Вставьте её в описание канала');break;
+    case'copylink':st.setup.link=true;try{navigator.clipboard.writeText('https://'+linkOf(S.cur)).catch(()=>{})}catch(e){}toast('Ссылка '+linkOf(S.cur)+' скопирована. Вставьте её в описание канала');break;
     case'worksheet':S.sheet='works';break;
     case'memo-ok':st.memoSeen=true;S.sheet='memos';break;
     case'memo-works':st.memoSeen=true;S.sheet='works';break;
     case'memo-no':st.memoSeen=true;toast('Памятки и работы останутся рядом с «Когда удобно?»');break;
     case'paid':{const s=svcOf(S.sel.svc);S.payNow=depOf(priceOf(m,s.id,S.sel.ans));S.sheet=null;book();S.payNow=0;toast('Оплата прошла (демо)');break}
-    case'startbot':st.feed.push({me:true,when:'клиент',text:'/start'});st.feed.push({to:'Бот',when:'сразу',text:`Привет! Я бот мастера: ${m.name}. Здесь можно записаться в пару касаний, без переписки. Сюда же придут подтверждение и напоминание.`,btn:['Открыть запись','home']});renderFeed();break;
+    case'startbot':st.feed.push({me:true,when:'клиент',text:'/start'});st.feed.push({to:'Бот Окошка',when:'сразу',text:`Привет! Это запись к мастеру: ${m.name}. Здесь можно записаться в пару касаний, без переписки. Сюда же придут подтверждение и напоминание.`,btn:['Открыть запись','home']});renderFeed();break;
     case'calday':S.calDay=x;break;
     case'calm':S.calMonth=new Date(S.calMonth.getFullYear(),S.calMonth.getMonth()+(+x),1);break;
     case'block':(st.blocks[x]||(st.blocks[x]=[])).push([+y,+parts[3]]);toast('Окно закрыто. Клиенты его больше не видят');break;
