@@ -316,6 +316,37 @@ h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
 /* ===== сворачиваемые блоки и телефонный вид ===== */
 .demo{font-family:var(--body);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;vertical-align:middle;padding:3px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent-text)}
 .m-hint{display:none}
+/* услуги: карточки с картинкой */
+.list.svcs,.t-dark .list.svcs{background:none;padding:0;gap:8px}
+.svcs .svc2{grid-template-columns:56px minmax(0,1fr) auto;grid-template-rows:auto auto;gap:2px 12px;align-items:center;background:var(--surface);border:0;border-radius:18px;padding:10px 12px 10px 10px;box-shadow:0 6px 18px -14px rgba(60,25,15,.4)}
+.t-dark .svcs .svc2{background:var(--bubble);box-shadow:none}
+.svcs .svc2:last-child{border:0}
+.svcs .sth{grid-row:1/3;width:56px;height:56px;border-radius:14px;overflow:hidden;display:block}
+.svcs .sth .art{aspect-ratio:auto;width:56px;height:56px;border-radius:14px}
+.svcs .sth .art .nails{width:80%}
+.svcs .sth .art>svg{width:52%}
+.sth-ph{width:100%;height:100%;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent-text);font:600 20px/1 var(--display);border-radius:20px 20px 10px 10px}
+.svcs .svc2 .nm{align-self:end;font-size:15px}
+.svcs .svc2 .pr{align-self:end;display:flex;align-items:center;gap:6px}
+.svcs .svc2 .pr::after{content:"";width:7px;height:7px;border-right:2px solid var(--muted);border-top:2px solid var(--muted);transform:rotate(45deg);margin-left:2px}
+.svcs .svc2 .meta{grid-column:2/-1;align-self:start;gap:4px 8px;align-items:center}
+.nchip{background:var(--ok-soft);color:var(--ok);font-weight:600;border-radius:99px;padding:2px 8px}
+.nnone{color:var(--muted)}
+/* памятка-совет */
+.modal.story{background:linear-gradient(180deg,color-mix(in srgb,var(--glow,#FFC46B) 16%,var(--surface)) 0,var(--surface) 150px)}
+.st-head{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--ink)}
+.st-ico{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,#FFE7B0,var(--glow,#FFC46B));color:#5A3510;box-shadow:0 0 16px color-mix(in srgb,var(--glow,#FFC46B) 60%,transparent);flex:none}
+.st-cnt{margin-left:auto;color:var(--muted);font-weight:500;font-variant-numeric:tabular-nums}
+.st-sh{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.st-shrow{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;text-align:left;border:0;background:none;padding:7px 4px;border-radius:12px;color:var(--ink)}
+button.st-shrow{cursor:pointer}
+button.st-shrow[aria-pressed="true"]{background:var(--accent-soft)}
+.st-shrow svg{width:22px;height:36px}
+.st-shrow svg path{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2.6}
+.st-shrow b{display:block;font-size:14px;font-weight:600}
+.st-shrow small{display:block;font-size:12.5px;color:var(--muted);line-height:1.35}
+.st-mark{font-style:normal;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:12px;color:var(--accent-ink)}
+button.st-shrow[aria-pressed="true"] .st-mark{background:var(--accent);border-color:var(--accent)}
 /* ===== вид A + фото из B ===== */
 .t-light .phone,.t-dark .phone{background:var(--bg)}
 .t-light .roles{background:var(--surface)}
@@ -1033,7 +1064,7 @@ tutor:{tab:'Репетитор',who:'Наиль',name:'Наиль Ганиев',
 // ===== витрина: цвет, рейтинг, отзывы, работы =====
 const SHOW={
 nails:{color:'#B0265A',rating:[4.9,126],
-  reviews:[['Ольга','ЕгСаныч очень аккуратный, кутикулу не задела ни разу. Ногти держатся четвёртую неделю.'],['Диана','ЕгСаныч объяснил, что у меня клюющие ногти и почему длинные ломались.']],
+  reviews:[['Ольга','ЕгСаныч очень аккуратный, кутикулу не задел ни разу. Ногти держатся четвёртую неделю.'],['Диана','ЕгСаныч объяснил, что у меня клюющие ногти и почему длинные ломались.']],
   works:[{t:'Миндаль, нюд',p:2100,svc:'man',ans:{shape:3,base:1,design:1,removal:1},bg:['#F6E7E1','#E9CFC6'],nail:'#D8A596',shape:3},
     {t:'Красный овал',p:1800,svc:'man',ans:{shape:2,base:0,design:0,removal:1},bg:['#F4E1E3','#E7C4C9'],nail:'#B3122E',shape:2},
     {t:'Френч, мягкий квадрат',p:2100,svc:'man',ans:{shape:1,base:1,design:1,removal:1},bg:['#EEF0F4','#D5DAE3'],nail:'#FBF6F3',shape:1},
@@ -1108,7 +1139,7 @@ const TEMPLATES=[
 
 // ===== состояние =====
 const ST={};
-const S={cur:'nails',role:'client',step:0,qi:0,mtab:'rec',mview:null,sheet:null,sel:null,slide:0,contact:{name:'Мария',phone:'',comment:''}};
+const S={cur:'nails',role:'client',step:0,qi:0,mtab:'rec',mview:null,sheet:null,sel:null,slide:0,contact:{name:'Лиза',phone:'',comment:''}};
 try{S.noPops=localStorage.getItem('okoshko-nopops')==='1'}catch(e){S.noPops=false}
 const saveNoPops=()=>{try{S.noPops?localStorage.setItem('okoshko-nopops','1'):localStorage.removeItem('okoshko-nopops')}catch(e){}};
 const M=()=>MASTERS[S.cur], St=()=>ST[S.cur];
@@ -1192,7 +1223,7 @@ function initMaster(id){
     st.clients[b.client]={past:n,spent:n*pr,last:n?(2+h%5)+' нед.':null,note:nt}});
   if(work[2]&&id!=='custom')st.daysOff.push(work[2]);
   st.feed.push({to:'Клиенту',when:'когда клиент нажал «Старт»',text:`Привет! Здесь запись к мастеру: ${m.name}. Записаться, посмотреть свободное время и памятки можно в приложении.`,btn:['Открыть Окошко','role:client']});
-  if(st.hist){const h=st.hist,hs=m.services.find(x=>x.id===h.svc);st.feed.push({to:'Клиенту',when:`через ${h.rep[0]} после визита`,text:`Мария, прошло ${h.rep[0]} после «${hs.name}». ${h.rep[1]} Анкета уже заполнена, осталось выбрать время.`,btn:['Записаться так же','repeat']})}
+  if(st.hist){const h=st.hist,hs=m.services.find(x=>x.id===h.svc);st.feed.push({to:'Клиенту',when:`через ${h.rep[0]} после визита`,text:`${S.contact.name}, прошло ${h.rep[0]} после «${hs.name}». ${h.rep[1]} Анкета уже заполнена, осталось выбрать время.`,btn:['Записаться так же','repeat']})}
   const first=st.bookings.slice().sort((a,b)=>a.date.localeCompare(b.date))[0];
   if(first)st.feed.push({to:'Мастеру',when:'сегодня, 08:00',text:`Доброе утро! Ближайшая запись: ${fmtDay(first.date)}, ${whenOf(m,first)}, ${first.client}.`,btn:['Открыть записи','openrec']});
 }
@@ -1277,8 +1308,8 @@ function clientScreen(){
     ${m.links.length?`<div class="links">${m.links.map(l=>`<button class="tag" data-act="toast:Откроет: ${esc(l)}">${esc(l)}</button>`).join('')}</div>`:''}
     ${hasHints?`<button class="memo" data-act="memos"><span class="q">?</span><span><b>Не знаете, что выбрать?</b><br><span class="small muted">${esc(m.memo)}</span></span></button>`:''}
     <h3 id="svc-list">${order?'Что можно заказать':'Услуги'}</h3>
-    <div class="list svcs">${m.services.map(s=>{const n=nearest(s);return`<button class="svc2" data-act="svc:${s.id}"><span class="nm">${esc(s.name)}</span><span class="pr">${listPrice(m,s)}</span>
-      <span class="meta">${s.dur&&!order?`<span>${durTxt(s.dur)}</span>`:''}${s.note?`<span>${esc(s.note)}</span>`:''}<span class="${n?'near':''}">${n?'Ближайшее: '+n:'Свободного времени пока нет'}</span></span></button>`}).join('')}</div>
+    <div class="list svcs">${m.services.map(s=>{const n=nearest(s),wk=m.works.find(w=>w.svc===s.id);return`<button class="svc2" data-act="svc:${s.id}"><span class="sth" aria-hidden="true">${wk?artHtml(m,wk):`<span class="sth-ph">${esc(s.name.slice(0,1))}</span>`}</span><span class="nm">${esc(s.name)}</span><span class="pr">${listPrice(m,s)}</span>
+      <span class="meta">${s.dur&&!order?`<span>${durTxt(s.dur)}</span>`:''}${s.note?`<span>${esc(s.note)}</span>`:''}<span class="${n?'nchip':'nnone'}">${n?'Ближайшее: '+n:'Свободного времени пока нет'}</span></span></button>`}).join('')}</div>
     ${m.reviews.length?`<h3 id="reviews">Отзывы</h3><div class="list">${m.reviews.map(([n,t])=>`<div class="rev"><span class="st">★★★★★</span><span>${esc(t)}</span><b>${esc(n)}</b></div>`).join('')}</div>`:''}${m.plan==='pro'?'':'<p class="made">Запись через Окошко</p>'}`,foot:`<button class="main-btn" data-act="gobook">${order?'Оформить заказ':st.flow==='date'?'Выбрать дату и время':'Записаться'}</button>`};
   }
   if(step===10||step===11)return dfScreen();
@@ -1374,18 +1405,18 @@ function memoModal(){
     const slides=(used.length?used:Object.keys(m.hints).filter(k=>st.hintsOn[k])).slice(0,4).map(k=>[k,m.hints[k]]);
     const i=Math.min(S.slide||0,slides.length-1),[key,h]=slides[i],last=i===slides.length-1;
     const shapes=h.items.filter(it=>it.svg).slice(0,4);
-    const rows=(shapes.length?h.items.filter(it=>!it.svg):h.items).slice(0,shapes.length?1:3);
+    const rows=shapes.length?[]:h.items.slice(0,3);
     const qs=svcOf(S.sel.svc)?.qs||[];
     return`<div class="modal-back"><div class="modal pop story" role="dialog" aria-modal="true" aria-label="Памятка мастера: ${esc(h.name)}" tabindex="-1">
       <div class="st-bars" aria-hidden="true">${slides.map((_,j)=>`<i class="${j<i?'done':j===i?'now':''}"></i>`).join('')}</div>
       <div class="st-slide" data-k="${i}">
-        <span class="pop-tag">Памятка · ${i+1} из ${slides.length}</span>
+        <div class="st-head"><span class="st-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1.1 2l.1.7h4.8l.1-.7c.1-.8.5-1.5 1.1-2A6 6 0 0 0 12 3z"/></svg></span><span>Совет мастера</span><span class="st-cnt">${i+1} из ${slides.length}</span></div>
         <h2>${esc(h.title)}</h2>
-        ${shapes.length?`<div class="st-shapes">${shapes.map(it=>`<button class="st-shape" aria-pressed="${!!(it.pick&&S.sel.ans[it.pick[0]]===it.pick[1])}" data-act="${it.pick&&qs.includes(it.pick[0])?`pick:${it.pick[0]}:${it.pick[1]}`:'st-noop'}"><svg viewBox="0 0 40 66" aria-hidden="true"><path d="${it.svg}"/></svg><b>${esc(it.n)}</b></button>`).join('')}</div>${qs.includes(shapes[0].pick?.[0])?'<p class="small muted" style="margin:0">Нажмите на форму, и она отметится в анкете</p>':''}`:''}
+        ${shapes.length?`<ul class="st-sh">${shapes.map(it=>{const can=it.pick&&qs.includes(it.pick[0]),on=!!(it.pick&&S.sel.ans[it.pick[0]]===it.pick[1]);const inner=`<svg viewBox="0 0 40 66" aria-hidden="true"><path d="${it.svg}"/></svg><span><b>${esc(it.n)}</b><small>${esc(it.t)}</small></span>`;return`<li>${can?`<button class="st-shrow" aria-pressed="${on}" data-act="pick:${it.pick[0]}:${it.pick[1]}">${inner}<i class="st-mark" aria-hidden="true">${on?'✓':''}</i></button>`:`<div class="st-shrow">${inner}</div>`}</li>`}).join('')}</ul>${qs.includes(shapes[0].pick?.[0])?'<p class="small muted" style="margin:0">Можно сразу отметить форму, она попадёт в анкету</p>':''}`:''}
         <ul class="st-list">${rows.map(it=>`<li><span class="cw on" aria-hidden="true"></span><span><b>${esc(it.n)}.</b> ${esc(it.t)}</span></li>`).join('')}</ul>
         ${h.items.length>(shapes.length+rows.length)?`<button class="no st-more" data-act="pop-open:memo:${key}">Подробнее в памятке</button>`:''}
       </div>
-      <div class="st-nav">${i>0?'<button class="back-btn" data-act="st-prev" aria-label="Назад"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>':''}${last?'<button class="main-btn" data-act="pop-ok:memo">Спасибо, понятно</button>':'<button class="main-btn" data-act="st-next">Дальше</button>'}</div>
+      <div class="st-nav">${i>0?'<button class="back-btn" data-act="st-prev" aria-label="Назад"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>':''}${last?'<button class="main-btn" data-act="pop-ok:memo">Спасибо, понятно</button>':'<button class="main-btn" data-act="st-next">Следующий совет</button>'}</div>
       <button class="no st-off" data-act="nopops">Больше не показывать подсказки</button></div></div>`;
   }
   const more=m.works.length-3;
@@ -1754,7 +1785,7 @@ document.addEventListener('click',e=>{
     case'work':S.sheet='work-'+x;break;
     case'likework':{const w=m.works[+x];S.sheet=null;resetFlow();if(w&&w.svc)startFlow(w.svc,w.ans);break}
     case'ans':{const p0=priceOf(m,S.sel.svc,S.sel.ans);S.sel.ans[x]=+y;const dp=priceOf(m,S.sel.svc,S.sel.ans)-p0;render();S.pDelta=dp;const qi=S.qi;setTimeout(()=>{if(S.step===1&&S.qi===qi&&svcOf(S.sel.svc).qs[qi]===x){advanceQ();render();scrollTop()}S.pDelta=0},matchMedia('(prefers-reduced-motion: reduce)').matches?0:240);return}
-    case'pick':{S.sel.ans[x]=+y;if(el.closest('.story')){toast('Отметили в анкете: '+ansText(m.q[x],+y));break}S.sheet=null;if(svcOf(S.sel.svc).qs[S.qi]===x)advanceQ();break}
+    case'pick':{if(el.closest('.story')&&S.sel.ans[x]===+y){delete S.sel.ans[x];break}S.sel.ans[x]=+y;if(el.closest('.story')){toast('Отметили в анкете: '+ansText(m.q[x],+y));break}S.sheet=null;if(svcOf(S.sel.svc).qs[S.qi]===x)advanceQ();break}
     case'hint':S.sheet=x;break;
     case'memos':S.sheet='memos';break;
     case'close':S.sheet=null;break;
