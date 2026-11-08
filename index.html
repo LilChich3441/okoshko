@@ -466,7 +466,8 @@ button.st-shrow[aria-pressed="true"] .st-mark{background:var(--ink);box-shadow:n
 .srow{display:grid;grid-template-columns:30px 52px minmax(0,1fr);align-items:center;gap:6px;padding:8px 0}
 .srow+.srow{box-shadow:inset 0 1px 0 var(--line)}
 .srow .times{display:flex;gap:4px;align-items:center;justify-content:flex-end;font-variant-numeric:tabular-nums}
-.srow input[type=time]{width:auto;flex:1 1 0;max-width:92px;padding:5px 4px}
+.srow input[type=time]{width:auto;flex:1 1 0;min-width:0;max-width:118px;padding:5px 6px}
+input[type=time]{font-variant-numeric:tabular-nums}
 .switch{position:relative;width:48px;height:28px;border-radius:99px;border:0;background:var(--line);padding:0;flex:none}
 .switch::before{content:"";position:absolute;inset:-9px -4px}
 .switch::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .15s}
@@ -504,7 +505,8 @@ button.st-shrow[aria-pressed="true"] .st-mark{background:var(--ink);box-shadow:n
 .t-dark .cal-d{box-shadow:inset 0 0 0 1px var(--line)}
 .cal-d b{font-size:13px;font-weight:600}
 .cal-d i{font-style:normal;font-size:11px;line-height:1;background:var(--action);color:var(--action-ink);border-radius:99px;padding:2px 5px}
-.cal-d.free::after{content:"";position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:var(--light)}
+.cal-d.free::after{content:"";position:absolute;top:7px;right:7px;width:5px;height:5px;border-radius:50%;background:var(--light)}
+.cal-d{padding:6px 0 5px}
 .cal-d.off,.cal-d.past{background:transparent;box-shadow:none;color:var(--muted)}
 .cal-d.past{opacity:.5}
 .cal-d.today b{text-decoration:underline;text-underline-offset:3px}
@@ -519,8 +521,9 @@ button.st-shrow[aria-pressed="true"] .st-mark{background:var(--ink);box-shadow:n
 .blk.hold{background:var(--light-soft);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--light)}
 .blk.closed{background:repeating-linear-gradient(135deg,var(--sunk) 0 6px,var(--line) 6px 8px);color:var(--muted)}
 .blk.gap{background:transparent;box-shadow:inset 0 0 0 1.5px var(--light);color:var(--ink);font-weight:600}
-.ovr{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.ovr input{width:92px}
+.ovr{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:6px 8px;align-items:center}
+.ovr>span{grid-column:1/-1}
+.ovr input{width:100%}
 /* тарифы */
 .plan-card{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:0;background:var(--surface);border-radius:var(--r-card);padding:14px;box-shadow:var(--shadow)}
 .t-dark .plan-card{box-shadow:inset 0 0 0 1px var(--line)}
@@ -1412,8 +1415,8 @@ function calScreen(tabs){
     if(to-cur>=30)tl+=gapBtn(k,cur,to,from,px);
     (st.blocks[k]||[]).forEach((x,i)=>{tl+=`<button class="blk closed" style="${pos(x[0],x[1])}" data-act="unblock:${k}:${i}">Закрыто ${fmtT(x[0])}–${fmtT(x[1])} · открыть</button>`});
     for(const b of dayB){const dur=b.dur||svcOf(b.svc)?.dur||60;tl+=`<div class="blk ${b.status==='hold'?'hold':'bk'}" style="${pos(b.start,b.start+dur)}"><b>${fmtT(b.start)}</b> ${esc(b.client)} · ${esc(sName(b))}</div>`}
-    day+=`<div class="ovr small muted">Часы в этот день: <input type="time" step="1800" id="ov-from" value="${hrs.from}" aria-label="Начало дня"> – <input type="time" step="1800" id="ov-to" value="${hrs.to}" aria-label="Конец дня"></div>
-      <div class="legend"><span style="--c:var(--accent)">запись</span><span style="--c:var(--accent-soft)">бронь, ждёт ответа</span><span style="--c:var(--ok)">свободно, нажмите, чтобы закрыть</span><span style="--c:var(--line)">закрыто</span></div>
+    day+=`<div class="ovr small muted"><span>Часы работы в этот день</span><input type="time" step="1800" id="ov-from" value="${hrs.from}" aria-label="Начало дня"> – <input type="time" step="1800" id="ov-to" value="${hrs.to}" aria-label="Конец дня"></div>
+      <div class="legend"><span style="--c:var(--action)">запись</span><span style="--c:var(--light-soft)">бронь, ждёт ответа</span><span style="--c:var(--light)">свободно, нажмите, чтобы закрыть</span><span style="--c:var(--line)">закрыто</span></div>
       <div class="tl" style="height:${(to-from)/30*px}px">${tl}</div>`;
   }
   const steps=[['svc','Услуги и цены','mtab:svc'],['hours','Рабочие часы и правила брони','mtab:sched'],['prof','Фото, имя и описание','mtab:prof'],['link','Ссылка на запись в шапку канала','copylink']];
