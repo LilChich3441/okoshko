@@ -1,0 +1,2025 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; media-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#F5EFE9" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#141017" media="(prefers-color-scheme: dark)">
+<meta name="description" content="Окошко — запись к частному мастеру в Telegram">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%23B0265A%27/%3E%3Crect x=%279%27 y=%279%27 width=%2714%27 height=%2714%27 rx=%273%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272.5%27/%3E%3Cpath d=%27M16 9v14M9 16h14%27 stroke=%27white%27 stroke-width=%272%27/%3E%3C/svg%3E">
+<script src="https://telegram.org/js/telegram-web-app.js?59"></script>
+</head><body>
+<title>Окошко</title>
+<link rel="stylesheet" href="../fonts/fonts.css">
+<style>
+/* Layout: короткий интро-блок, затем «телефон» с мини-приложением и рядом лента сообщений бота */
+:root{
+  --bg:#F3EEF1; --surface:#FFFFFF; --sunk:#F8F3F6; --ink:#24151D; --muted:#76646E; --line:#E6DBE1;
+  --accent:#B0265A; --accent-ink:#FFFFFF; --accent-soft:#F7DFE8; --ok:#2E7D5B; --ok-soft:#DDF1E7;
+  --bubble:#FFFFFF; --feed:#E3E9EE; --accent-text:var(--accent);
+  --display:"Unbounded","Golos Text",system-ui,sans-serif;
+  --body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#140D11; --surface:#1F161B; --sunk:#181115; --ink:#F4E9EE; --muted:#A893A0; --line:#34272E;
+  --accent:#E8588E; --accent-ink:#1A0A11; --accent-soft:#3E1D2B; --ok:#5BC293; --ok-soft:#173327;
+  --bubble:#2A1F25; --feed:#0F1418; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#140D11; --surface:#1F161B; --sunk:#181115; --ink:#F4E9EE; --muted:#A893A0; --line:#34272E;
+  --accent:#E8588E; --accent-ink:#1A0A11; --accent-soft:#3E1D2B; --ok:#5BC293; --ok-soft:#173327;
+  --bubble:#2A1F25; --feed:#0F1418; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 40px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+.intro{display:flex;flex-direction:column;gap:6px;max-width:640px}
+.intro h1{font-family:var(--display);font-weight:600;font-size:clamp(28px,5vw,40px);margin:0;letter-spacing:-.01em}
+.intro p{margin:0;color:var(--muted);font-size:16px}
+.grid{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+
+/* телефон */
+.phone{position:relative;display:flex;flex-direction:column;height:min(800px,88vh);min-height:560px;background:var(--surface);
+  border:1px solid var(--line);border-radius:28px;overflow:hidden;box-shadow:0 18px 50px -24px rgba(80,20,45,.35);width:100%;max-width:400px;margin:0 auto}
+.tg-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line);font-size:14px}
+.tg-bar .ttl{text-align:center;line-height:1.2}
+.tg-bar .ttl b{display:block;font-weight:600}
+.tg-bar .ttl small{color:var(--muted);font-size:12px}
+.tg-bar .ghost{color:var(--accent-text);background:none;border:0;padding:4px}
+.roles{display:grid;grid-template-columns:1fr 1fr;margin:10px 16px 0;background:var(--sunk);border-radius:12px;padding:3px;border:1px solid var(--line)}
+.roles button{border:0;background:none;padding:8px;border-radius:9px;font-weight:500;color:var(--muted)}
+.roles button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.screen{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px}
+.foot{padding:10px 16px 14px;border-top:1px solid var(--line);background:var(--surface)}
+.foot:empty{display:none}
+.main-btn{width:100%;border:0;border-radius:14px;padding:14px;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:16px}
+.main-btn:disabled{background:var(--line);color:var(--muted);cursor:not-allowed}
+.back{align-self:flex-start;border:0;background:none;color:var(--accent-text);padding:0;font-weight:500}
+h2{font-family:var(--display);font-weight:500;font-size:19px;margin:0;text-wrap:balance}
+h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0;font-weight:600}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.stepper{font-size:12px;color:var(--muted);letter-spacing:.04em}
+.prog{display:flex;flex-direction:column;gap:6px}
+.prog .bar{height:4px;border-radius:4px;background:var(--line);overflow:hidden}
+.prog .bar i{display:block;height:100%;background:var(--accent);border-radius:4px;transition:width .25s}
+.prog span{font-size:12px;color:var(--muted);letter-spacing:.04em}
+.qhead b.ok::after{content:" ✓";color:var(--ok)}
+.near{font-size:12.5px;color:var(--ok);font-weight:500}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--sunk);border:1px solid var(--line);border-radius:14px;padding:10px;display:flex;flex-direction:column}
+.stat b{font-family:var(--display);font-weight:500;font-size:20px;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--muted)}
+.pick{margin-top:6px}
+
+/* мастер-карточка */
+.master{display:flex;gap:14px;align-items:center}
+.ava{flex:none;width:58px;height:58px;border-radius:50%;background:var(--accent-soft);color:var(--accent-text);display:grid;place-items:center;font-family:var(--display);font-weight:600;font-size:20px}
+.master b{font-size:17px;display:block}
+.links{display:flex;gap:8px;flex-wrap:wrap}
+.tag{font-size:12px;padding:4px 10px;border-radius:99px;border:1px solid var(--line);color:var(--muted);background:none}
+.svc{display:flex;justify-content:space-between;gap:12px;width:100%;text-align:left;background:var(--sunk);border:1px solid var(--line);border-radius:16px;padding:14px}
+.svc:hover{border-color:var(--accent)}
+.svc .nm{font-weight:600}
+.svc .pr{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.list{display:flex;flex-direction:column;gap:10px}
+.memo{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:var(--accent-soft);border:0;border-radius:16px;padding:14px}
+.memo .q{flex:none;width:34px;height:34px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:600}
+
+/* анкета */
+.qblock{display:flex;flex-direction:column;gap:8px}
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.qhead b{font-weight:600}
+.hint-btn{border:0;background:var(--accent-soft);color:var(--accent-text);border-radius:99px;padding:4px 10px;font-size:13px;font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 12px;font-size:14px}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--ink);font-weight:500}
+.drop{display:flex;align-items:center;gap:12px;border:1.5px dashed var(--accent);border-radius:14px;padding:16px;cursor:pointer;background:var(--accent-soft)}
+.drop-txt{display:flex;flex-direction:column;gap:2px}.drop-txt b{color:var(--accent-text)}
+.drop img{width:52px;height:52px;object-fit:cover;border-radius:10px}
+.drop input{position:absolute;opacity:0;width:1px;height:1px}
+
+/* время */
+.days{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-inline:-16px;padding-inline:16px;scrollbar-width:thin}
+.day{flex:none;width:62px;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:8px 4px;text-align:center;line-height:1.2}
+.day b{display:block;font-size:18px;font-variant-numeric:tabular-nums}
+.day span{font-size:12px;color:var(--muted)}
+.day[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.day[aria-pressed="true"] span{color:inherit}
+.day:disabled{opacity:.4;cursor:not-allowed}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.slot{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 0;font-variant-numeric:tabular-nums;font-weight:500}
+.slot[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.note{background:var(--sunk);border:1px solid var(--line);border-radius:14px;padding:12px;font-size:13px;color:var(--muted)}
+.total{display:flex;justify-content:space-between;font-weight:600;font-variant-numeric:tabular-nums}
+
+/* поля */
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;color:var(--muted)}
+.field input,.field textarea,.field select{border:1px solid var(--line);background:var(--sunk);border-radius:12px;padding:11px 12px;width:100%}
+.share{border:1px solid var(--accent);color:var(--accent-text);background:none;border-radius:12px;padding:10px;font-weight:500}
+.done{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.check{width:56px;height:56px;border-radius:50%;background:var(--ok-soft);color:var(--ok);display:grid;place-items:center;font-size:26px;font-weight:600}
+.sum{width:100%;display:flex;flex-direction:column;gap:6px;background:var(--sunk);border:1px solid var(--line);border-radius:16px;padding:14px}
+.kv{display:flex;justify-content:space-between;gap:12px;font-size:14px}
+.kv span:first-child{color:var(--muted)}
+.kv span:last-child{text-align:right}
+
+/* мастер */
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin:0 -16px;padding:0 16px}
+.tabs button{border:0;background:none;padding:8px 6px 10px;color:var(--muted);font-weight:500;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs button[aria-pressed="true"]{color:var(--ink);border-color:var(--accent)}
+.rec{border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:8px;background:var(--surface)}
+.rec.new{border-color:var(--accent)}
+.rec-top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.rec-top b{font-variant-numeric:tabular-nums}
+.pill{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:3px 8px;border-radius:99px;background:var(--accent);color:var(--accent-ink)}
+.answers{display:flex;flex-direction:column;gap:2px;font-size:13px}
+.answers span b{font-weight:500}
+.row-btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn2{border:1px solid var(--line);background:var(--sunk);border-radius:10px;padding:7px 12px;font-size:13px;font-weight:500}
+.btn2.acc{border-color:var(--accent);color:var(--accent-text);background:none}
+.sched{display:flex;flex-direction:column;gap:2px}
+.srow{display:grid;grid-template-columns:44px 46px 1fr;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}
+.srow .times{display:flex;gap:6px;align-items:center;justify-content:flex-end;font-variant-numeric:tabular-nums}
+.srow input[type=time]{border:1px solid var(--line);background:var(--sunk);border-radius:8px;padding:5px 6px;width:86px}
+.switch{position:relative;width:42px;height:24px;border-radius:99px;border:0;background:var(--line);padding:0;flex:none}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--surface);transition:transform .15s}
+.switch[aria-pressed="true"]{background:var(--accent)}
+.switch[aria-pressed="true"]::after{transform:translateX(18px)}
+.opt{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.opt div{min-width:0}
+.offs{display:flex;flex-wrap:wrap;gap:6px}
+
+/* шторка подсказки */
+.sheet-back{position:absolute;inset:0;background:rgba(20,8,14,.45);display:flex;align-items:flex-end;z-index:5}
+.sheet{background:var(--surface);width:100%;max-height:82%;overflow-y:auto;border-radius:22px 22px 0 0;padding:10px 16px 20px;display:flex;flex-direction:column;gap:14px;animation:up .2s ease-out}
+.grab{width:40px;height:4px;border-radius:4px;background:var(--line);align-self:center}
+@keyframes up{from{transform:translateY(30px)}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}.switch::after,.prog .bar i{transition:none}}
+.shapes{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.shape{display:flex;gap:10px;align-items:flex-start;background:var(--sunk);border-radius:14px;padding:10px}
+.shape svg{flex:none;width:30px;height:48px}
+.shape svg path{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2.2}
+.shape b{display:block;font-size:14px}
+.shape span{font-size:12.5px;color:var(--muted)}
+.hitem{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1px solid var(--line)}
+.hitem:last-child{border:0}
+.hitem span{color:var(--muted);font-size:14px}
+.toast{position:absolute;left:16px;right:16px;bottom:84px;background:var(--ink);color:var(--surface);padding:10px 14px;border-radius:12px;font-size:14px;z-index:6}
+
+/* лента бота */
+.side{display:flex;flex-direction:column;gap:16px;min-width:0}
+.feed{background:var(--feed);border-radius:22px;padding:14px;display:flex;flex-direction:column;gap:10px;max-height:min(560px,70vh);overflow-y:auto;border:1px solid var(--line)}
+.feed-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.msg{background:var(--bubble);border-radius:16px 16px 16px 4px;padding:10px 12px;max-width:92%;display:flex;flex-direction:column;gap:6px;font-size:14px;box-shadow:0 1px 1px rgba(0,0,0,.06)}
+.msg .who{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--accent-text)}
+.msg .when{font-size:11px;color:var(--muted)}
+.msg-btn{border:0;border-radius:10px;background:var(--accent-soft);color:var(--accent-text);padding:8px;font-weight:500;font-size:13px}
+.tips{display:flex;flex-direction:column;gap:8px;padding:0;margin:0;list-style:none}
+.tips li{display:grid;grid-template-columns:24px 1fr;gap:8px;font-size:14px}
+.tips li b{font-family:var(--display);color:var(--accent-text);font-weight:500}
+</style>
+<style>
+/* свой цвет мастера: --accent приходит из профиля, мягкий оттенок считается от него */
+.wrap{--accent-soft:color-mix(in srgb,var(--accent) 15%,var(--surface))}
+.cover{margin:-16px -16px 0;height:104px;flex:none;background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 50%,#120810));position:relative;overflow:hidden}
+.cover::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 85% 20%,rgba(255,255,255,.28),transparent 45%)}
+.prof{display:flex;gap:14px;align-items:flex-end;margin-top:-52px;position:relative}
+.ava.big{width:84px;height:84px;font-size:28px;border:4px solid var(--surface);overflow:hidden;background:var(--accent-soft)}
+.ava img{width:100%;height:100%;object-fit:cover}
+.prof-txt{padding-bottom:2px;min-width:0}
+.prof-txt b{font-size:18px;display:block;font-family:var(--display);font-weight:500}
+.rate{font-size:13px;color:var(--muted)}
+.rate em{font-style:normal;color:var(--ink);font-weight:600}
+.about{margin:0;color:var(--muted);font-size:14px}
+.sec-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.works{display:flex;gap:10px;overflow-x:auto;margin-inline:-16px;padding:0 16px 4px;scrollbar-width:thin}
+.work{flex:none;width:128px;border:0;background:none;padding:0;text-align:left;display:flex;flex-direction:column;gap:6px}
+.art{aspect-ratio:4/5;width:100%;max-width:100%;border-radius:16px;display:grid;place-items:center;overflow:hidden;position:relative}
+.art img{width:100%;height:100%;object-fit:cover}
+.art svg{width:46%;height:auto}
+.art .nails{display:flex;gap:6%;width:76%;align-items:flex-end;justify-content:center}
+.art .nails svg{width:30%}
+.work b{font-size:13px;font-weight:500;line-height:1.3}
+.work span{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.art.lg{border-radius:20px;max-height:300px;aspect-ratio:auto;height:260px}
+.svc2{display:grid;grid-template-columns:1fr auto;gap:4px 12px;width:100%;text-align:left;background:var(--sunk);border:1px solid var(--line);border-radius:16px;padding:14px}
+.svc2:hover{border-color:var(--accent)}
+.svc2 .nm{font-weight:600}
+.svc2 .pr{font-weight:600;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.svc2 .meta{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12.5px;color:var(--muted)}
+.svc2 .meta .near{color:var(--ok)}
+.rev{background:var(--sunk);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.rev b{font-size:13px}
+.rev .st{color:var(--accent-text);letter-spacing:1px;font-size:12px}
+/* анкета по шагам */
+.qtitle{display:flex;flex-direction:column;gap:4px}
+.picked{font-size:13px;color:var(--muted)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opts.grid2{display:grid;grid-template-columns:1fr 1fr}
+.optc{display:flex;gap:12px;align-items:center;text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:16px;padding:12px 14px;width:100%}
+.optc.pic{flex-direction:column;align-items:flex-start;gap:8px}
+.optc svg{width:34px;height:54px;flex:none}
+.optc svg path{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2.2}
+.optc b{display:block;font-weight:600;font-size:15px}
+.optc span{display:block;font-size:13px;color:var(--muted);line-height:1.35}
+.optc[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.optc .add{color:var(--accent-text);font-weight:600;font-size:13px}
+.foot-row{display:flex;gap:8px}
+.foot-row .skip{flex:none;border:1px solid var(--line);background:var(--sunk);border-radius:14px;padding:0 16px;font-weight:500}
+/* конструктор */
+.ed{border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.ed-row{display:grid;grid-template-columns:1fr 92px 92px;gap:8px}
+.ed input,.ed select,.pf input,.pf select{border:1px solid var(--line);background:var(--sunk);border-radius:10px;padding:8px 10px;width:100%;min-width:0}
+.ed label,.pf label{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:4px;min-width:0}
+.qchip{border:1px dashed var(--line);background:none;border-radius:99px;padding:5px 10px;font-size:12.5px;color:var(--muted)}
+.qchip[aria-pressed="true"]{border-style:solid;border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.sw{width:34px;height:34px;border-radius:50%;border:3px solid var(--surface);box-shadow:0 0 0 1px var(--line)}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink)}
+.pf{display:flex;flex-direction:column;gap:12px}
+.wgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.wcell{position:relative}
+.wcell .art{border-radius:12px}
+.wcell button{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:12px;line-height:1}
+.addph{aspect-ratio:4/5;border:1.5px dashed var(--line);border-radius:12px;display:grid;place-items:center;color:var(--muted);font-size:13px;text-align:center;cursor:pointer;position:relative}
+.addph input{position:absolute;opacity:0;width:1px;height:1px}
+</style>
+<style>
+.niches{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.niche{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:8px 14px;text-align:left;line-height:1.25}
+.niche b{display:block;font-weight:600;font-size:14px}
+.niche span{font-size:12px;color:var(--muted)}
+.niche[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.niche-h{display:flex;flex-direction:column;gap:8px;min-width:0}
+.tinput{border:1px solid var(--line);background:var(--sunk);border-radius:12px;padding:11px 12px;width:100%}
+.mode{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:2px 8px}
+.chan{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.chan-top{display:flex;gap:10px;align-items:center}
+.chan-top b{display:block}
+.chan p{margin:0;font-size:14px}
+.linkbtn{border:0;background:none;padding:0;color:var(--accent-text);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.msg.me{align-self:flex-end;background:var(--accent);color:var(--accent-ink);border-radius:16px 16px 4px 16px}
+.msg.me .when{color:inherit;opacity:.75}
+.cal-h{display:flex;justify-content:space-between;align-items:center}
+.cal-h b{text-transform:capitalize}
+.cal-h button{border:1px solid var(--line);background:var(--sunk);border-radius:10px;width:34px;height:34px}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.cal .wd{font-size:11px;color:var(--muted);text-align:center}
+.cal-d{aspect-ratio:1;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:3px 0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;font-variant-numeric:tabular-nums;min-width:0;position:relative}
+.cal-d b{font-size:13px;font-weight:600}
+.cal-d i{font-style:normal;font-size:10px;line-height:1;background:var(--accent);color:var(--accent-ink);border-radius:99px;padding:2px 5px}
+.cal-d.free::after{content:"";position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:var(--ok)}
+.cal-d.off{background:var(--sunk);color:var(--muted)}
+.cal-d.past{opacity:.45}
+.cal-d.today{border-color:var(--ink)}
+.cal-d[aria-pressed="true"]{border:2px solid var(--accent)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:var(--c)}
+.screen>*{flex-shrink:0}
+.tl{position:relative;margin:8px 0 4px 44px;border-left:1px solid var(--line)}
+.tl .hr{position:absolute;left:-44px;right:0;font-size:11px;color:var(--muted);border-top:1px dashed var(--line);font-variant-numeric:tabular-nums}
+.tl .hr span{position:relative;top:-8px;background:var(--surface);padding-right:4px}
+.blk{position:absolute;left:6px;right:0;border-radius:10px;padding:3px 8px;font-size:12px;line-height:1.25;text-align:left;overflow:hidden;border:0}
+.blk.bk{background:var(--accent);color:var(--accent-ink)}
+.blk.hold{background:var(--accent-soft);color:var(--ink);border:1.5px dashed var(--accent)}
+.blk.closed{background:repeating-linear-gradient(135deg,var(--sunk) 0 6px,var(--line) 6px 8px);color:var(--muted)}
+.blk.gap{background:color-mix(in srgb,var(--ok) 8%,transparent);border:1.5px dashed var(--ok);color:var(--ok);font-weight:500}
+.ovr{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.ovr input{border:1px solid var(--line);background:var(--sunk);border-radius:8px;padding:5px 6px;width:92px}
+.modal-back{position:absolute;inset:0;background:rgba(20,8,14,.5);display:grid;place-items:center;padding:20px;z-index:7}
+.modal{background:var(--surface);border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:12px;width:100%;max-width:330px;box-shadow:0 20px 50px -20px rgba(0,0,0,.5);animation:pop .18s ease-out}
+.modal .art{aspect-ratio:auto;height:150px;border-radius:16px}
+.modal h2{font-size:18px}
+.modal p{margin:0;color:var(--muted);font-size:14px}
+.modal .btns{display:flex;flex-direction:column;gap:8px}
+.modal .no{border:0;background:none;color:var(--muted);padding:6px;font-weight:500}
+@keyframes pop{from{transform:scale(.94);opacity:.7}}
+@media (prefers-reduced-motion:reduce){.modal{animation:none}}
+.mini{display:flex;gap:6px;flex-wrap:wrap}
+.wtiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.wtiles .work{width:auto}
+/* ===== единая основа: светлая или тёмная тема на выбор мастера ===== */
+.t-light{--muted:#655960;--accent-text:var(--accent);--ok:#2E7D5B;--ok-soft:#DDF1E7;--bg:#F5EFE9;--surface:#FFFCF9;--sunk:#F8F2EC;--ink:#241A20;--line:#EADFD6;--bubble:#FFFCF9;--feed:#EEE5DD;--night:#2C2338;--glow:#FFC46B;--glow-2:#FF9F43;--glow-ink:#4A2A10;color-scheme:light}
+.t-dark{--accent-text:color-mix(in srgb,var(--accent) 58%,#fff);--ok-soft:#173327;--bg:#141017;--surface:#1C171F;--sunk:#18131B;--ink:#F2EBEE;--muted:#A99EA5;--line:#30293A;--bubble:#251F29;--feed:#0F0C12;--ok:#4CC38A;--night:#0C0910;--glow:#FFC46B;--glow-2:#FF9F43;--glow-ink:#4A2A10;color-scheme:dark}
+.t-light,.t-dark{background:var(--bg);color:var(--ink)}
+/* узоры обложки, если у мастера нет своего фото */
+.cover.cv-soft{background:linear-gradient(120deg,color-mix(in srgb,var(--accent) 55%,#fff),var(--accent) 75%)}
+.cover.cv-dots{background:radial-gradient(circle at 14% 35%,rgba(255,255,255,.4) 0 7px,transparent 8px),radial-gradient(circle at 34% 70%,rgba(255,255,255,.3) 0 5px,transparent 6px),radial-gradient(circle at 58% 28%,rgba(255,255,255,.35) 0 9px,transparent 10px),radial-gradient(circle at 82% 66%,rgba(255,255,255,.28) 0 6px,transparent 7px),linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 60%,#2a1208))}
+.cover.cv-metal{background:repeating-linear-gradient(135deg,rgba(255,255,255,.06) 0 2px,transparent 2px 9px),linear-gradient(135deg,var(--accent),#0B0D10 85%)}
+.cover.cv-plain{background:var(--accent)}
+.cover.cv-plain::after{display:none}
+.cover.cv-photo{background-size:cover;background-position:center}
+.cover.cv-photo::after{background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.25))}
+/* ===== сворачиваемые блоки и телефонный вид ===== */
+.demo{font-family:var(--body);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;vertical-align:middle;padding:3px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent-text)}
+.m-hint{display:none}
+/* жидкое стекло сверху и снизу: контент прокручивается под ними */
+.stage{position:relative;flex:1;min-height:0;display:flex;flex-direction:column}
+.stage .screen{flex:1;min-height:0;--pt:66px;padding-top:var(--pt);padding-bottom:calc(var(--fh,0px) + 16px);scroll-padding-top:var(--pt)}
+.stage.noroles .screen{--pt:16px}
+.stage .hero{margin-top:calc(-1 * var(--pt))}
+.t-light{--glass:color-mix(in srgb,var(--surface) 58%,transparent);--glass-hi:rgba(255,255,255,.7);--glass-sh:0 10px 30px -14px rgba(60,25,30,.4)}
+.t-dark{--glass:color-mix(in srgb,#2A2230 55%,transparent);--glass-hi:rgba(255,255,255,.14);--glass-sh:0 10px 30px -12px rgba(0,0,0,.6)}
+.phone .stage .roles,.phone .stage .foot{-webkit-backdrop-filter:blur(22px) saturate(1.8);backdrop-filter:blur(22px) saturate(1.8);background:var(--glass);border:0;box-shadow:inset 0 1px 0 var(--glass-hi),inset 0 0 0 .5px color-mix(in srgb,var(--glass-hi) 50%,transparent),var(--glass-sh)}
+.phone .stage .roles{position:absolute;top:10px;left:16px;right:16px;margin:0;z-index:6;border-radius:99px;padding:4px}
+.phone .stage .roles button{border-radius:99px;min-height:40px}
+.phone .stage .roles button[aria-pressed="true"]{background:color-mix(in srgb,var(--surface) 88%,transparent);box-shadow:0 2px 10px -4px rgba(0,0,0,.25)}
+.t-dark .phone .stage .roles button[aria-pressed="true"]{background:rgba(255,255,255,.14);color:var(--ink)}
+.phone .stage .foot{position:absolute;left:10px;right:10px;bottom:10px;z-index:6;border-radius:28px;padding:10px}
+.phone .stage .foot .main-btn{border-radius:20px}
+.phone .stage .foot .back-btn{border-radius:20px}
+body.tgapp .phone .stage .foot{bottom:max(10px,var(--tg-safe-area-inset-bottom,0px));padding-bottom:10px}
+.phone .stage .foot{background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;padding:0;left:12px;right:12px;bottom:12px;border-radius:0}
+.phone .stage .foot .main-btn{box-shadow:0 12px 28px -12px rgba(30,15,25,.55)}
+.t-dark .phone .stage .foot .main-btn{box-shadow:0 12px 28px -10px rgba(0,0,0,.8)}
+.phone .stage .foot .back-btn,.phone .stage .foot .skip,.phone .stage .foot .foot-note{-webkit-backdrop-filter:blur(22px) saturate(1.8);backdrop-filter:blur(22px) saturate(1.8);background:var(--glass);border:0;box-shadow:inset 0 1px 0 var(--glass-hi),var(--glass-sh)}
+.phone .stage .foot .foot-note{border-radius:16px;padding:8px 12px;margin:0 0 8px}
+.phone .stage .foot.has-back>.foot-note{margin:0}
+body.tgapp .phone .stage .foot{bottom:max(12px,var(--tg-safe-area-inset-bottom,0px));padding:0}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.stage .roles,.stage .foot{background:var(--surface)}}
+/* общий цвет кнопок: графит (в тёмной теме — светлые) */
+.t-light{--btn:#2B2530;--btn-ink:#FFFFFF}
+.t-dark{--btn:#F2EBEE;--btn-ink:#1A1418}
+.main-btn,.btn2.fill,.lit .qbtn:first-child,.lit .go,.near .go{background:var(--btn);color:var(--btn-ink);border-color:var(--btn)}
+.lit .qbtn:first-child small{color:inherit}
+.btn2.acc{border-color:var(--btn);color:var(--ink)}
+.t-dark .btn2.acc{border-color:color-mix(in srgb,var(--btn) 55%,transparent)}
+.main-btn:disabled{background:var(--line);color:var(--muted);border-color:var(--line)}
+/* услуги: карточки с картинкой */
+.list.svcs,.t-dark .list.svcs{background:none;padding:0;gap:8px}
+.svcs .svc2{grid-template-columns:56px minmax(0,1fr) auto;grid-template-rows:auto auto;gap:2px 12px;align-items:center;background:var(--surface);border:0;border-radius:18px;padding:10px 12px 10px 10px;box-shadow:0 6px 18px -14px rgba(60,25,15,.4)}
+.t-dark .svcs .svc2{background:var(--bubble);box-shadow:none}
+.svcs .svc2:last-child{border:0}
+.svcs .sth{grid-row:1/3;width:56px;height:56px;border-radius:14px;overflow:hidden;display:block}
+.svcs .sth .art{aspect-ratio:auto;width:56px;height:56px;border-radius:14px}
+.svcs .sth .art .nails{width:80%}
+.svcs .sth .art>svg{width:52%}
+.sth-ph{width:100%;height:100%;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent-text);font:600 20px/1 var(--display);border-radius:14px}
+.svcs .svc2 .nm{align-self:end;font-size:15px}
+.svcs .svc2 .pr{align-self:end;display:flex;align-items:center;gap:6px}
+.svcs .svc2 .pr::after{content:"";width:7px;height:7px;border-right:2px solid var(--muted);border-top:2px solid var(--muted);transform:rotate(45deg);margin-left:2px}
+.svcs .svc2 .meta{grid-column:2/-1;align-self:start;gap:4px 8px;align-items:center}
+.nchip{background:var(--ok-soft);color:var(--ok);font-weight:600;border-radius:99px;padding:2px 8px}
+.nnone{color:var(--muted)}
+/* памятка-совет */
+.modal.story{background:linear-gradient(180deg,color-mix(in srgb,var(--glow,#FFC46B) 16%,var(--surface)) 0,var(--surface) 150px)}
+.st-head{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--ink)}
+.st-ico{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,#FFE7B0,var(--glow,#FFC46B));color:#5A3510;box-shadow:0 0 16px color-mix(in srgb,var(--glow,#FFC46B) 60%,transparent);flex:none}
+.st-cnt{margin-left:auto;color:var(--muted);font-weight:500;font-variant-numeric:tabular-nums}
+.st-sh{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.st-shrow{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;text-align:left;border:0;background:none;padding:7px 4px;border-radius:12px;color:var(--ink)}
+button.st-shrow{cursor:pointer}
+button.st-shrow[aria-pressed="true"]{background:var(--accent-soft)}
+.st-shrow svg{width:22px;height:36px}
+.st-shrow svg path{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2.6}
+.st-shrow b{display:block;font-size:14px;font-weight:600}
+.st-shrow small{display:block;font-size:12.5px;color:var(--muted);line-height:1.35}
+.st-mark{font-style:normal;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:12px;color:var(--accent-ink)}
+button.st-shrow[aria-pressed="true"] .st-mark{background:var(--accent);border-color:var(--accent)}
+/* ===== вид A + фото из B ===== */
+.t-light .phone,.t-dark .phone{background:var(--bg)}
+.t-light .roles{background:var(--surface)}
+.cal-d{border-color:transparent;background:var(--surface)}.t-dark .cal-d{background:var(--bubble)}.cal-d.off,.cal-d.past{background:transparent}.cal-d[aria-pressed="true"]{border-color:var(--ink)}
+.rev{background:var(--surface)}.t-dark .rev{background:var(--bubble)}
+.hero{position:relative;margin:-16px -16px 0;height:min(340px,52vh);flex:none;overflow:hidden;background:var(--sunk)}
+.hslides{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.hslides::-webkit-scrollbar{display:none}
+.hslide{flex:0 0 100%;height:100%;scroll-snap-align:start;border:0;padding:0;background:none;display:block;position:relative}
+.hslide.cover{margin:0;height:100%;display:grid;place-items:center}
+.hini{width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.88);color:var(--accent);display:grid;place-items:center;font:600 36px/1 var(--display);overflow:hidden;margin-bottom:60px;position:relative;z-index:1}
+.hini img{width:100%;height:100%;object-fit:cover}
+.art.hero{aspect-ratio:auto;height:100%;border-radius:0}
+.art.hero .nails{width:62%;margin-bottom:22%}
+.art.hero>svg{width:34%;margin-bottom:18%}
+.hero::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,0) 38%,rgba(18,8,14,.74) 100%)}
+.hcap{position:absolute;left:16px;right:16px;bottom:40px;z-index:2;color:#fff;display:flex;flex-direction:column;align-items:flex-start;gap:4px;pointer-events:none}
+.hcap>*{pointer-events:auto}
+.hcap h1{font:700 25px/1.08 var(--display);letter-spacing:-.02em;margin:0;text-wrap:balance;text-shadow:0 1px 12px rgba(0,0,0,.25)}
+.hcap p{margin:0;font-size:13.5px;opacity:.92;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hrate{border:0;background:rgba(255,255,255,.2);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#fff;border-radius:99px;padding:0 12px;min-height:32px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;margin-top:4px}
+.hdots{display:flex;gap:4px;margin-bottom:6px}.hdots i{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.5);transition:width .2s}.hdots i.on{width:18px;background:#fff}
+.hall{position:absolute;right:12px;top:12px;z-index:2;border:0;border-radius:99px;padding:0 12px;min-height:34px;background:rgba(20,10,16,.38);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#fff;font-size:13px;font-weight:600}
+.hero+.lit{position:relative;z-index:3;margin-top:-40px}
+.lit.qnear{display:flex;flex-direction:column;align-items:stretch;gap:12px;cursor:default}
+.near-h{display:flex;align-items:center;gap:12px}
+.qt{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.qbtn{border:0;background:var(--sunk);border-radius:14px;min-height:52px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;transition:transform .12s,background .15s}
+.qbtn small{font-size:12px;color:var(--muted)}
+.qbtn b{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.qbtn:first-child{background:var(--accent);color:var(--accent-ink)}.qbtn:first-child small{color:inherit;opacity:.85}
+.qbtn:active,.svc2:active,.optc:active,.slot:active,.main-btn:active,.btn2:active{transform:scale(.97)}
+.main-btn,.btn2,.svc2,.optc{transition:transform .12s,background .15s,border-color .15s}
+/* списки без рамок, как в iPhone */
+.list.svcs{background:var(--surface);border-radius:18px;padding:0 14px}
+.svcs .svc2{padding:14px 0}
+.t-dark .list.svcs{background:var(--bubble)}
+.svc2,.rec,.ed,.note,.sum{border-color:transparent}
+.svc2{background:var(--surface)}
+.rec,.ed{background:var(--surface);box-shadow:0 6px 18px -14px rgba(60,25,15,.35)}
+.t-dark .rec,.t-dark .ed,.t-dark .svc2{background:var(--bubble);box-shadow:none}
+.rec.new{box-shadow:inset 0 0 0 1.5px var(--accent)}
+.ed.fin{box-shadow:inset 0 0 0 1.5px var(--ok)}
+.note,.sum{background:var(--surface)}
+.t-dark .note,.t-dark .sum{background:var(--bubble)}
+.optc{border-color:transparent;background:var(--surface);box-shadow:0 4px 14px -12px rgba(60,25,15,.4)}
+.t-dark .optc{background:var(--bubble);box-shadow:none}
+.optc[aria-pressed="true"]{border-color:var(--accent)}
+.slot{border-color:transparent;box-shadow:0 4px 12px -10px rgba(60,25,15,.45)}
+.t-dark .slot{background:var(--bubble);box-shadow:none}
+/* панель итога внизу */
+.foot{border-top:0;border-radius:22px 22px 0 0;box-shadow:0 -12px 30px -22px rgba(60,20,30,.45)}
+.t-dark .foot{box-shadow:0 -1px 0 var(--line)}
+.foot-note.fsum{display:flex;justify-content:space-between;gap:12px;text-align:left;color:var(--ink);font-size:14px;margin:2px 2px 10px}
+.foot-note.fsum b{font-variant-numeric:tabular-nums;white-space:nowrap}
+.foot-note.fsum span::first-letter{text-transform:uppercase}
+/* переходы между экранами */
+.screen.enter-f{animation:scrF .28s cubic-bezier(.22,1,.36,1)}
+.screen.enter-b{animation:scrB .28s cubic-bezier(.22,1,.36,1)}
+@keyframes scrF{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+@keyframes scrB{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.screen.enter-f,.screen.enter-b{animation:none}.qbtn,.main-btn,.btn2,.svc2,.optc{transition:none}}
+/* зоны нажатия не меньше 44px (ui-ux-pro-max: touch targets) */
+.switch::before{content:"";position:absolute;inset:-9px -4px}
+.wcell button::before{content:"";position:absolute;inset:-6px}
+.sw{width:40px;height:40px;position:relative}.sw::before{content:"";position:absolute;inset:-4px}
+.swatches{gap:8px}
+.cname{padding:10px 0;margin:-10px 0}
+.allworks,.who .rate,.back.small,.st-more{min-height:44px}
+.st-off{min-height:44px}
+input[type=time]{min-height:44px}
+/* мелкий текст не меньше 12px */
+.cal .wd,.tl .hr span{font-size:12px}
+.cal-d i{font-size:11px}
+.pill{font-size:11.5px}
+.st-shape b{font-size:12.5px}
+.who p{text-wrap:balance}
+.cname{font:inherit;font-weight:700;color:var(--accent-text);background:none;border:0;padding:0;cursor:pointer;min-height:24px}.cname::after{content:' ›';font-weight:600}
+.cmeta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px}
+.cmeta .vis{padding:2px 8px;border-radius:99px;background:var(--sunk);color:var(--muted);font-weight:600}
+.cmeta .vis.first{background:var(--accent-soft);color:var(--accent-text)}
+.cmeta .cnote{color:var(--ink);background:var(--glow,var(--sunk));padding:2px 8px;border-radius:8px}
+.chead{display:flex;gap:12px;align-items:center}.chead h2{margin:0}
+.chead .ava{display:grid;place-items:center;font-weight:700;font-size:20px;background:var(--accent-soft);color:var(--accent-text)}
+.cstats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.cstats div{display:flex;flex-direction:column;gap:2px;padding:10px;border-radius:14px;background:var(--sunk);min-width:0}
+.cstats b{font-size:15px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.cstats span{font-size:12px;color:var(--muted)}
+.main-btn{position:relative}
+.main-btn.bump{animation:bump .36s cubic-bezier(.22,1,.36,1)}
+@keyframes bump{40%{transform:scale(1.03)}}
+.pdelta{position:absolute;right:14px;top:-12px;font-size:12.5px;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--surface);color:var(--accent-text);border:1px solid var(--accent);pointer-events:none;animation:pdelta 1.4s ease-out forwards}
+@keyframes pdelta{0%{opacity:0;transform:translateY(6px)}15%{opacity:1;transform:none}75%{opacity:1}100%{opacity:0;transform:translateY(-6px)}}
+.ed.fin{border-color:var(--ok);align-items:flex-start;gap:6px}
+.ed.fin .win{width:28px;height:34px}
+@media (prefers-reduced-motion:reduce){.main-btn.bump,.pdelta{animation:none}.pdelta{display:none}}
+.story{gap:12px}
+.st-bars{display:flex;gap:4px}
+.st-bars i{flex:1;height:3px;border-radius:3px;background:var(--line);overflow:hidden;position:relative}
+.st-bars i.done{background:var(--accent)}
+.st-bars i.now::after{content:"";position:absolute;inset:0;background:var(--accent);transform-origin:left;animation:stbar .45s ease-out forwards}
+@keyframes stbar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.st-slide{display:flex;flex-direction:column;gap:10px;animation:stin .32s cubic-bezier(.22,1,.36,1)}
+@keyframes stin{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+.st-slide h2{margin:0}
+.st-shapes{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.st-shape{display:flex;flex-direction:column;align-items:center;gap:4px;border:1.5px solid var(--line);background:var(--sunk);border-radius:22px 22px 12px 12px;padding:8px 2px;min-height:44px;color:var(--ink)}
+.st-shape[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.st-shape svg{width:24px;height:40px}
+.st-shape svg path{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2.2}
+.st-shape b{font-size:11.5px;font-weight:600;line-height:1.2;text-align:center}
+.st-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.st-list li{display:grid;grid-template-columns:16px 1fr;gap:8px;font-size:14px;line-height:1.4;text-align:left}
+.st-list .cw{margin:3px 0 0}
+.st-list b{font-weight:600}
+.st-more{align-self:flex-start;padding:4px 0}
+.st-nav{display:flex;gap:8px}
+.st-nav .back-btn{height:52px;padding:0 14px}
+.st-nav .main-btn{flex:1}
+.st-off{font-size:13px;opacity:.85}
+@media (prefers-reduced-motion:reduce){.st-slide,.st-bars i.now::after{animation:none}.st-bars i.now{background:var(--accent)}}
+.foot.has-back{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:end}
+.foot.has-back>.foot-note{grid-column:1/-1;margin-bottom:0;order:-1}
+.foot.tg-hide.has-back{grid-template-columns:1fr}
+.foot.has-back>.foot-row{min-width:0}
+.back-btn{display:flex;align-items:center;gap:4px;height:52px;padding:0 14px 0 10px;border:1px solid var(--line);background:var(--sunk);border-radius:14px;font-weight:500;color:var(--ink)}
+.back-btn svg{flex:none}
+.foot.tg-hide .back-btn{width:100%;justify-content:center}
+@media (max-width:360px){.back-btn span{display:none}.back-btn{padding:0 14px}}
+body.single .niche-h{display:none}
+body.tgapp{padding:0;background:var(--bg)}
+body.tgapp .wrap{max-width:none;gap:0}
+body.tgapp .intro,body.tgapp .niche-h,body.tgapp .side,body.tgapp .tg-bar{display:none}
+body.tgapp .grid{display:block}
+body.tgapp .phone{width:100%;max-width:none;margin:0;border:0;border-radius:0;box-shadow:none;min-height:0;
+  height:var(--tg-viewport-stable-height,100vh);padding-top:calc(var(--tg-safe-area-inset-top,0px) + var(--tg-content-safe-area-inset-top,0px))}
+body.tgapp .foot.tg-hide .main-btn{display:none}
+body.tgapp .foot.tg-hide:not(:has(.foot-note,.back-btn,.skip)){display:none}
+body.tgapp .foot{padding-bottom:max(10px,var(--tg-safe-area-inset-bottom,0px))}
+.plan-card{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:16px;padding:12px 14px}
+.plan-card .win{width:28px;height:36px}
+.plan-card>span:nth-child(2){flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.plan-card b{font-weight:600}
+.plan-card>span:nth-child(2)>span{font-size:13px;color:var(--muted)}
+.plan-bar{height:4px;border-radius:4px;background:var(--line);overflow:hidden;display:block}
+.plan-bar i{display:block;height:100%;background:var(--accent);border-radius:4px}
+.plan-go{font-size:14px;font-weight:600;color:var(--accent-text);flex:none}
+.plans{display:grid;grid-template-columns:1fr;gap:10px}
+.plan{border:1.5px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:8px;background:var(--surface)}
+.plan.hi{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 6%,var(--surface))}
+.plan-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.plan-h b{font:600 18px/1.1 var(--display)}
+.plan-p{font:600 18px/1 var(--display);font-variant-numeric:tabular-nums}
+.plan-p small{font:500 13px var(--body);color:var(--muted)}
+.plan-now{align-self:flex-start;font-size:12px;font-weight:600;border-radius:99px;padding:3px 10px;background:var(--accent);color:var(--accent-ink)}
+.plan-now.soft{background:color-mix(in srgb,var(--glow) 35%,var(--surface));color:var(--glow-ink)}
+.t-dark .plan-now.soft{color:#FFE2A6;background:color-mix(in srgb,var(--glow) 18%,var(--surface))}
+.plan ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.plan li{display:grid;grid-template-columns:18px 1fr;gap:6px}
+.plan li span{color:var(--accent-text);font-weight:700}
+.plan li.no{color:var(--muted)}
+.plan li.no span{color:var(--muted)}
+.made{margin:0;text-align:center;font-size:12px;color:var(--muted)}
+/* ===== стиль «Окошки»: арка = окно и ноготь «миндаль», свободное время светится ===== */
+.wrap{--night:#2C2338;--glow:#FFC46B;--glow-2:#FF9F43;--glow-ink:#4A2A10}
+.arch,.art.arch{border-radius:16px;overflow:hidden}
+.facade{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:10px;align-items:end;padding-top:4px}
+.facade.one{grid-template-columns:minmax(0,62%);justify-content:center}
+.fwork{border:0;background:none;padding:0;display:block;min-width:0}
+.fwork .art{aspect-ratio:4/5;width:100%}
+.fwork.big .art,.facade .arch.big{aspect-ratio:4/5.6}
+.facade .arch.big{display:grid;place-items:center;width:100%}
+.facade .ini{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.85);color:var(--accent);display:grid;place-items:center;font:600 28px/1 var(--display);overflow:hidden;position:relative;z-index:1}
+.facade .ini img{width:100%;height:100%;object-fit:cover}
+.allworks{align-self:center;margin-top:-8px}
+.who{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+.who h1{font:600 23px/1.15 var(--display);letter-spacing:-.02em;margin:0;text-wrap:balance}
+.who p{margin:0;color:var(--muted);font-size:14px;max-width:34ch}
+.who .rate{font-size:13px;color:var(--muted);padding:6px 4px}
+.win{position:relative;flex:none;border-radius:6px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.28);background:var(--night);overflow:hidden}
+.win::before,.win::after{content:"";position:absolute;background:rgba(255,255,255,.5)}
+.win::before{left:50%;top:0;height:34%;width:2px;transform:translateX(-50%)}
+.win::after{left:0;right:0;top:34%;height:2px}
+.win.on{background:radial-gradient(120% 90% at 50% 75%,#FFE7B0 0,var(--glow) 45%,var(--glow-2) 100%);box-shadow:inset 0 0 0 2px rgba(255,255,255,.45),0 6px 16px -6px rgba(255,159,67,.8)}
+.lit{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:0;background:var(--surface);border-radius:16px;padding:12px 14px;box-shadow:0 8px 22px -14px rgba(90,40,20,.45)}
+.t-dark .lit{background:var(--bubble);box-shadow:none}
+.lit .win{width:30px;height:38px}
+.lit b{display:block;font-weight:600;font-size:15px}
+.lit span span,.lit>span>span{display:block;font-size:13px;color:var(--muted)}
+.list.svcs{gap:0}
+.svcs .svc2{background:none;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:14px 2px}
+.svcs .svc2:last-child{border-bottom:0}
+.day.dw{width:54px;border:0;background:none;padding:0;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--ink)}
+.day.dw .win{width:44px;height:56px;display:grid;place-items:center;padding-top:18px;transition:box-shadow .3s,background .3s}
+.day.dw .n{position:relative;z-index:1;font:600 16px/1 var(--display);color:#fff;font-variant-numeric:tabular-nums}
+.day.dw .win.on .n{color:var(--glow-ink)}
+.day.dw small{font-size:12px;color:var(--muted)}
+.day.dw:disabled{opacity:.5}
+.day.dw[aria-pressed="true"]{background:none}
+.day.dw[aria-pressed="true"] .win{outline:2.5px solid var(--accent);outline-offset:3px}
+.day.dw[aria-pressed="true"] small{color:var(--ink);font-weight:600}
+.part{display:flex;flex-direction:column;gap:8px}
+.part h4{margin:0;font-size:13px;font-weight:600;color:var(--muted)}
+.slots{grid-template-columns:repeat(3,1fr)}
+.slots.wins{grid-template-columns:1fr}
+.slot{border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:12px 0;font-weight:600;font-size:16px;min-height:48px;color:var(--ink);transition:background .25s,box-shadow .25s,border-color .25s}
+.slots.wins .slot{border-radius:16px;padding:14px}
+.slot[aria-pressed="true"]{border-color:transparent;background:radial-gradient(120% 120% at 50% 80%,#FFE7B0 0,var(--glow) 55%,var(--glow-2) 100%);color:var(--glow-ink);box-shadow:0 8px 20px -8px rgba(255,159,67,.9)}
+.done{align-items:center;text-align:center}
+.done .sum,.done>p{align-self:stretch;text-align:left}
+.done .row-btns{justify-content:center}
+.bigwin{width:180px;height:226px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;padding:0 10px 28px;
+  border-radius:18px;box-shadow:inset 0 0 0 4px rgba(255,255,255,.18);background:var(--night);position:relative;overflow:hidden;color:#fff;
+  transition:background .9s cubic-bezier(.22,1,.36,1),box-shadow .9s cubic-bezier(.22,1,.36,1),color .5s .2s}
+.bigwin::before,.bigwin::after{content:"";position:absolute;background:rgba(255,255,255,.3);transition:background .9s}
+.bigwin::before{left:50%;top:0;height:32%;width:4px;transform:translateX(-50%)}
+.bigwin::after{left:0;right:0;top:32%;height:4px}
+.bigwin .d{position:relative;font-size:14px;font-weight:500;opacity:.9}
+.bigwin .tm{position:relative;font:600 34px/1.05 var(--display);letter-spacing:-.02em;font-variant-numeric:tabular-nums;text-wrap:balance}
+.bigwin.on{background:radial-gradient(110% 80% at 50% 75%,#FFF1CC 0,var(--glow) 45%,var(--glow-2) 100%);color:var(--glow-ink);box-shadow:0 26px 50px -18px rgba(255,159,67,.85),0 0 0 9px color-mix(in srgb,var(--glow) 18%,transparent)}
+.bigwin.half.on{background:radial-gradient(90% 60% at 50% 85%,#FFE2A6 0,var(--glow) 35%,var(--night) 100%);color:#fff;box-shadow:0 20px 40px -20px rgba(255,159,67,.6)}
+.bigwin.on::before,.bigwin.on::after{background:rgba(255,255,255,.75)}
+.done h2{font-size:24px;margin-top:6px}
+.wtiles .art,.wgrid .art{border-radius:14px}
+.modal .pop-works .art{aspect-ratio:4/5;border-radius:14px}
+.modal .art.pop-pic{border-radius:12px}
+@media (prefers-reduced-motion:reduce){.bigwin,.bigwin::before,.bigwin::after,.slot,.day.dw .win{transition:none}}
+.rate{border:0;background:none;padding:0;text-align:left;cursor:pointer}
+.share.big{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;padding:14px;background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-size:16px;font-weight:600}
+.share.big span{font-size:12.5px;font-weight:400;opacity:.85}
+.ferr{font-size:13px;color:#B42318}
+.t-dark .ferr{color:#F97066}
+.foot-note{margin:0 0 8px;font-size:13px;color:var(--muted);text-align:center}
+.check.wait{background:var(--accent-soft);color:var(--accent-text)}
+.btn2.fill{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.svc-row{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;border:0;background:none;padding:2px 0;text-align:left}
+.svc-row b{display:block;font-size:15px}
+.days{scrollbar-width:none;padding-bottom:6px}.days::-webkit-scrollbar{display:none}
+.msg .who,.msg .when{font-size:12px}
+.modal.pop{gap:14px;transform-origin:center}
+.pop-row{display:flex;gap:12px;align-items:flex-start;justify-content:space-between}
+.pop-tag{display:inline-block;font-size:12px;font-weight:600;color:var(--accent-text);background:var(--accent-soft);border-radius:99px;padding:3px 10px;margin-bottom:6px}
+.modal .art.pop-pic{flex:none;width:72px;height:88px;border-radius:14px}
+.pop-list{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;font-size:15px}
+.pop-works{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.modal .pop-works .art{height:auto;aspect-ratio:1;border-radius:14px}
+.pop-more{background:var(--sunk);color:var(--muted);font-weight:600;font-size:18px}
+.hint-btn.got{animation:got .65s cubic-bezier(.34,1.56,.64,1)}
+.hint-btn.got .cw{animation:cwon .7s ease-out}
+.cw{display:inline-block;width:11px;height:14px;margin-right:6px;vertical-align:-2px;border-radius:2.5px;background:color-mix(in srgb,var(--accent) 35%,transparent);position:relative;overflow:hidden;transition:background .4s}
+.cw::after{content:"";position:absolute;left:0;right:0;top:36%;height:1.5px;background:rgba(255,255,255,.75)}.cw::before{content:"";position:absolute;left:50%;top:0;height:36%;width:1.5px;margin-left:-.75px;background:rgba(255,255,255,.75)}
+.cw.on{background:radial-gradient(120% 90% at 50% 75%,#FFE7B0 0,var(--glow) 45%,var(--glow-2) 100%);box-shadow:0 0 6px rgba(255,159,67,.8)}
+@keyframes cwon{0%{transform:scale(.4);filter:brightness(2)}60%{transform:scale(1.3)}100%{transform:scale(1);filter:none}}
+@keyframes got{0%{transform:scale(.9)}45%{transform:scale(1.1);box-shadow:0 0 0 6px color-mix(in srgb,var(--glow) 40%,transparent),0 8px 18px -6px rgba(255,159,67,.7)}100%{transform:scale(1);box-shadow:0 0 0 0 transparent}}
+@media (prefers-reduced-motion:reduce){.hint-btn.got,.hint-btn.got .cw{animation:none}.cw{transition:none}}
+.fold{display:flex;flex-direction:column}
+.fold summary{cursor:pointer;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;padding:6px 0;list-style-position:inside}
+.fold-in{display:flex;flex-direction:column;gap:12px;margin-top:8px}
+.badge{font-size:11px;letter-spacing:.02em;text-transform:none;background:var(--accent);color:var(--accent-ink);border-radius:99px;padding:2px 8px;margin-left:4px}
+@media (max-width:600px){
+  .wrap{gap:12px}
+  .intro h1{font-size:26px}
+  .intro p{display:none}
+  .intro .m-hint{display:block;font-size:14px}
+  .niche-h h3{display:none}
+  .niche{padding:6px 12px}
+  .niche span{display:none}
+  .phone{margin:0 -16px;width:auto;max-width:none;border-radius:0;border-left:0;border-right:0;box-shadow:none;height:calc(100dvh - 110px);min-height:500px}
+  .fold summary{font-size:14px;padding:12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;text-transform:none;letter-spacing:0;color:var(--ink)}
+}
+/* ===== правки после аудита: узкие телефоны, фокус, модалки ===== */
+[hidden]{display:none!important}
+.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
+.tabs button{padding:8px 2px 10px;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.srow{grid-template-columns:30px 44px minmax(0,1fr);gap:6px}
+.srow .times{gap:4px}
+.srow input[type=time]{width:auto;min-width:0;flex:1 1 0;max-width:92px;padding:5px 4px}
+.ed-row{grid-template-columns:1fr 1fr}
+.ed-row>label:first-child{grid-column:1/-1}
+.pf textarea{border:1px solid var(--line);background:var(--sunk);border-radius:10px;padding:8px 10px;width:100%;min-width:0;resize:vertical}
+.modal-back{padding:16px}
+.modal{max-height:100%;overflow-y:auto}
+.modal .art{height:clamp(80px,20vh,150px);flex:none}
+.sheet:focus,.modal:focus{outline:none}
+.drop:focus-within,.addph:focus-within,label.btn2:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.niches{padding:4px 4px 6px;margin:0 -4px}
+.works,.days{padding-top:4px}
+/* ===== телефоны: касания, прокрутка, вырез и нижняя полоса ===== */
+button,label,summary{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.screen,.sheet,.modal,.feed,.days,.works,.niches{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.svc2:hover,.svc:hover{border-color:var(--line)}
+@media (hover:hover){.svc2:hover,.svc:hover{border-color:var(--accent)}}
+button:active{opacity:.85}
+.qhead:has(> .mini){flex-wrap:wrap;row-gap:8px}
+@media (max-width:600px){
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+  body{padding-top:max(12px,env(safe-area-inset-top,0px));padding-bottom:max(16px,env(safe-area-inset-bottom,0px))}
+  input,select,textarea,.tinput,.field input,.field textarea,.field select,.ed input,.ed select,.pf input,.pf select,.pf textarea,.ovr input,.srow input[type=time]{font-size:16px}
+  .foot{padding-bottom:max(14px,env(safe-area-inset-bottom,0px))}
+  .sheet{padding-bottom:max(20px,calc(env(safe-area-inset-bottom,0px) + 12px));max-height:88%}
+  .qhead:has(> .mini){flex-direction:column;align-items:flex-start}
+  .btn2{padding:10px 14px;font-size:14px;min-height:44px}
+  .hint-btn{padding:8px 14px;font-size:14px;min-height:36px}
+  .chip{padding:10px 14px;min-height:44px}
+  .tag{padding:8px 12px;font-size:13px}
+  .slot{padding:12px 0;font-size:16px}
+  .day{width:64px;padding:10px 4px}
+  .back{padding:6px 0}
+  .tabs button{padding:12px 2px;font-size:14px}
+  .tg-bar .ghost{padding:8px;min-height:40px}
+  .roles button{padding:10px}
+  .cal-h button{width:44px;height:44px}
+  .switch{width:48px;height:28px}
+  .switch::after{width:22px;height:22px}
+  .switch[aria-pressed="true"]::after{transform:translateX(20px)}
+  .wcell button{width:30px;height:30px}
+  .modal-back{padding:12px 12px max(12px,env(safe-area-inset-bottom,0px));place-items:end center}
+  .niche{min-height:44px}
+  .linkbtn{display:inline-block;padding:10px 0}
+  .modal .no{min-height:44px}
+  .hint-btn{min-height:44px}
+  .tag,.msg-btn{min-height:40px}
+  .ovr input{min-height:40px}
+  .tg-bar .ghost[aria-label="Меню"]{min-width:44px}
+  body{overflow-x:clip}
+  .phone{width:100vw;max-width:100vw;margin:0 0 0 calc(50% - 50vw)}
+  .qchip{padding:8px 12px;font-size:13.5px}
+  .back.small{padding:8px 0}
+  .wcell button{width:34px;height:34px}
+  .toast{bottom:calc(90px + env(safe-area-inset-bottom,0px))}
+}
+</style>
+
+
+<div class="wrap">
+  <header class="intro">
+    <h1>Окошко <span class="demo">демо</span></h1>
+    <p>Запись к частному мастеру прямо в Telegram. Клиент сам заполняет анкету и выбирает время, мастер получает готовую заявку.</p>
+    <p class="m-hint">Нажимайте, как будто вы клиент. «Я мастер» — кабинет мастера.</p>
+  </header>
+  <div class="niche-h">
+    <h3>Выберите мастера</h3>
+    <div class="niches" id="niches"></div>
+  </div>
+  <div class="grid">
+    <div class="phone" id="phone">
+      <div class="tg-bar">
+        <button class="ghost" id="tg-left">Закрыть</button>
+        <div class="ttl"><b id="tg-title"></b><small>мини-приложение</small></div>
+        <button class="ghost" aria-label="Меню" data-act="toast:Меню Telegram">⋯</button>
+      </div>
+      <div class="stage" id="stage">
+      <div class="roles">
+        <button data-act="role:client" id="r-client">Я клиент</button>
+        <button data-act="role:master" id="r-master">Я мастер</button>
+      </div>
+      <div class="screen" id="screen"></div>
+      <div class="foot" id="foot"></div>
+      </div>
+      <div id="overlay"></div>
+    </div>
+    <aside class="side">
+      <details class="fold" id="fold-bot" open><summary>Что приходит в Telegram <span class="badge" id="bot-new" hidden>новое</span></summary>
+        <div class="fold-in">
+          <div class="chan" id="chan"></div>
+          <div class="feed" id="feed"></div>
+        </div></details>
+      <details class="fold" open><summary>Что попробовать</summary>
+        <ul class="tips fold-in">
+          <li><b>1</b><span>Запишитесь как клиент: анкета, подсказки, время, предоплата.</span></li>
+          <li><b>2</b><span>Нажмите на работу мастера и «Хочу так же» — анкета заполнится сама.</span></li>
+          <li><b>3</b><span>Переключитесь на «Я мастер»: календарь, правила записи, услуги и цены.</span></li>
+          <li><b>4</b><span>Торты и токарка принимают заказы к дате, остальные — на время.</span></li>
+          <li><b>5</b><span>В блоке «Что приходит в Telegram» — сообщения бота. По их кнопкам тоже можно нажимать.</span></li>
+        </ul>
+        <p class="small muted">Мастера и данные выдуманные и живут только на этой странице.</p></details>
+    </aside>
+  </div>
+</div>
+
+<script>
+const TG=window.Telegram&&window.Telegram.WebApp,inTG=!!(TG&&TG.initData);
+const pad=n=>String(n).padStart(2,'0');
+const fmtT=m=>pad(Math.floor(m/60))+':'+pad(m%60);
+const toMin=s=>{const[h,m]=s.split(':').map(Number);return h*60+m};
+const keyOf=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parseKey=k=>{const[y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d)};
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const fmtDay=k=>parseKey(k).toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'long'});
+const rub=n=>n.toLocaleString('ru-RU')+'\u00a0₽';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const today=new Date();today.setHours(0,0,0,0);
+const plural=(n,a,b,c)=>{const t=n%10,h=n%100;return t===1&&h!==11?a:t>=2&&t<=4&&(h<12||h>14)?b:c};
+const pl=(n,a,b,c)=>n+' '+plural(n,a,b,c);
+const WD=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+const week=(from,to,sat,satTo,sun)=>[{on:!!sun,from,to},...Array(5).fill(0).map(()=>({on:true,from,to})),{on:!!sat,from:sat||from,to:satTo||to}];
+
+// ===== мастера: у всех одно ядро, разные услуги, анкеты и подсказки =====
+const MASTERS={
+nails:{tab:'Маникюр',who:'ЕгСаныч',name:'ЕгСаныч',ini:'Е',bar:'ЕгСаныч · ногти',about:'Маникюр и педикюр · проспект Вернадского, д. 78',addr:'проспект Вернадского, д. 78',
+  links:['ТГК с работами','ВКонтакте','TikTok'],mode:'slot',lead:12,sched:week('10:00','18:00','11:00','16:00'),
+  memo:'Памятки про формы, материалы и тип ногтей',after:'care',
+  services:[
+    {id:'man',name:'Маникюр с покрытием',dur:120,price:1800,note:'Снятие, обработка, гель-лак',qs:['shape','base','design','removal','photo']},
+    {id:'ext',name:'Наращивание',dur:180,price:3200,note:'Гель, любая форма',qs:['shape','length','design','removal','photo']},
+    {id:'ped',name:'Педикюр',dur:90,price:2000,note:'Обработка стоп и покрытие',qs:['problem','design','removal']}],
+  q:{shape:{t:'Форма',opts:['Квадрат','Мягкий квадрат','Овал','Миндаль','Балерина'],hint:'shapes'},
+    base:{t:'Покрытие',opts:['На натуральные ногти','С укреплением гелем'],hint:'gels'},
+    length:{t:'Длина',opts:['Короткая','Средняя','Длинная'],hint:'types'},
+    design:{t:'Дизайн',opts:['Без дизайна','Простой · +300 ₽','Сложный · +700 ₽'],add:[0,300,700],hint:'designs'},
+    removal:{t:'Что сейчас на ногтях',opts:['Ничего, ногти чистые','Покрытие, которое делал ЕгСаныч','Покрытие другого мастера · +200 ₽'],add:[0,0,200]},
+    problem:{t:'Есть особенности?',opts:['Нет','Вросший ноготь','Трещины на пятках'],hint:'pedi'},
+    photo:{t:'Пример, как хотите',photo:'Прикрепите фото или скрин. Необязательно'}},
+  hints:{
+    shapes:{name:'Формы ногтей',title:'Какая форма вам подойдёт',items:[
+      {n:'Квадрат',svg:'M6 64V12h28v52',t:'Ровный срез. Хорош на коротких, но углы могут цепляться.',pick:['shape',0]},
+      {n:'Мягкий квадрат',svg:'M6 64V20q0-8 8-8h12q8 0 8 8v44',t:'Квадрат со скруглёнными углами. Самая ноская форма.',pick:['shape',1]},
+      {n:'Овал',svg:'M6 64V26a14 14 0 0 1 28 0v38',t:'Визуально удлиняет пальцы. Подходит почти всем.',pick:['shape',2]},
+      {n:'Миндаль',svg:'M6 64V32Q6 16 20 4Q34 16 34 32v32',t:'Сужение к кончику. Нужна средняя длина или наращивание.',pick:['shape',3]},
+      {n:'Балерина',svg:'M6 64V32L13 8h14l7 24v32',t:'Срезанный кончик. Только на длине, чаще наращивание.',pick:['shape',4]}]},
+    gels:{name:'Материалы: гель, база, топ',title:'Чем отличаются материалы',items:[
+      {n:'На натуральные ногти',t:'Гель-лак на ваши ногти. Держится 3–4 недели, длину не добавляет.',pick:['base',0]},
+      {n:'С укреплением гелем',t:'Тонкий слой твёрдого геля поверх ногтя. Если ногти тонкие и ломаются, с ним они ломаются намного реже.',pick:['base',1]},
+      {n:'Гель для наращивания',t:'Строит длину на форме. Нужен, если хотите длиннее своих ногтей.'},
+      {n:'Топ',t:'Финишный слой, глянцевый или матовый. Защищает от сколов.'}]},
+    types:{name:'Тип ногтей и длина',title:'Тип ваших ногтей и длина',items:[
+      {n:'Плоские',t:'Пластина ровная. Подойдёт любая форма и длина.'},
+      {n:'Клюющие',t:'Кончик загибается вниз. На длинном наращивании это заметнее, лучше короткая или средняя длина.'},
+      {n:'Трамплин',t:'Кончик уходит вверх. Мастер выровняет архитектуру, длина обычно до средней.'},
+      {n:'Тонкие и мягкие',t:'Гнутся и ломаются. Сначала укрепление, длинное наращивание держится хуже.'},
+      {n:'Почему не будет «очень длинных»',t:'Если своя пластина короткая, длинный ноготь работает как рычаг: трескается и может повредить ваш ноготь. Длину подбираем под пластину.'}]},
+    pedi:{name:'Вросший ноготь и трещины',title:'Если есть особенности',items:[
+      {n:'Вросший ноготь',t:'Мастер аккуратно обработает край. Но если палец красный, опух или гноится, сначала к подологу или хирургу.',pick:['problem',1]},
+      {n:'Трещины на пятках',t:'Мастер уберёт огрубевшую кожу. Глубокие трещины, которые кровят, — повод показаться дерматологу.',pick:['problem',2]}]},
+    designs:{name:'Какой бывает дизайн',title:'Простой или сложный дизайн',items:[
+      {n:'Без дизайна',t:'Один цвет на всех ногтях.',pick:['design',0]},
+      {n:'Простой',t:'Френч, блёстки, втирка или 1–2 ногтя с акцентом.',pick:['design',1]},
+      {n:'Сложный',t:'Рисунки, стразы, градиент или дизайн на всех ногтях.',pick:['design',2]}]},
+    care:{name:'Уход после маникюра',title:'Как продлить носку',items:[
+      {n:'Первые сутки',t:'Не парьте руки и не ходите в баню.'},
+      {n:'Перчатки',t:'Бытовая химия портит и покрытие, и кожу.'},
+      {n:'Коррекция раз в 3–4 недели',t:'Сильно отросший ноготь легче ломается.'}]}},
+  seed:[{d:0,start:600,svc:'man',client:'Ольга К.',phone:'+7 917 204-11-38',ans:{shape:2,base:1,design:1,removal:1}},
+        {d:1,start:720,svc:'ext',client:'Дарина',phone:'+7 927 550-08-91',comment:'Хочу как на фото, но без страз',ans:{shape:3,length:1,design:2,removal:2},photo:true}]},
+
+brows:{tab:'Брови и ресницы',who:'Лиза',name:'Лиза Гарипова',ini:'Л',bar:'Лиза · брови, ресницы',about:'Брови и ресницы · Казань, ЖК «Солнечный город»',addr:'ЖК «Солнечный город», 2 подъезд',
+  links:['ТГК с работами','Instagram'],mode:'slot',lead:6,sched:week('11:00','20:00','11:00','17:00'),
+  memo:'Хна или краска, какой эффект ресниц выбрать',after:'lashcare',
+  services:[
+    {id:'bc',name:'Коррекция и окрашивание бровей',dur:60,price:1200,note:'Форма, окрашивание краской или хной',qs:['state','color']},
+    {id:'bl',name:'Ламинирование бровей',dur:90,price:2000,note:'С окрашиванием и коррекцией',qs:['state','color','allergy']},
+    {id:'le',name:'Наращивание ресниц',dur:150,price:2800,note:'Классика, 2D, 3D',qs:['effect','volume','allergy','photo']}],
+  q:{state:{t:'Ваши брови сейчас',opts:['Свои, ухоженные','После татуажа','Отращиваю'],hint:'brows'},
+    color:{t:'Цвет',opts:['Естественный','Темнее, чем сейчас','Подберите сами']},
+    effect:{t:'Эффект',opts:['Натуральный','Лисий','Кукольный','Мокрый'],hint:'lashes'},
+    volume:{t:'Объём',opts:['Классика','2D · +300 ₽','3D · +600 ₽'],add:[0,300,600]},
+    allergy:{t:'Аллергия на материалы',opts:['Нет','Была реакция','Делаю впервые'],hint:'lashcare'},
+    photo:{t:'Пример, как хотите',photo:'Прикрепите фото. Необязательно'}},
+  hints:{
+    brows:{name:'Краска, хна, ламинирование',title:'Краска, хна или ламинирование',items:[
+      {n:'Краска',t:'Окрашивает только волоски. Держится 2–3 недели, подходит для любой густоты.'},
+      {n:'Хна',t:'Окрашивает и волоски, и кожу под ними, брови кажутся гуще. На коже держится около недели.'},
+      {n:'Ламинирование',t:'Волоски укладываются в нужном направлении и держатся так 4–6 недель. Для непослушных бровей.'},
+      {n:'Если отращиваете',t:'Отметьте это в анкете: мастер не будет убирать лишнее и поможет пережить некрасивый этап.',pick:['state',2]}]},
+    lashes:{name:'Эффекты ресниц',title:'Какой эффект выбрать',items:[
+      {n:'Натуральный',t:'Ресницы одной длины, как свои, только гуще.',pick:['effect',0]},
+      {n:'Лисий',t:'Длиннее к внешнему уголку. Вытягивает глаз.',pick:['effect',1]},
+      {n:'Кукольный',t:'Самые длинные в центре. Глаз кажется круглее и открытее.',pick:['effect',2]},
+      {n:'Мокрый',t:'Ресницы собраны в лучики, как после душа.',pick:['effect',3]}]},
+    lashcare:{name:'До и после процедуры',title:'Перед процедурой и после',items:[
+      {n:'Тест на аллергию',t:'Если делаете впервые или уже была реакция, приходите за 1–2 дня на тест: мастер нанесёт немного состава за ухо. Это бесплатно и быстро.',pick:['allergy',2]},
+      {n:'Перед',t:'Приходите без туши и линз. Наращивание идёт лёжа с закрытыми глазами 2–2,5 часа.'},
+      {n:'Первые сутки',t:'Не мочите ресницы и не трите глаза.'},
+      {n:'Коррекция',t:'Раз в 2–3 недели, иначе ресницы выпадают неравномерно.'}]}},
+  seed:[{d:0,start:660,svc:'le',client:'Вика',phone:'+7 937 118-44-02',ans:{effect:1,volume:1,allergy:0}},
+        {d:0,start:810,svc:'bc',client:'Алсу',phone:'+7 960 301-77-15',ans:{state:2,color:2}}]},
+
+mua:{tab:'Визаж',who:'Карина',name:'Карина Ахметова',ini:'К',bar:'Карина · визаж',about:'Макияж и укладки · студия на Петербургской или выезд',addr:'ул. Петербургская 52, студия 4 (или выезд)',
+  links:['ТГК с образами','Instagram','TikTok'],mode:'slot',lead:12,sched:week('08:00','20:00','07:00','20:00',true),
+  memo:'Какой образ выбрать и что с вашей кожей',after:'muaprep',
+  services:[
+    {id:'day',name:'Дневной макияж',dur:60,price:2000,note:'На работу, встречу, свидание',qs:['look','skin','lashes','place','photo']},
+    {id:'eve',name:'Макияж на мероприятие',dur:90,price:3000,note:'Вечеринка, выпускной, фотосессия',qs:['event','look','skin','lashes','place','photo']},
+    {id:'wed',name:'Свадебный образ',dur:150,price:6500,note:'Макияж и причёска, стойкость на весь день',qs:['look','skin','lashes','place','photo']}],
+  q:{event:{t:'Куда идёте',opts:['Фотосессия','Выпускной','Вечеринка','Другое'],hint:'looks'},
+    look:{t:'Образ',opts:['Нюд','Акцент на глаза','Акцент на губы','Смоки'],hint:'looks'},
+    skin:{t:'Кожа',opts:['Нормальная','Сухая','Жирная','Чувствительная'],hint:'skin'},
+    lashes:{t:'Накладные ресницы',opts:['Не нужны','Пучки · +300 ₽'],add:[0,300]},
+    place:{t:'Где',opts:['В студии','Выезд ко мне · +1 000 ₽'],add:[0,1000]},
+    photo:{t:'Референс или фото платья',photo:'Чтобы образ сочетался с нарядом. Необязательно'}},
+  hints:{
+    looks:{name:'Какой образ выбрать',title:'Какой образ выбрать',items:[
+      {n:'Нюд',t:'Ровный тон и естественные оттенки. Подходит днём и тем, кто обычно не красится.',pick:['look',0]},
+      {n:'Акцент на глаза',t:'Выразительные стрелки или тени, губы спокойные. Хорошо на фото и вечером.',pick:['look',1]},
+      {n:'Акцент на губы',t:'Яркая помада, глаза мягкие. Классика для мероприятий.',pick:['look',2]},
+      {n:'Смоки',t:'Растушёванные тёмные тени. Для вечера. Днём может выглядеть тяжело.',pick:['look',3]},
+      {n:'Для фотосессии',t:'Камера съедает краски, поэтому макияж делают чуть ярче, чем в жизни, и без блеска на коже.'}]},
+    skin:{name:'Тип кожи',title:'Какая у вас кожа',items:[
+      {n:'Нормальная',t:'Нет шелушений, к вечеру почти не блестит.',pick:['skin',0]},
+      {n:'Сухая',t:'Стягивает после умывания, бывают шелушения. Мастер возьмёт увлажняющую базу.',pick:['skin',1]},
+      {n:'Жирная',t:'Через пару часов блестит Т-зона. Нужны матирующие средства, чтобы макияж не поплыл.',pick:['skin',2]},
+      {n:'Чувствительная',t:'Краснеет, бывает реакция на косметику. Напишите в комментарии, на что была реакция.',pick:['skin',3]}]},
+    muaprep:{name:'Как подготовиться',title:'Как подготовиться к макияжу',items:[
+      {n:'Чистое лицо',t:'Приходите без макияжа. Утром можно нанести обычный увлажняющий крем.'},
+      {n:'Линзы',t:'Наденьте заранее, до начала макияжа.'},
+      {n:'Одежда',t:'Наденьте вещь с застёжкой спереди, чтобы потом не снимать через голову.'},
+      {n:'Стойкость',t:'Макияж держится 10–12 часов. Для подправки возьмите помаду из образа.'}]}},
+  seed:[{d:0,start:480,svc:'wed',client:'Алина',phone:'+7 917 772-40-18',comment:'Платье цвета шампань',ans:{look:2,skin:1,lashes:1,place:1},photo:true},
+        {d:1,start:1020,svc:'eve',client:'Соня',phone:'+7 965 590-12-07',ans:{event:0,look:1,skin:2,lashes:0,place:0}}]},
+
+cakes:{tab:'Торты на заказ',who:'Катя',name:'Катя Лебедева',ini:'К',bar:'Катя · торты',about:'Торты и десерты на заказ · Казань, Ново-Савиновский',addr:'самовывоз: ул. Чистопольская 64',
+  links:['ТГК с тортами','ВКонтакте'],mode:'order',leadDays:3,cap:2,wins:['10:00–12:00','12:00–15:00','15:00–19:00'],winLabel:'Когда получите',sched:week('10:00','19:00','10:00','15:00'),
+  memo:'Начинки, сколько нужно торта, как хранить',after:'cakecare',
+  services:[
+    {id:'bento',name:'Бенто-торт',price:1500,note:'450 г, на 2–3 человека',qs:['filling','text','photo']},
+    {id:'cake',name:'Торт',price:3500,note:'от 1 кг, любой дизайн',qs:['weight','filling','decor','text','delivery','photo']},
+    {id:'cup',name:'Капкейки, 6 шт',price:1200,note:'Можно разные вкусы',qs:['filling','decor','delivery']}],
+  q:{weight:{t:'Вес',opts:['1 кг','2 кг · +1 800 ₽','3 кг · +3 600 ₽'],add:[0,1800,3600],hint:'weight'},
+    filling:{t:'Начинка',opts:['Шоколад-вишня','Ванильный пломбир','Морковный','Сникерс'],hint:'fillings'},
+    decor:{t:'Декор',opts:['Без декора','Только надпись','Живые цветы · +500 ₽','Фотопечать · +400 ₽'],add:[0,0,500,400]},
+    text:{t:'Надпись на торте',text:'Например: С днём рождения, Мила!',opt:true},
+    delivery:{t:'Получение',opts:['Самовывоз','Доставка по городу · +400 ₽'],add:[0,400]},
+    photo:{t:'Пример торта',photo:'Прикрепите картинку из Pinterest. Необязательно'}},
+  hints:{
+    fillings:{name:'Начинки',title:'Начинки',items:[
+      {n:'Шоколад-вишня',t:'Шоколадные коржи, вишнёвый конфи, крем-чиз. Самая популярная.',pick:['filling',0]},
+      {n:'Ванильный пломбир',t:'Ванильные коржи и сливочный крем. Нравится детям.',pick:['filling',1]},
+      {n:'Морковный',t:'Пряный, с грецким орехом и апельсином. Не очень сладкий.',pick:['filling',2]},
+      {n:'Сникерс',t:'Шоколад, карамель, арахис. Самый сытный.',pick:['filling',3]},
+      {n:'Если есть аллергия',t:'Напишите в комментарии: орехи, арахис, лактоза, глютен. Мастер скажет, какую начинку можно, и не возьмёт общие инструменты.'}]},
+    weight:{name:'Сколько нужно торта',title:'Сколько нужно торта',items:[
+      {n:'1 кг',t:'На 4–6 человек.',pick:['weight',0]},
+      {n:'2 кг',t:'На 8–12 человек.',pick:['weight',1]},
+      {n:'3 кг',t:'На 15–18 человек. Двухъярусный торт — от 4 кг, пишите в комментарии.',pick:['weight',2]},
+      {n:'Бенто',t:'Маленький торт на 2–3 человека, его удобно дарить.'}]},
+    cakecare:{name:'Как хранить и везти',title:'Как хранить и везти торт',items:[
+      {n:'В холодильнике',t:'До 3 суток при +2…+6 °C.'},
+      {n:'Перед подачей',t:'Достаньте за 30–40 минут, так вкус будет ярче.'},
+      {n:'В машине',t:'Ставьте коробку на ровный пол машины или в багажник, не на сиденье и не на колени. Летом включите кондиционер.'}]}},
+  seed:[{d:0,start:2,svc:'cake',client:'Ирина',phone:'+7 917 905-62-30',comment:'Девочке 7 лет, любит единорогов',ans:{weight:1,filling:1,decor:2,text:'Миле 7!',delivery:0},photo:true},
+        {d:0,start:0,svc:'bento',client:'Тимур',phone:'+7 999 140-25-81',ans:{filling:0,text:'Ты лучшая'}}]},
+
+auto:{tab:'Автосервис',who:'Сергей',name:'Сергей Николаев',ini:'С',bar:'Сергей · ремонт авто',about:'Ремонт и обслуживание авто · гараж на Тэцевской',addr:'ГСК «Мотор», бокс 112',
+  links:['Авито','ТГК'],mode:'slot',lead:4,sched:week('09:00','19:00','10:00','15:00'),
+  memo:'Когда ремонт срочный, а когда можно подождать',after:'prep',
+  services:[
+    {id:'diag',name:'Диагностика',dur:60,price:1500,note:'Компьютер и осмотр на подъёмнике',qs:['car','symptom','photo']},
+    {id:'to',name:'ТО: масло и фильтры',dur:90,price:2500,note:'Работа, без учёта запчастей',qs:['car','parts']},
+    {id:'hod',name:'Ремонт ходовой',dur:180,price:3000,note:'Точная цена после осмотра',est:true,qs:['car','symptom','parts','photo']}],
+  q:{car:{t:'Машина',text:'Марка, модель, год. Например: Kia Rio 2017'},
+    symptom:{t:'Что беспокоит',opts:['Ничего, плановая проверка','Стучит или скрипит','Горит ошибка','Тянет в сторону','Другое'],hint:'urgent'},
+    parts:{t:'Запчасти',opts:['Пусть мастер купит','Привезу свои']},
+    photo:{t:'Видео или фото',photo:'Снимите звук или ошибку на телефон. Необязательно'}},
+  hints:{
+    urgent:{name:'Когда ремонт срочный',title:'Когда ремонт срочный, а когда можно подождать',items:[
+      {n:'Скрежет при торможении',t:'Срочно: колодки стёрлись до металла, машина тормозит хуже. Запишитесь на ближайшее время и ездите аккуратно. Если педаль проваливается, не ездите, вызовите эвакуатор.'},
+      {n:'Перегрев или лампа масла',t:'Стрелка температуры в красной зоне или горит красная лампа масла: сразу остановитесь и заглушите двигатель. Дальше только на эвакуаторе, иначе ремонт мотора.'},
+      {n:'Горит Check Engine',t:'Если горит ровно, можно доехать до записи. Если мигает, лучше не ездить.'},
+      {n:'Стук в подвеске на кочках',t:'Обычно можно дождаться записи, но не тяните месяцами.'},
+      {n:'Пахнет бензином или горелым',t:'Не ездите. Напишите мастеру через кнопку в записи.'}]},
+    prep:{name:'Что взять с собой',title:'Что взять с собой',items:[
+      {n:'СТС или VIN',t:'По VIN из СТС мастер подберёт правильные запчасти. Можно просто сфотографировать СТС.'},
+      {n:'Видео звука',t:'Если стучит или скрипит, снимите на телефон: в гараже звук может пропасть.'},
+      {n:'Свои запчасти',t:'Можно привезти, мастер скажет, подходят ли.'}]}},
+  seed:[{d:0,start:540,svc:'to',client:'Андрей',phone:'+7 917 333-90-14',ans:{car:'Hyundai Solaris 2019',parts:0}},
+        {d:0,start:630,svc:'diag',client:'Рамиль',phone:'+7 927 044-18-66',comment:'Стучит справа на кочках',ans:{car:'Lada Vesta 2021',symptom:1},photo:true}]},
+
+weld:{tab:'Сварка',who:'Дима',name:'Дима Хабибуллин',ini:'Д',bar:'Дима · сварка',about:'Сварка и ремонт металла · Дербышки, свой цех',addr:'ул. Лесопарковая 9, цех за шиномонтажом',
+  links:['Авито','ТГК с работами'],mode:'slot',lead:3,sched:week('09:00','18:00','10:00','14:00'),
+  memo:'Какой у вас металл и как подготовить деталь',after:'weldprep',
+  services:[
+    {id:'part',name:'Сварка детали',dur:60,price:1000,note:'Привезёте сами. Точная цена после осмотра',est:true,qs:['metal','size','what','photo']},
+    {id:'big',name:'Сварка крупного',dur:180,price:3500,note:'Ворота, рамы, прицепы',est:true,qs:['metal','where','what','photo']}],
+  q:{metal:{t:'Металл',opts:['Чёрный','Нержавейка','Алюминий','Не знаю'],hint:'metals'},
+    size:{t:'Размер',opts:['Влезет в багажник','Крупное, привезу на прицепе']},
+    where:{t:'Где варить',opts:['Привезу в цех','Нужен выезд · +1 500 ₽'],add:[0,1500]},
+    what:{t:'Что нужно сделать',text:'Например: треснул кронштейн глушителя'},
+    photo:{t:'Фото детали',photo:'Сфотографируйте рядом с рулеткой'}},
+  hints:{
+    metals:{name:'Какой у вас металл',title:'Какой у вас металл',items:[
+      {n:'Чёрный металл',t:'Магнитится, ржавеет. Ворота, трубы, рамы.',pick:['metal',0]},
+      {n:'Нержавейка',t:'Магнитится слабо или никак, не ржавеет. Баки, перила.',pick:['metal',1]},
+      {n:'Алюминий',t:'Лёгкий, не магнитится. Диски, радиаторы, лодки. Варится аргоном, это дороже.',pick:['metal',2]},
+      {n:'Не знаю',t:'Приложите магнит. Если не уверены, пришлите фото, мастер определит сам.',pick:['metal',3]}]},
+    weldprep:{name:'Как подготовить деталь',title:'Как подготовить деталь',items:[
+      {n:'Почистите',t:'Без масла и краски сварка выйдет быстрее и дешевле.'},
+      {n:'Фото с рулеткой',t:'Так мастер заранее поймёт объём работы.'},
+      {n:'Снимите с машины',t:'Если можете, привезите деталь отдельно. Варить на машине дольше.'},
+      {n:'Баки и канистры',t:'Ёмкости из-под бензина, масла или газа без промывки варить нельзя: пары взрываются. Скажите мастеру заранее, что в них было.'}]}},
+  seed:[{d:0,start:600,svc:'big',client:'Николай',phone:'+7 905 377-21-09',ans:{metal:0,where:0,what:'Провисли откатные ворота, переварить петли'}},
+        {d:1,start:540,svc:'part',client:'Ильдар',phone:'+7 917 820-55-43',ans:{metal:2,size:0,what:'Трещина на поддоне'},photo:true}]},
+
+cnc:{tab:'Токарка',who:'Олег',name:'Олег Сафин',ini:'О',bar:'Олег · токарка, фреза',about:'Токарные и фрезерные работы · Зеленодольск',addr:'ул. Заводская 12, мастерская',
+  links:['Авито','Сайт с работами'],mode:'order',leadDays:5,cap:3,wins:['Заберу сам','Отправить СДЭК'],winLabel:'Получение',sched:week('08:00','17:00'),
+  memo:'Из чего делать и что прислать без чертежа',after:'drawing',
+  services:[
+    {id:'draw',name:'Деталь по чертежу',price:1500,note:'Цена зависит от материала и сложности',est:true,qs:['material','qty','what','photo']},
+    {id:'copy',name:'Копия по образцу',price:2000,note:'Снимаю размеры со старой детали',est:true,qs:['material','qty','what','photo']}],
+  q:{material:{t:'Материал',opts:['Сталь','Нержавейка','Алюминий','Капролон','Не знаю'],hint:'materials'},
+    qty:{t:'Количество',opts:['1 шт','2–10 шт','Больше 10']},
+    what:{t:'Что за деталь',text:'Например: втулка рулевой рейки, под подшипник 6204'},
+    photo:{t:'Чертёж или фото',photo:'PDF, фото чертежа или детали с линейкой',accept:'image/*,.pdf,.dwg,.dxf,.step'}},
+  hints:{
+    materials:{name:'Из чего делать',title:'Из чего делать деталь',items:[
+      {n:'Сталь 45',t:'Прочная, для валов, втулок и осей. Без покрытия ржавеет.',pick:['material',0]},
+      {n:'Нержавейка',t:'Для влаги и пищевых задач. Дороже и дольше в работе.',pick:['material',1]},
+      {n:'Алюминий Д16',t:'Лёгкий, быстро обрабатывается. Корпуса и кронштейны.',pick:['material',2]},
+      {n:'Капролон',t:'Пластик вместо бронзы: втулки, ролики, шестерни. Не ржавеет, работает тихо.',pick:['material',3]},
+      {n:'Не знаю',t:'Напишите, где стоит деталь. Мастер подберёт сам.',pick:['material',4]}]},
+    drawing:{name:'Если нет чертежа',title:'Если нет чертежа',items:[
+      {n:'Есть образец',t:'Привезите старую деталь, даже сломанную. Мастер снимет размеры.'},
+      {n:'Фото с размерами',t:'Сфотографируйте со штангенциркулем или линейкой и подпишите размеры.'},
+      {n:'С чем стыкуется',t:'Напишите про подшипник, вал или резьбу, к которым деталь должна подойти.'}]}},
+  seed:[{d:0,start:0,svc:'draw',client:'Павел',phone:'+7 917 266-03-71',ans:{material:3,qty:1,what:'Ролики для откатных ворот, 4 шт'},photo:true},
+        {d:1,start:1,svc:'copy',client:'Марат',phone:'+7 927 401-36-52',ans:{material:0,qty:0,what:'Вал редуктора мотоблока'}}]}
+};
+
+// ===== новые ниши =====
+Object.assign(MASTERS,{
+epil:{tab:'Эпиляция',who:'Рената',name:'Рената Сабирова',ini:'Р',bar:'Рената · эпиляция',about:'Шугаринг и восковая эпиляция · Казань, Азино',addr:'ул. Юлиуса Фучика 90, каб. 12',
+  links:['ТГК','Instagram'],mode:'slot',lead:6,sched:week('10:00','20:00','10:00','16:00'),
+  memo:'Какая длина волосков нужна и как избежать вросших',after:'epilcare',
+  services:[
+    {id:'legs',name:'Ноги полностью',dur:60,price:1800,note:'Шугаринг или воск',qs:['method','hair','first','skin']},
+    {id:'bik',name:'Глубокое бикини',dur:60,price:1600,note:'Шугаринг',qs:['hair','first','skin']},
+    {id:'arm',name:'Подмышки',dur:30,price:600,note:'Можно вместе с другой зоной',qs:['method','hair']}],
+  q:{method:{t:'Чем удалять',opts:['Шугаринг','Воск','Подберите сами'],hint:'methods'},
+    hair:{t:'Длина волосков сейчас',opts:['3–5 мм, как надо','Короче, недавно брили','Не знаю'],hint:'length'},
+    first:{t:'Делали раньше?',opts:['Впервые','Уже делали']},
+    skin:{t:'Кожа',opts:['Обычная','Чувствительная','Бывают вросшие волоски'],hint:'epilcare'}},
+  hints:{
+    methods:{name:'Шугаринг или воск',title:'Шугаринг или воск',items:[
+      {n:'Шугаринг',t:'Сахарная паста, удаляет волоски по росту. Берёт даже короткие, от 3 мм. Меньше раздражения, подходит для чувствительной кожи.',pick:['method',0]},
+      {n:'Воск',t:'Быстрее на больших зонах, хорошо берёт жёсткие волоски. Нужна длина 4–5 мм, кожа может краснеть чуть дольше.',pick:['method',1]},
+      {n:'Не уверены',t:'Мастер посмотрит кожу и волоски и выберет сам.',pick:['method',2]}]},
+    length:{name:'Какая нужна длина',title:'Какая длина волосков нужна',items:[
+      {n:'3–5 мм',t:'Обычно 1–2 недели после бритья. Шугарингу хватит 3 мм, воску лучше 4–5 мм.',pick:['hair',0]},
+      {n:'Если короче',t:'Часть волосков останется. Лучше перенести запись на несколько дней.',pick:['hair',1]},
+      {n:'Длиннее 1 см',t:'Подстригите накануне, иначе будет больнее.'}]},
+    epilcare:{name:'До и после процедуры',title:'До и после процедуры',items:[
+      {n:'За сутки',t:'Не загорайте и не делайте скраб.'},
+      {n:'Первые сутки после',t:'Без бани, бассейна и тесной синтетики.'},
+      {n:'Против вросших',t:'Через 2–3 дня начните мягкий скраб 1–2 раза в неделю и увлажняйте кожу.'}]}},
+  seed:[{d:0,start:600,svc:'legs',client:'Эля',phone:'+7 917 640-28-11',ans:{method:0,hair:0,first:1,skin:0}},
+        {d:0,start:660,svc:'bik',client:'Камила',phone:'+7 937 502-91-46',ans:{hair:0,first:0,skin:1}}]},
+
+hair:{tab:'Парикмахер',who:'Эльвира',name:'Эльвира Каримова',ini:'Э',bar:'Эльвира · волосы',about:'Стрижки и окрашивание · Казань, Вахитовский',addr:'ул. Пушкина 26, салон «Лён», кресло 3',
+  links:['ТГК с работами','Instagram'],mode:'slot',lead:12,sched:week('10:00','20:00','10:00','18:00'),
+  memo:'Почему важно, чем красили раньше',after:'haircare',
+  services:[
+    {id:'cut',name:'Стрижка',dur:60,price:1500,note:'С мытьём и укладкой',qs:['hlen','want','photo']},
+    {id:'col',name:'Окрашивание',dur:180,price:4500,note:'Цена зависит от длины',est:true,qs:['hlen','hist','tone','photo']},
+    {id:'sty',name:'Укладка',dur:60,price:1500,note:'На мероприятие',qs:['hlen','photo']}],
+  q:{hlen:{t:'Длина волос',opts:['Короткие','До плеч','До лопаток','Ниже лопаток · +1 000 ₽'],add:[0,0,0,1000]},
+    want:{t:'Что хотите',opts:['Освежить кончики','Сменить форму','Как на фото']},
+    hist:{t:'Волосы сейчас',opts:['Свой цвет','Окрашены','Осветлены'],hint:'hist'},
+    tone:{t:'Какой цвет хотите',opts:['Светлее','Темнее','Тот же, освежить']},
+    photo:{t:'Фото: как сейчас и как хотите',photo:'Так мастер заранее поймёт объём работы'}},
+  hints:{
+    hist:{name:'История окрашивания',title:'Почему важно, чем красили раньше',items:[
+      {n:'Свой цвет',t:'Самый предсказуемый результат. Можно почти любой оттенок.',pick:['hist',0]},
+      {n:'Окрашены',t:'Тёмная краска сама не уходит. Чтобы стать светлее, понадобится смывка, это дольше и дороже.',pick:['hist',1]},
+      {n:'Осветлены',t:'Волосы пористые, краска ложится иначе. Мастер подберёт уход, чтобы не пересушить.',pick:['hist',2]},
+      {n:'Хна и басма',t:'Обязательно напишите в комментарии. С ними обычная краска может дать неожиданный цвет.'}]},
+    haircare:{name:'Уход после окрашивания',title:'Уход после окрашивания',items:[
+      {n:'Первые 2 дня',t:'Не мойте голову, чтобы цвет закрепился.'},
+      {n:'Шампунь',t:'Для окрашенных волос, без сульфатов.'},
+      {n:'Обновление',t:'Корни подкрашивают раз в 6–8 недель.'}]}},
+  seed:[{d:0,start:600,svc:'col',client:'Лейла',phone:'+7 917 211-56-90',comment:'Красилась хной полгода назад',ans:{hlen:1,hist:1,tone:0},photo:true},
+        {d:0,start:780,svc:'cut',client:'Настя',phone:'+7 960 778-30-24',ans:{hlen:2,want:1}}]},
+
+photo:{tab:'Фотограф',who:'Артём',name:'Артём Зайцев',ini:'А',bar:'Артём · фото',about:'Портреты, пары, семьи · студии Казани и улица',addr:'место выбираем вместе',
+  links:['Портфолио','ТГК'],mode:'slot',lead:24,sched:week('09:00','21:00','09:00','21:00',true),
+  memo:'Где снимать и что надеть',after:'phprep',
+  services:[
+    {id:'ind',name:'Индивидуальная съёмка',dur:60,price:4000,note:'30 фото в обработке',qs:['place','mood','photo']},
+    {id:'love',name:'Love story',dur:90,price:6000,note:'50 фото в обработке',qs:['place','mood','photo']},
+    {id:'fam',name:'Семейная',dur:90,price:6000,note:'Можно с детьми и питомцами',qs:['place','kids','mood']}],
+  q:{place:{t:'Где снимаем',opts:['Улица, парк','Студия · +1 500 ₽','Дома'],add:[0,1500,0],hint:'places'},
+    mood:{t:'Настроение',opts:['Нежно, светло','Ярко, контрастно','Как на референсе']},
+    kids:{t:'Кто будет',opts:['Только взрослые','С детьми','С питомцем','С детьми и питомцем']},
+    photo:{t:'Референсы',photo:'Картинки из Pinterest. Необязательно'}},
+  hints:{
+    places:{name:'Где снимать',title:'Где снимать',items:[
+      {n:'Улица, парк',t:'Бесплатно и живо, но зависит от погоды. Лучший свет утром и за 2 часа до заката.',pick:['place',0]},
+      {n:'Студия',t:'Не зависит от погоды, ровный свет. Час аренды студии уже входит в доплату +1 500 ₽.',pick:['place',1]},
+      {n:'Дома',t:'Уютно и спокойно, особенно с детьми. Нужны большие окна.',pick:['place',2]}]},
+    phprep:{name:'Что надеть',title:'Как подготовиться к съёмке',items:[
+      {n:'Одежда',t:'Однотонная, без крупных логотипов. Возьмите 2 образа.'},
+      {n:'Пары',t:'Сочетайте цвета, но не одевайтесь одинаково.'},
+      {n:'Сроки',t:'Готовые фото через 7–10 дней, бот пришлёт ссылку.'}]}},
+  seed:[{d:1,start:600,svc:'love',client:'Аня и Рустем',phone:'+7 917 330-62-55',ans:{place:0,mood:0}}]},
+
+tutor:{tab:'Репетитор',who:'Наиль',name:'Наиль Ганиев',ini:'Н',bar:'Наиль · математика',about:'Математика и физика, 5–11 класс · онлайн или очно',addr:'онлайн в Zoom или ул. Декабристов 85',
+  links:['ТГК с разборами','Отзывы ВК'],mode:'slot',lead:12,sched:week('15:00','21:00','10:00','16:00'),
+  memo:'Онлайн или очно, как подготовиться',after:'tprep',
+  services:[
+    {id:'trial',name:'Пробное занятие',dur:30,price:0,note:'Знакомство и проверка уровня',qs:['subj','grade','goal','format']},
+    {id:'les',name:'Занятие',dur:60,price:1200,note:'Разбор темы и домашка',qs:['subj','grade','goal','format','topic']},
+    {id:'ege',name:'Подготовка к ЕГЭ',dur:90,price:1800,note:'Профильная математика или физика, разбор вариантов',qs:['subj','format','topic']}],
+  q:{subj:{t:'Предмет',opts:['Математика','Физика']},
+    grade:{t:'Класс',opts:['5–8 класс','9 класс, ОГЭ','10–11 класс','Студент']},
+    goal:{t:'Цель',opts:['Подтянуть оценки','Сдать экзамен','Олимпиада']},
+    format:{t:'Формат',opts:['Онлайн','Очно'],hint:'format'},
+    topic:{t:'Что сейчас проходите',text:'Например: логарифмы, задачи на движение',opt:true}},
+  hints:{
+    format:{name:'Онлайн или очно',title:'Онлайн или очно',items:[
+      {n:'Онлайн',t:'Zoom и общая доска. Запись занятия остаётся у вас.',pick:['format',0]},
+      {n:'Очно',t:'Удобнее младшим школьникам. Адрес придёт в напоминании.',pick:['format',1]}]},
+    tprep:{name:'Как подготовиться',title:'Как подготовиться к занятию',items:[
+      {n:'Тетрадь и учебник',t:'Или фото последней контрольной.'},
+      {n:'Онлайн',t:'Проверьте микрофон, ссылка придёт за 10 минут.'},
+      {n:'Перенос',t:'Не позже чем за 12 часов, кнопкой в напоминании.'}]}},
+  seed:[{d:0,start:900,svc:'les',client:'Мама Тимура',phone:'+7 917 405-33-08',ans:{subj:0,grade:1,goal:1,format:0,topic:'Квадратные уравнения'}},
+        {d:0,start:960,svc:'trial',client:'Даша',phone:'+7 999 162-70-45',ans:{subj:1,grade:2,goal:0,format:1}}]}
+});
+
+// ===== витрина: цвет, рейтинг, отзывы, работы =====
+const SHOW={
+nails:{color:'#B0265A',rating:[4.9,126],
+  reviews:[['Бульбаш','ЕгСаныч очень аккуратный, кутикулу не задел ни разу. Ногти держатся четвёртую неделю.'],['Динара','ЕгСаныч объяснил, что у меня клюющие ногти и почему длинные ломались.']],
+  works:[{t:'Миндаль, нюд',p:2100,svc:'man',ans:{shape:3,base:1,design:1,removal:1},bg:['#F6E7E1','#E9CFC6'],nail:'#D8A596',shape:3},
+    {t:'Красный овал',p:1800,svc:'man',ans:{shape:2,base:0,design:0,removal:1},bg:['#F4E1E3','#E7C4C9'],nail:'#B3122E',shape:2},
+    {t:'Френч, мягкий квадрат',p:2100,svc:'man',ans:{shape:1,base:1,design:1,removal:1},bg:['#EEF0F4','#D5DAE3'],nail:'#FBF6F3',shape:1},
+    {t:'Балерина, хром',p:3900,svc:'ext',ans:{shape:4,length:2,design:2,removal:0},bg:['#2B2D36','#4A4E5C'],nail:'#C9CED9',shape:4}]},
+brows:{color:'#8A4FA8',rating:[4.8,74],
+  reviews:[['Вика','Лисий эффект как на фото, держится три недели.'],['Алсу','Отращивала брови, Лиза ничего лишнего не убрала.']],
+  works:[{t:'Ламинирование + хна',p:2000,svc:'bl',ans:{state:0,color:0,allergy:0},bg:['#7A5A4A','#A47F69'],g:'brow'},
+    {t:'Лисий эффект 2D',p:3100,svc:'le',ans:{effect:1,volume:1,allergy:0},bg:['#3E2F45','#6E5480'],g:'brow'},
+    {t:'Натуральный, классика',p:2800,svc:'le',ans:{effect:0,volume:0,allergy:0},bg:['#8E7A72','#BFA99F'],g:'brow'}]},
+mua:{color:'#9C3D54',rating:[5.0,58],
+  reviews:[['Алина','Макияж продержался всю свадьбу, до трёх ночи.'],['Соня','Сразу спросила про жирную кожу, на фото ничего не поплыло.']],
+  works:[{t:'Свадебный нюд',p:7800,svc:'wed',ans:{look:0,skin:0,lashes:1,place:1},bg:['#E8CFC4','#C99A8B'],g:'lips'},
+    {t:'Смоки на выпускной',p:3300,svc:'eve',ans:{event:1,look:3,skin:0,lashes:1,place:0},bg:['#2A1F2B','#55405A'],g:'lips'},
+    {t:'Красные губы',p:3000,svc:'eve',ans:{event:2,look:2,skin:0,lashes:0,place:0},bg:['#8E1B2C','#C23A4B'],g:'lips'}]},
+epil:{color:'#1F8A84',rating:[4.9,88],
+  reviews:[['Эля','Впервые почти не больно и без раздражения. Рената работает быстро.'],['Камила','Боялась идти впервые, Рената всё спокойно объяснила.']],
+  works:[{t:'Ноги, шугаринг',p:1800,svc:'legs',ans:{method:0,hair:0,first:1,skin:0},bg:['#CDEAE6','#8CCFC7'],g:'drop'},
+    {t:'Глубокое бикини',p:1600,svc:'bik',ans:{hair:0,first:1,skin:0},bg:['#1B4F4C','#2F8079'],g:'drop'}]},
+hair:{color:'#5B5FC7',rating:[4.8,152],
+  reviews:[['Лейла','Сразу спросили про хну, с цветом обошлось без сюрпризов.'],['Настя','Скинула фото, Эльвира заранее сказала, получится ли.']],
+  works:[{t:'Каре с чёлкой',p:1500,svc:'cut',ans:{hlen:1,want:1},bg:['#2A2C4A','#5B5FC7'],g:'scissors'},
+    {t:'Блонд с тонированием',p:5500,svc:'col',ans:{hlen:3,hist:0,tone:0},bg:['#E9DFC8','#C8B48A'],g:'scissors'}]},
+cakes:{color:'#B86B1F',rating:[4.9,203],
+  reviews:[['Ирина','Торт с единорогом, дочь в восторге. И вкусный, совсем не приторный.'],['Тимур','Бенто привезли вовремя, надпись как просил.']],
+  works:[{t:'Бенто «Ты лучшая»',p:1500,svc:'bento',ans:{filling:0,text:'Ты лучшая'},bg:['#F2D7DD','#E3AFBB'],g:'cake'},
+    {t:'Ягодный, 2 кг',p:5800,svc:'cake',ans:{weight:1,filling:1,decor:2,delivery:0},bg:['#F4E3D0','#D9A577'],g:'cake'},
+    {t:'Капкейки «Сникерс»',p:1200,svc:'cup',ans:{filling:3,decor:0,delivery:0},bg:['#5A3A26','#8B5E3C'],g:'cake'}]},
+auto:{color:'#2563A8',rating:[4.8,91],
+  reviews:[['Андрей','Нашёл причину стука за полчаса и лишнего менять не стал.'],['Рамиль','Скинул видео стука, Сергей сразу сказал, какие запчасти брать.']],
+  works:[{t:'Замена стоек, Solaris',p:4500,svc:'hod',ans:{car:'Hyundai Solaris 2019',symptom:1,parts:1},bg:['#1C2C44','#33507A'],g:'wrench'},
+    {t:'ТО, Kia Rio',p:2500,svc:'to',ans:{car:'Kia Rio 2017',parts:0},bg:['#24364F','#4A6A94'],g:'wrench'}]},
+weld:{color:'#C2410C',rating:[4.9,47],
+  reviews:[['Николай','Ворота больше не провисают. Всё сделал за один день.'],['Ильдар','Заварил алюминиевый поддон, взял ровно столько, сколько сказал.']],
+  works:[{t:'Откатные ворота',p:3500,svc:'big',ans:{metal:0,where:0,what:'Переварить петли ворот'},bg:['#2B211C','#6B3A1E'],g:'flame'},
+    {t:'Алюминиевый поддон',p:1800,svc:'part',ans:{metal:2,size:0,what:'Трещина на поддоне'},bg:['#3A3F46','#7C8691'],g:'flame'}]},
+cnc:{color:'#4A6572',rating:[5.0,33],
+  reviews:[['Павел','Ролики из капролона, ворота теперь ездят бесшумно.'],['Марат','Сделал вал по старой сломанной детали, встал как родной.']],
+  works:[{t:'Ролики из капролона',p:1600,svc:'draw',ans:{material:3,qty:1,what:'Ролики для откатных ворот'},bg:['#2E3A40','#5E7682'],g:'gear'},
+    {t:'Вал редуктора',p:2400,svc:'copy',ans:{material:0,qty:0,what:'Вал редуктора мотоблока'},bg:['#3B4248','#8A949C'],g:'gear'}]},
+photo:{color:'#3E6A8F',rating:[5.0,64],
+  reviews:[['Аня','Фото живые, без пластиковой ретуши. Артём здорово раскрепощает.'],['Гузель','Подсказка про одежду спасла: пришли в сочетающихся цветах.']],
+  works:[{t:'Love story в парке',p:6000,svc:'love',ans:{place:0,mood:0},bg:['#C9D8C2','#7FA383'],g:'camera'},
+    {t:'Портрет в студии',p:5500,svc:'ind',ans:{place:1,mood:1},bg:['#1E2A36','#3E6A8F'],g:'camera'}]},
+tutor:{color:'#3A7D44',rating:[4.9,41],
+  reviews:[['Мама Тимура','Сын перестал бояться алгебры, ОГЭ сдал на пять.'],['Даша','После пробного сразу поняла, что делать с физикой.']],
+  works:[{t:'ОГЭ: с 3 до 5 за полгода',p:1200,svc:'les',ans:{subj:0,grade:1,goal:1,format:0},bg:['#DDEBD8','#9DC497'],g:'book'},
+    {t:'Разбор профильного ЕГЭ',p:1800,svc:'ege',ans:{subj:0,format:0},bg:['#1F3A24','#3A7D44'],g:'book'}]}
+};
+for(const k in SHOW)Object.assign(MASTERS[k],SHOW[k]);
+const ORDER=['nails','brows','mua','epil','hair','cakes','auto','weld','cnc','photo','tutor'];
+const PALETTE=['#B0265A','#8A4FA8','#5B5FC7','#2563A8','#1F8A84','#3A7D44','#B86B1F','#C2410C','#4A6572'];
+const PALETTE_N=['Малиновый','Сиреневый','Индиго','Синий','Бирюзовый','Зелёный','Карамельный','Терракотовый','Графитовый'];
+const GLYPH={
+  brow:'<path d="M8 20q16-10 32 0"/><path d="M10 32q14 10 28 0q-14-10-28 0z"/><circle cx="24" cy="32" r="4"/>',
+  lips:'<path d="M6 24q9-9 18-3q9-6 18 3q-7 12-18 12T6 24z"/><path d="M6 24q18 5 36 0"/>',
+  cake:'<path d="M8 40h32V28H8z"/><path d="M12 28v-8h24v8"/><path d="M24 20v-6"/><path d="M8 34q4 3 8 0t8 0 8 0 8 0"/>',
+  wrench:'<path d="M31 7a9 9 0 0 0-9 12L8 33a3 3 0 0 0 4 4l14-14a9 9 0 0 0 12-9l-6 6-5-1-1-5z"/>',
+  flame:'<path d="M24 6c5 9 13 13 13 23a13 13 0 0 1-26 0c0-6 4-9 6-14 1 5 3 7 6 7-2-7 0-12 1-16z"/>',
+  gear:'<circle cx="24" cy="24" r="13" stroke-width="7" stroke-dasharray="5 3.2"/><circle cx="24" cy="24" r="5"/>',
+  drop:'<path d="M24 6c8 11 12 18 12 24a12 12 0 0 1-24 0c0-6 4-13 12-24z"/>',
+  scissors:'<circle cx="14" cy="36" r="5"/><circle cx="34" cy="36" r="5"/><path d="M17 32 34 8M31 32 14 8"/>',
+  camera:'<path d="M6 16h9l3-5h12l3 5h9v22H6z"/><circle cx="24" cy="27" r="7"/>',
+  book:'<path d="M8 10h13a3 3 0 0 1 3 3v26a3 3 0 0 0-3-3H8zM40 10H27a3 3 0 0 0-3 3v26a3 3 0 0 1 3-3h13z"/>',
+  star:'<path d="M24 7l5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1z"/>'
+};
+const TEMPLATES=[
+  ['Красота',[['Маникюр и педикюр','nails'],['Брови и ресницы','brows'],['Визаж','mua'],['Эпиляция и шугаринг','epil'],['Парикмахер','hair'],['Барбер'],['Массаж'],['Косметолог'],['Тату']]],
+  ['Еда на заказ',[['Торты и десерты','cakes'],['Бенто и капкейки','cakes'],['Пряники'],['Наборы вкусняшек для собак'],['Домашняя кухня']]],
+  ['Руки и техника',[['Автосервис','auto'],['Сварка','weld'],['Токарка и фреза','cnc'],['Шиномонтаж'],['Ремонт телефонов и ПК'],['Сантехник'],['Электрик'],['Мебель на заказ']]],
+  ['Услуги',[['Фотограф','photo'],['Репетитор','tutor'],['Груминг'],['Ремонт одежды'],['Клининг']]]
+];
+
+// ===== состояние =====
+const ST={};
+const S={cur:'nails',role:'client',step:0,qi:0,mtab:'rec',mview:null,sheet:null,sel:null,slide:0,contact:{name:'Лиза',phone:'',comment:''}};
+try{S.noPops=localStorage.getItem('okoshko-nopops')==='1'}catch(e){S.noPops=false}
+const saveNoPops=()=>{try{S.noPops?localStorage.setItem('okoshko-nopops','1'):localStorage.removeItem('okoshko-nopops')}catch(e){}};
+const M=()=>MASTERS[S.cur], St=()=>ST[S.cur];
+const svcOf=id=>M().services.find(s=>s.id===id);
+const sName=b=>svcOf(b.svc)?.name||b.svcName||'Услуга';
+const visitTs=(m,b)=>parseKey(b.date).getTime()+(m.mode==='slot'?b.start:600)*60e3;
+function resetFlow(){S.slide=0;S.quick=null;S.carryPaid=0;S.reschedOf=null;S.rebookOf=null;S.df=false;if(S.nameBack){S.contact.name=S.nameBack;S.nameBack=null}}
+const blankSel=()=>({svc:null,ans:{},files:{},day:null,start:null});
+S.sel=blankSel();
+function priceOf(m,svc,ans){const s=m.services.find(x=>x.id===svc);if(!s)return 0;let p=s.price;for(const q of s.qs){const Q=m.q[q];if(Q&&Q.add&&ans[q]!=null)p+=Q.add[ans[q]]}return p}
+function whenOf(m,b){if(m.mode==='slot')return fmtT(b.start);const w=m.wins[b.start];return /\d:\d/.test(w)?w:m.winLabel.toLowerCase()+': '+w.toLowerCase()}
+const relDay=k=>{const d=Math.round((parseKey(k)-today)/864e5);return d===0?'сегодня':d===1?'завтра':fmtDay(k)};
+const dayWin=(k,n,sel,lab)=>{const d=parseKey(k);return`<button class="day dw" ${n?'':'disabled'} aria-pressed="${k===sel}" data-act="day:${k}" aria-label="${fmtDay(k)}: ${n?lab(n):'всё занято'}"><span class="win ${n?'on':''}"><span class="n">${d.getDate()}</span></span><small>${WD[d.getDay()].toLowerCase()}</small></button>`};
+const lWin=n=>pl(n,'окошко','окошка','окошек'),lPlace=n=>pl(n,'место','места','мест');
+function slotGroups(list,sel){
+  return[['Утро',t=>t<720],['День',t=>t>=720&&t<1020],['Вечер',t=>t>=1020]].map(([nm,f])=>{const a=list.filter(f);
+    return a.length?`<div class="part"><h4>${nm}</h4><div class="slots">${a.map(t=>`<button class="slot" aria-pressed="${t===sel}" data-act="slot:${t}">${fmtT(t)}</button>`).join('')}</div></div>`:''}).join('');
+}
+function facadeHtml(m){
+  const w=m.works,cv=`cover cv-${coverOf(m)}`;
+  if(!w.length)return`<div class="facade one"><div class="arch big ${cv}" ${m.coverImg?`style="background-image:url('${m.coverImg}');background-size:cover"`:''}><span class="ini">${m.avatar?`<img src="${m.avatar}" alt="">`:esc(m.ini)}</span></div></div>`;
+  const pick=w.length===1?[[0,'big']]:w.length===2?[[0,''],[1,'big']]:[[1,''],[0,'big'],[2,'']];
+  return`<div class="facade ${w.length===1?'one':''}" aria-label="Работы мастера">${pick.map(([i,c])=>`<button class="fwork ${c}" data-act="work:${i}" aria-label="Работа: ${esc(w[i].t)}">${artHtml(m,w[i],'arch')}</button>`).join('')}</div>${w.length>3?`<button class="back small allworks" data-act="worksheet">Все работы · ${w.length}</button>`:''}`;
+}
+function heroHtml(m){
+  const w=m.works,rate=m.rating?`<button class="hrate" data-act="toreviews">★ ${String(m.rating[0]).replace('.',',')} · ${pl(m.rating[1],'отзыв','отзыва','отзывов')}</button>`:'<span class="hrate">Новый мастер</span>';
+  const slides=w.length?w.map((x,i)=>`<button class="hslide" data-act="work:${i}" aria-label="Работа: ${esc(x.t)}">${artHtml(m,x,'hero')}</button>`).join('')
+    :`<div class="hslide cover cv-${coverOf(m)}" ${m.coverImg?`style="background-image:url('${m.coverImg}');background-size:cover;background-position:center"`:''}><span class="hini">${m.avatar?`<img src="${m.avatar}" alt="">`:esc(m.ini)}</span></div>`;
+  return`<div class="hero"><div class="hslides" aria-label="Работы мастера">${slides}</div>
+    <div class="hcap">${w.length>1?`<div class="hdots" aria-hidden="true">${w.map((_,i)=>`<i class="${i?'':'on'}"></i>`).join('')}</div>`:''}<h1>${esc(m.name)}</h1><p>${esc(m.about)}</p>${rate}</div>
+    ${w.length>1?`<button class="hall" data-act="worksheet">Все работы · ${w.length}</button>`:''}</div>`;
+}
+function quickSlots(m,st){
+  if(m.mode!=='slot')return[];const minDur=Math.min(...m.services.map(x=>x.dur||60)),out=[];
+  for(let i=0;i<st.horizon&&out.length<3;i++){const k=keyOf(addDays(today,i));slotsFor(k,minDur).slice(0,2).forEach(t=>{if(out.length<3)out.push([k,t])})}
+  return out;
+}
+function litHtml(m,st){
+  const order=m.mode==='order',minDur=Math.min(...m.services.map(x=>x.dur||60));
+  let first=null,cnt=0;
+  for(let i=0;i<st.horizon;i++){const k=keyOf(addDays(today,i));
+    if(order){const n=orderLeft(k);if(n){if(!first)first=[k,null];if(i<30)cnt++}}
+    else{const sl=slotsFor(k,minDur);if(sl.length){if(!first)first=[k,sl[0]];if(i<7)cnt+=sl.length}}}
+  if(!first)return`<button class="lit" data-act="wl"><span class="win" aria-hidden="true"></span><span><b>Свободного времени пока нет</b><span>Встаньте в лист ожидания, бот напишет, когда освободится</span></span></button>`;
+  const [k,t]=first,more=cnt-1,q=quickSlots(m,st);
+  if(q.length>1)return`<div class="lit qnear"><div class="near-h"><span class="win on" aria-hidden="true"></span><span><b>Ближайшие окошки</b><span>${more>2?`и ещё ${lWin(more-2)} на этой неделе`:'Нажмите, чтобы записаться'}</span></span></div>
+    <div class="qt">${q.map(([d,tt])=>`<button class="qbtn" data-act="quick:${d}:${tt}" aria-label="Записаться: ${relDay(d)}, ${fmtT(tt)}"><small>${relDay(d).replace(/^(\S+), (\d+) .*/,'$1, $2')}</small><b>${fmtT(tt)}</b></button>`).join('')}</div></div>`;
+  return`<button class="lit" data-act="gobook"><span class="win on" aria-hidden="true"></span><span><b>${order?`Можно заказать на ${relDay(k)}`:`Свободно ${relDay(k)} в ${fmtT(t)}`}</b><span>${more>0?(order?`и ещё ${pl(more,'свободная дата','свободные даты','свободных дат')} в этом месяце`:`и ещё ${lWin(more)} на этой неделе`):'Успейте записаться'}</span></span></button>`;
+}
+const phoneOk=p=>(p||'').replace(/\D/g,'').length>=11;
+function refundBy(m,day,start){const ts=parseKey(day).getTime()+(m.mode==='slot'?start:600)*60e3-864e5;if(ts<Date.now())return null;const d=new Date(ts);return d.toLocaleDateString('ru-RU',{day:'numeric',month:'long'})+', '+fmtT(d.getHours()*60+d.getMinutes())}
+function ansShort(m,svcId,ans){const s=m.services.find(x=>x.id===svcId);if(!s)return'';return s.qs.filter(q=>m.q[q]&&m.q[q].opts&&ans[q]!=null).map(q=>ansText(m.q[q],ans[q])).join(' · ')}
+function rangeOf(m,b){const s=m.services.find(x=>x.id===b.svc);return m.mode==='slot'?fmtT(b.start)+'–'+fmtT(b.start+(b.dur||(s?s.dur:60))):m.wins[b.start]}
+const priceTxt=(s,p)=>p===0?'бесплатно':(s&&s.est?'от ':'')+rub(p);
+const listPrice=(m,s)=>s.price===0?'бесплатно':((s.est||s.qs.some(q=>m.q[q]&&m.q[q].add&&m.q[q].add.some(a=>a>0)))?'от ':'')+rub(s.price);
+const durTxt=d=>d<60?d+' мин':(d%60?Math.floor(d/60)+' ч '+d%60+' мин':d/60+' ч');
+const LEADS=[[2,'2 часа'],[3,'3 часа'],[4,'4 часа'],[6,'6 часов'],[12,'12 часов'],[24,'1 день'],[48,'2 дня'],[72,'3 дня'],[168,'неделю']];
+const HORIZONS=[[7,'неделю'],[14,'2 недели'],[30,'месяц'],[60,'2 месяца']];
+const CONFIRMS=[['auto','Сразу, без меня'],['urgent','Срочные подтверждаю сам'],['manual','Все подтверждаю сам']];
+
+const DEP={nails:500,brows:300,mua:1000,hair:500,cakes:'30',photo:1000};
+const BOT='okoshko_bot';
+const SLUG={nails:'anya_nails',brows:'liza_brows',mua:'karina_mua',epil:'renata_sugar',hair:'elvira_hair',cakes:'katya_cakes',auto:'sergey_garage',weld:'dima_weld',cnc:'oleg_tokar',photo:'artem_photo',tutor:'nail_math',custom:'my_page'};
+const linkOf=id=>'t.me/'+BOT+'?start='+(SLUG[id]||'my_page');
+const HIST={nails:{svc:'man',ans:{shape:2,base:1,design:1,removal:1},date:'12 октября',rep:['3 недели','Пора обновить покрытие?']},brows:{svc:'le',ans:{effect:1,volume:1,allergy:0},date:'20 октября',rep:['3 недели','Пора на коррекцию ресниц?']},hair:{svc:'col',ans:{hlen:1,hist:1,tone:0},date:'15 сентября',rep:['7 недель','Корни уже отросли, подкрасим?']},auto:{svc:'to',ans:{car:'Kia Rio 2017',parts:0},date:'в мае',rep:['полгода','Пора на следующее ТО?']},epil:{svc:'legs',ans:{method:0,hair:0,first:1,skin:0},date:'25 октября',rep:['4 недели','Волоски уже отросли до нужной длины.']}};
+const NOTES={nails:['Любит нюд, кутикулу очень аккуратно','Аллергия на гель-лак одной фирмы, только свой материал'],brows:['Чувствительные глаза, клей без запаха'],mua:['Свадьба в 12:00, выезд'],hair:['Светлый блонд, корни через 6 недель'],auto:['Приезжает с ребёнком, чай в комнате ожидания'],cakes:['Без орехов: у сына аллергия']};
+const cli=(st,n)=>st.clients[n]||(st.clients[n]={past:0,spent:0,last:null,note:''});
+const WAIT={nails:[{client:'Лиана',svc:'ext',pref:'Будни, вечер'}],cakes:[{client:'Ольга',svc:'cake',pref:'Выходные'}]};
+const COVER_OF={cakes:'dots',auto:'metal',weld:'metal',cnc:'metal'};
+const COVERS=[['soft','Мягкий градиент'],['dots','Конфетти'],['metal','Металл'],['plain','Однотонная']];
+const themeOf=m=>m.dark?'dark':'light';
+const coverOf=m=>m.coverImg?'photo':(m.cover||COVER_OF[m.id]||'soft');
+function initMaster(id){
+  MASTERS[id].id=id;
+  const m=MASTERS[id];
+  const st=ST[id]={sched:m.sched.map(x=>({...x})),lead:m.lead||12,leadDays:m.leadDays||2,cap:m.cap||3,horizon:m.mode==='order'?30:14,
+    confirm:'urgent',urgentH:24,noGaps:true,flow:id==='nails'?'date':'service',deposit:DEP[id]||0,refund:'day',blocks:{},overrides:{},hist:HIST[id]||null,waitlist:(WAIT[id]||[]).map((w,i)=>({...w,id:id+'w'+i})),moved:{},setup:{svc:id!=='custom',hours:id!=='custom',prof:id!=='custom',link:id!=='custom'},daysOff:[],hintsOn:Object.fromEntries(Object.keys(m.hints).map(k=>[k,true])),bookings:[],feed:[],lastNew:null};
+  const work=[];for(let i=m.mode==='order'?m.leadDays:1;work.length<3&&i<40;i++){const d=addDays(today,i);if(st.sched[d.getDay()].on)work.push(keyOf(d))}
+  (m.seed||[]).forEach((b,i)=>st.bookings.push({id:id+i,date:work[b.d],start:b.start,svc:b.svc,svcName:(m.services.find(x=>x.id===b.svc)||{}).name,dur:(m.services.find(x=>x.id===b.svc)||{}).dur||60,client:b.client,phone:b.phone,comment:b.comment||'',ans:b.ans,photo:!!b.photo,price:priceOf(m,b.svc,b.ans),status:'ok'}));
+  st.clients={};(m.seed||[]).forEach((b,i)=>{const h=[...b.client].reduce((a,c)=>a+c.charCodeAt(0),0),nt=(NOTES[id]||[])[i]||'',n=h%4===0&&!nt?0:2+h%6,pr=priceOf(m,b.svc,b.ans);
+    st.clients[b.client]={past:n,spent:n*pr,last:n?(2+h%5)+' нед.':null,note:nt}});
+  if(work[2]&&id!=='custom')st.daysOff.push(work[2]);
+  st.feed.push({to:'Клиенту',when:'когда клиент нажал «Старт»',text:`Привет! Здесь запись к мастеру: ${m.name}. Записаться, посмотреть свободное время и памятки можно в приложении.`,btn:['Открыть Окошко','role:client']});
+  if(st.hist){const h=st.hist,hs=m.services.find(x=>x.id===h.svc);st.feed.push({to:'Клиенту',when:`через ${h.rep[0]} после визита`,text:`${S.contact.name}, прошло ${h.rep[0]} после «${hs.name}». ${h.rep[1]} Анкета уже заполнена, осталось выбрать время.`,btn:['Записаться так же','repeat']})}
+  const first=st.bookings.slice().sort((a,b)=>a.date.localeCompare(b.date))[0];
+  if(first)st.feed.push({to:'Мастеру',when:'сегодня, 08:00',text:`Доброе утро! Ближайшая запись: ${fmtDay(first.date)}, ${whenOf(m,first)}, ${first.client}.`,btn:['Открыть записи','openrec']});
+}
+for(const id of ORDER)initMaster(id);
+
+// ===== свободное время и правила брони =====
+function dayHours(key){const st=St();if(st.daysOff.includes(key))return null;const o=st.overrides[key];if(o)return o;const w=st.sched[parseKey(key).getDay()];return w.on?w:null}
+function dayOpen(key){return !!dayHours(key)&&parseKey(key)<addDays(today,St().horizon)}
+function bookedOn(key){return St().bookings.filter(b=>b.date===key&&b.id!==S.reschedOf).map(b=>[b.start,b.start+(b.dur||svcOf(b.svc)?.dur||60)])}
+function busy(key){return bookedOn(key).concat((St().blocks[key]||[]).map(x=>[x[0],x[1]]))}
+function slotsFor(key,dur){
+  const st=St();if(!dayOpen(key))return[];
+  const d=parseKey(key),wd=dayHours(key),from=toMin(wd.from),to=toMin(wd.to);
+  const bk=bookedOn(key),bl=(st.blocks[key]||[]).map(x=>[x[0],x[1]]),all=bk.concat(bl);
+  const minTs=Date.now()+st.lead*3600e3,edge=([s,e])=>[e,s-dur];
+  let cand;
+  if(st.noGaps){
+    cand=bk.length?bk.flatMap(edge):[from,to-dur,...bl.flatMap(edge)];
+    // если все записи раньше, чем можно записаться, начало «с ближайшего возможного» не создаёт простоя
+    const nowMin=(minTs-d.getTime())/60e3;
+    if(nowMin>from){const c0=Math.ceil(nowMin/30)*30;if(!bk.some(([,e])=>e>c0))cand.push(c0)}
+  }else{cand=[];for(let c=from;c+dur<=to;c+=30)cand.push(c);all.forEach(x=>cand.push(...edge(x)))}
+  return [...new Set(cand)].sort((x,y)=>x-y).filter(c=>c>=from&&c+dur<=to&&!all.some(([s,e])=>c<e&&c+dur>s)&&d.getTime()+c*60e3>=minTs);
+}
+function orderLeft(key){
+  const st=St();if(!dayOpen(key))return 0;
+  if(parseKey(key)<addDays(today,st.leadDays))return 0;
+  return Math.max(0,st.cap-st.bookings.filter(b=>b.date===key&&b.id!==S.reschedOf).length);
+}
+function freeOn(key,svc){return M().mode==='slot'?slotsFor(key,svc.dur).length:orderLeft(key)}
+function nearest(svc){
+  for(let i=0;i<St().horizon;i++){const k=keyOf(addDays(today,i));
+    if(M().mode==='slot'){const sl=slotsFor(k,svc.dur);if(sl.length)return relDay(k)+', '+fmtT(sl[0])}
+    else if(orderLeft(k))return relDay(k);}
+  return null;
+}
+function needsConfirm(key,start){
+  const st=St();if(st.confirm==='auto')return false;if(st.confirm==='manual')return true;
+  const ts=parseKey(key).getTime()+(M().mode==='slot'?start:600)*60e3;
+  return ts-Date.now()<st.urgentH*3600e3;
+}
+
+function depOf(price){const d=St().deposit;if(!d||!price)return 0;return typeof d==='string'?Math.round(price*(+d)/1000)*10:Math.min(d,price)}
+
+// ===== анкета =====
+const need=Q=>!Q.photo&&!Q.opt;
+const answered=(Q,v)=>Q.text?!!(v&&String(v).trim()):v!=null;
+const optName=o=>o.split(' · ')[0];
+const ansText=(Q,v)=>Q.text?v:optName(Q.opts[v]||'—');
+function hintFor(m,q,i){for(const h of Object.values(m.hints))for(const it of h.items)if(it.pick&&it.pick[0]===q&&it.pick[1]===i)return it;return null}
+function answersHtml(m,b){
+  const s=m.services.find(x=>x.id===b.svc),ans=b.ans||{};
+  const keys=[...new Set([...(s?s.qs:[]),...Object.keys(ans)])];
+  return keys.filter(q=>m.q[q]&&!m.q[q].photo&&answered(m.q[q],ans[q])).map(q=>`<span>${esc(m.q[q].t)}: <b>${esc(ansText(m.q[q],ans[q]))}</b></span>`).join('')
+    +(b.photo?'<span>Файл: <b>прикреплён</b></span>':'');
+}
+const prog=(pos,total,l)=>`<div class="prog"><div class="bar"><i style="width:${pos/total*100}%"></i></div><span>${l}</span></div>`;
+function artHtml(m,w,cls=''){
+  if(w.img)return`<div class="art ${cls}"><img src="${w.img}" alt="${esc(w.t)}"></div>`;
+  const bg=`background:linear-gradient(160deg,${w.bg[0]},${w.bg[1]})`;
+  if(w.nail!=null){const p=m.hints.shapes.items[w.shape].svg;
+    return`<div class="art ${cls}" style="${bg}"><div class="nails">${[0,1,2].map(i=>`<svg viewBox="0 0 40 66" style="transform:translateY(${[6,0,4][i]}px)"><path d="${p}" fill="${w.nail}" stroke="rgba(255,255,255,.7)" stroke-width="1.5"/></svg>`).join('')}</div></div>`}
+  return`<div class="art ${cls}" style="${bg}"><svg viewBox="0 0 48 48" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${GLYPH[w.g||'star']}</svg></div>`;
+}
+function startFlow(svcId,ans){
+  const s=svcOf(svcId);if(!s){S.step=0;toast('Эту услугу мастер убрал, выберите другую');return}
+  S.sel=blankSel();S.sel.svc=svcId;if(ans)Object.assign(S.sel.ans,ans);
+  if(!s.qs.length){S.step=S.df?3:2;return}
+  S.step=1;const i=s.qs.findIndex(q=>need(M().q[q])&&!answered(M().q[q],S.sel.ans[q]));S.qi=i<0?s.qs.length-1:i;
+}
+function advanceQ(){const s=svcOf(S.sel.svc);if(S.qi<s.qs.length-1)S.qi++;else S.step=S.df?3:2}
+
+// ===== клиент =====
+function clientScreen(){
+  const m=M(),st=St(),sel=S.sel,step=S.step,order=m.mode==='order';
+  if(step===0){
+    const hasHints=Object.keys(m.hints).some(k=>st.hintsOn[k]);
+    return{body:`${heroHtml(m)}
+    ${litHtml(m,st)}
+    ${(()=>{const nb=st.hist&&st.hist.bid&&st.bookings.find(z=>z.id===st.hist.bid&&visitTs(m,z)>Date.now());return nb?`<div class="rev" style="background:var(--accent-soft)"><b style="font-size:15px">${nb.status==='hold'?'Бронь ждёт ответа мастера':order?'Ваш заказ':'Ваша запись'}: ${relDay(nb.date)}, ${whenOf(m,nb)}</b><span>${esc(sName(nb))}${ansShort(m,nb.svc,nb.ans)?' · '+esc(ansShort(m,nb.svc,nb.ans)):''}</span><div class="row-btns"><button class="btn2" data-act="resched:${nb.id}">Перенести</button><button class="btn2" data-act="cancelask:${nb.id}">Отменить</button></div></div>`:''})()}
+    ${st.hist&&svcOf(st.hist.svc)&&!(st.hist.bid&&st.bookings.some(z=>z.id===st.hist.bid&&visitTs(m,z)>Date.now()))?`<div class="rev" style="background:var(--accent-soft)"><b style="font-size:15px">С возвращением, ${esc(S.contact.name)}!</b><span>В прошлый раз, ${st.hist.date}: ${esc(svcOf(st.hist.svc).name)}</span>${ansShort(m,st.hist.svc,st.hist.ans)?`<span class="small muted">${esc(ansShort(m,st.hist.svc,st.hist.ans))}</span>`:''}<button class="btn2 acc" data-act="repeat">Записаться так же</button></div>`:''}
+    ${m.links.length?`<div class="links">${m.links.map(l=>`<button class="tag" data-act="toast:Откроет: ${esc(l)}">${esc(l)}</button>`).join('')}</div>`:''}
+    ${hasHints?`<button class="memo" data-act="memos"><span class="q">?</span><span><b>Не знаете, что выбрать?</b><br><span class="small muted">${esc(m.memo)}</span></span></button>`:''}
+    <h3 id="svc-list">${order?'Что можно заказать':'Услуги'}</h3>
+    <div class="list svcs">${m.services.map(s=>{const n=nearest(s),wk=m.works.find(w=>w.svc===s.id);return`<button class="svc2" data-act="svc:${s.id}"><span class="sth" aria-hidden="true">${wk?artHtml(m,wk):`<span class="sth-ph">${esc(s.name.slice(0,1))}</span>`}</span><span class="nm">${esc(s.name)}</span><span class="pr">${listPrice(m,s)}</span>
+      <span class="meta">${s.dur&&!order?`<span>${durTxt(s.dur)}</span>`:''}${s.note?`<span>${esc(s.note)}</span>`:''}<span class="${n?'nchip':'nnone'}">${n?'Ближайшее: '+n:'Свободного времени пока нет'}</span></span></button>`}).join('')}</div>
+    ${m.reviews.length?`<h3 id="reviews">Отзывы</h3><div class="list">${m.reviews.map(([n,t])=>`<div class="rev"><span class="st">★★★★★</span><span>${esc(t)}</span><b>${esc(n)}</b></div>`).join('')}</div>`:''}${m.plan==='pro'?'':'<p class="made">Запись через Окошко</p>'}`,foot:`<button class="main-btn" data-act="gobook">${order?'Оформить заказ':st.flow==='date'?'Выбрать дату и время':'Записаться'}</button>`};
+  }
+  if(step===10||step===11)return dfScreen();
+  const s=svcOf(sel.svc)||{qs:[],price:0,name:''},total=s.qs.length+2,price=priceTxt(s,priceOf(m,s.id,sel.ans));
+  if(step===1){
+    const q=s.qs[S.qi],Q=m.q[q];
+    const done=s.qs.slice(0,S.qi).filter(k=>!m.q[k].photo&&answered(m.q[k],sel.ans[k])).map(k=>ansText(m.q[k],sel.ans[k]));
+    let body=(S.df?prog(2+(S.qi+1)/s.qs.length,4,`Шаг 3 из 4 · вопрос ${S.qi+1} из ${s.qs.length}`):prog(S.qi+1,total,`Вопрос ${S.qi+1} из ${s.qs.length} · ${esc(s.name)}`))+`${order&&S.qi===0?memoIcons():''}<div class="qtitle"><div class="qhead"><h2>${esc(Q.t)}</h2>${Q.hint&&st.hintsOn[Q.hint]?`<button class="hint-btn" data-act="hint:${Q.hint}">? подсказка</button>`:''}</div>${done.length?`<span class="picked">Ваш выбор: ${esc(done.join(' · '))}</span>`:''}</div>`;
+    let foot;
+    if(Q.photo){
+      const f=sel.files[q];
+      body+=`<label class="drop">${f&&f!=='file'?`<img src="${f}" alt="Ваш файл">`:''}<span class="drop-txt"><b>${f?'Файл прикреплён':'+ Добавить файл'}</b><span class="small muted">${f?'Нажмите, чтобы заменить':esc(Q.photo)}</span></span><input type="file" accept="${Q.accept||'image/*'}" id="photo-${q}"></label>`;
+      foot=`<button class="main-btn" data-act="next">${f?'Дальше':'Без файла, дальше'} · ${price}</button>`;
+    }else if(Q.text){
+      body+=`<input class="tinput" id="t-${q}" placeholder="${esc(Q.text)}" value="${esc(sel.ans[q]||'')}">`;
+      const ok=answered(Q,sel.ans[q]);
+      foot=`<div class="foot-row">${Q.opt&&!ok?'<button class="skip" data-act="next">Пропустить</button>':''}<button class="main-btn" data-act="next" ${ok||Q.opt?'':'disabled'}>Дальше · ${price}</button></div>`;
+    }else{
+      const items=Q.opts.map((o,i)=>[o,hintFor(m,q,i)]);
+      const pics=items.some(([,h])=>h&&h.svg);
+      body+=`<div class="opts ${pics?'grid2':''}">${items.map(([o,h],i)=>{const [nm,add]=o.split(' · ');return`<button class="optc ${pics?'pic':''}" aria-pressed="${sel.ans[q]===i}" data-act="ans:${q}:${i}">${h&&h.svg?`<svg viewBox="0 0 40 66" aria-hidden="true"><path d="${h.svg}"/></svg>`:''}<span><b>${esc(nm)}</b>${h?`<span>${esc(h.t)}</span>`:''}${add?`<span class="add">${esc(add)}</span>`:''}</span></button>`}).join('')}</div>`;
+      const dl=S.pDelta||0;
+      foot=`<button class="main-btn ${dl?'bump':''}" data-act="next" ${sel.ans[q]!=null?'':'disabled'}>${sel.ans[q]!=null?'Дальше · '+price:'Выберите вариант'}${dl?`<span class="pdelta">${dl>0?'+':'−'}${rub(Math.abs(dl))}</span>`:''}</button>`;
+    }
+    if(S.pDelta&&!/pdelta/.test(foot))foot=foot.replace(/(<button class="main-btn)([^>]*>)([\s\S]*?)(<\/button>)(?![\s\S]*<button class="main-btn)/,(z,a,b,c,d)=>`${a} bump${b}${c}<span class="pdelta">${S.pDelta>0?'+':'−'}${rub(Math.abs(S.pDelta))}</span>${d}`);
+    return{body,foot};
+  }
+  if(step===2){
+    const days=[];for(let i=0;i<st.horizon;i++){const k=keyOf(addDays(today,i));days.push([k,freeOn(k,s)])}
+    if(!sel.day){const f=days.find(d=>d[1]);sel.day=f?f[0]:null}
+    let pickHtml='';
+    if(sel.day){
+      if(!order)pickHtml=`<h3>${fmtDay(sel.day)}</h3>${slotGroups(slotsFor(sel.day,s.dur),sel.start)}`;
+      else pickHtml=`<h3>${fmtDay(sel.day)} · ${m.winLabel.toLowerCase()}</h3><div class="slots wins">${m.wins.map((w,i)=>`<button class="slot" aria-pressed="${i===sel.start}" data-act="slot:${i}">${w}</button>`).join('')}</div>`;
+    }
+    const leadTxt=(LEADS.find(l=>l[0]===st.lead)||[0,st.lead+' ч'])[1];
+    const horTxt=(HORIZONS.find(h=>h[0]===st.horizon)||[0,pl(st.horizon,'день','дня','дней')])[1];
+    const rules=[order?`Заказы принимаются минимум за ${pl(st.leadDays,'день','дня','дней')} и не больше ${st.cap} в день.`:`Записаться можно минимум за ${leadTxt}.`,
+      `Расписание открыто на ${horTxt} вперёд.`,!order&&st.noGaps?'Показано время вплотную к другим записям, так мастеру удобнее.':'',
+      st.confirm==='manual'?(order?'Мастер подтверждает каждый заказ сам, до этого дата за вами.':'Мастер подтверждает каждую запись сам, до этого время за вами забронировано.'):st.confirm==='urgent'&&!(order&&st.leadDays*24>=st.urgentH)?`Если до ${order?'получения':'визита'} меньше ${st.urgentH} ч, мастер подтвердит ${order?'заказ':'запись'} сам.`:''].filter(Boolean).join(' ');
+    const body=prog(s.qs.length+1,total,`Шаг ${s.qs.length+1} из ${total} · ${order?'дата':'время'}`)+`<div class="qhead"><h2>${order?'К какому дню?':'Когда удобно?'}</h2>${memoIcons()}</div>
+      <div class="days">${days.map(([k,n])=>dayWin(k,n,sel.day,order?lPlace:lWin)).join('')}</div>
+      ${sel.day?pickHtml:'<p class="muted">Свободных дат пока нет.</p>'}
+      <button class="btn2" data-act="wl">${order?'Нет подходящей даты':'Нет подходящего времени'}? Встать в лист ожидания</button>
+      <div class="note">${rules}</div>
+      <div class="total"><span>${esc(s.name)}</span><span>${price}</span></div>`;
+    return{body,foot:`${sel.start!=null?`<p class="foot-note fsum"><span>${fmtDay(sel.day)}, ${order?esc(m.wins[sel.start]).toLowerCase():fmtT(sel.start)}</span><b>${price}</b></p>`:''}<button class="main-btn" data-act="next" ${sel.start!=null?'':'disabled'}>${sel.start!=null?'Дальше':order?(sel.day?'Выберите, когда получите':'Выберите дату'):'Выберите время'}</button>`};
+  }
+  if(step===3){
+    const c=S.contact,hold=needsConfirm(sel.day,sel.start),dep=S.carryPaid?0:depOf(priceOf(m,s.id,sel.ans)),ok=c.name.trim()&&phoneOk(c.phone);
+    const rb=refundBy(m,sel.day,sel.start),opts=ansShort(m,s.id,sel.ans),what=order?'заказ':'запись';
+    const refundTxt=dep?(st.refund!=='day'?'При отмене предоплата не возвращается.':rb?`Вернём ${rub(dep)}, если отмените до ${rb}.`:`До ${order?'получения':'визита'} меньше суток, поэтому предоплата не вернётся при отмене.`):'';
+    const body=prog(1,1,S.df?'Шаг 4 из 4 · контакты':'Последний шаг · контакты')+`<h2>Как с вами связаться</h2>
+      <div class="field"><label for="c-name">Имя</label><input id="c-name" autocomplete="name" value="${esc(c.name)}"></div>
+      ${phoneOk(c.phone)?`<div class="field"><label for="c-phone">Телефон</label><input id="c-phone" inputmode="tel" autocomplete="tel" value="${esc(c.phone)}"></div>`
+        :`<button class="share big" data-act="share">Взять номер из Telegram<span>в одно касание</span></button>
+      <div class="field"><label for="c-phone">или введите вручную</label><input id="c-phone" inputmode="tel" autocomplete="tel" placeholder="+7 900 000-00-00" value="${esc(c.phone)}" aria-describedby="c-phone-err"><span class="ferr" id="c-phone-err" ${c.phone&&!phoneOk(c.phone)?'':'hidden'}>Проверьте номер: нужно 11 цифр, чтобы мастер смог позвонить</span></div>`}
+      <div class="field"><label for="c-comment">Комментарий мастеру</label><textarea id="c-comment" rows="2" placeholder="Всё, что не вошло в анкету">${esc(c.comment)}</textarea></div>
+      <div class="sum"><div class="kv"><span>Когда</span><span>${fmtDay(sel.day)}, ${whenOf(m,sel)}</span></div><div class="kv"><span>${order?'Заказ':'Услуга'}</span><span>${esc(s.name)}</span></div>${opts?`<div class="kv"><span>Выбор</span><span>${esc(opts)}</span></div>`:''}<div class="kv"><span>Итого</span><span>${price}</span></div>${dep?`<div class="kv"><span>Предоплата сейчас</span><span>${rub(dep)}</span></div>`:''}</div>
+      ${S.carryPaid?`<div class="note">Предоплата <b>${rub(S.carryPaid)}</b> уже внесена и переносится на новое время.</div>`:''}
+      <div class="note">${hold?`Это бронь: мастер подтвердит её сам, ответ придёт в Telegram. ${order?'Дата':'Время'} пока за вами.`:dep?`${order?'Заказ':'Запись'} подтвердится сразу после предоплаты.`:`${order?'Заказ':'Запись'} подтвердится сразу.`} Анкету мастер увидит целиком.</div>`;
+    const label=!c.name.trim()?'Укажите имя':!phoneOk(c.phone)?'Укажите телефон':dep?'Оплатить '+rub(dep)+(hold?' и отправить бронь':order?' и оформить заказ':' и записаться'):hold?'Отправить бронь':order?'Оформить заказ':'Записаться';
+    return{body,foot:`${dep&&refundTxt?`<p class="foot-note">${refundTxt}</p>`:''}<button class="main-btn" data-act="${dep?'paysheet':'book'}" id="book" ${ok?'':'disabled'}>${label}</button>`};
+  }
+  const b=st.bookings.find(x=>x.id===st.lastNew);if(!b){S.step=0;return clientScreen()}
+  const bs=svcOf(b.svc)||{name:b.svcName,est:false},hold=b.status==='hold';
+  const bopts=ansShort(m,b.svc,b.ans||{});
+  return{body:`<div class="done"><div class="bigwin ${hold?'half':''}" data-light="${b.id}${hold?'h':''}"><span class="d">${fmtDay(b.date)}</span><span class="tm">${order?esc(m.wins[b.start]):fmtT(b.start)}</span></div><h2>${hold?'Бронь отправлена':order?'Заказ принят':'Вы записаны'}</h2>
+    ${hold?`<p class="muted small" style="margin:0">${esc(m.who)} обычно отвечает в течение часа. Ответ придёт в Telegram. Если мастер не сможет, ${b.paid?'предоплата вернётся автоматически, а ':''}бот предложит другое время.</p>`:''}
+    ${b.paid?`<p class="small" style="margin:0">Предоплата <b>${rub(b.paid)}</b> внесена. На месте останется ${rub(Math.max(0,b.price-b.paid))}.</p>`:''}
+    <div class="sum"><div class="kv"><span>Когда</span><span>${fmtDay(b.date)}, ${whenOf(m,b)}</span></div><div class="kv"><span>${order?'Заказ':'Услуга'}</span><span>${esc(bs.name)}</span></div>${bopts?`<div class="kv"><span>Выбор</span><span>${esc(bopts)}</span></div>`:''}<div class="kv"><span>Адрес</span><span>${esc(m.addr)}</span></div><div class="kv"><span>Итого</span><span>${priceTxt(bs,b.price)}</span></div></div>
+    <p class="muted small">${bs.est?'Точную цену мастер назовёт после осмотра. ':''}Бот напомнит за день${order?'':' и за 2 часа'}. В напоминании будут кнопки «Всё в силе» и «Перенести».</p>
+    <div class="row-btns"><button class="btn2" data-act="resched:${b.id}">Перенести</button><button class="btn2" data-act="cancelask:${b.id}">Отменить</button></div>
+    ${m.after&&m.hints[m.after]?`<button class="btn2 acc" data-act="hint:${m.after}">Памятка: ${m.hints[m.after].name.toLowerCase()}</button>`:''}</div>`,
+    foot:`<button class="main-btn" data-act="home">На главную</button>`};
+}
+
+const hasMemos=()=>Object.keys(M().hints).some(k=>St().hintsOn[k]);
+function memoIcons(){const m=M(),p=popStage();return`<div class="mini">${hasMemos()?`<button class="hint-btn" data-pop="memo" data-act="memos"><span class="cw ${p>=1?'on':''}" aria-hidden="true"></span>Памятка</button>`:''}${m.works.length?`<button class="hint-btn" data-pop="works" data-act="worksheet"><span class="cw ${p>=2?'on':''}" aria-hidden="true"></span>Работы мастера</button>`:''}</div>`}
+// всплывашки на экране выбора времени: сначала памятка, потом работы; «Спасибо, понятно» — карточка улетает в кнопку сверху
+function popStage(){
+  const m=M(),st=St();if(st.memoSeen||S.noPops)return 2;
+  let p=st.pop||0;if(p===0&&!hasMemos())p=1;if(p===1&&!m.works.length)p=2;return p;
+}
+function memoModal(){
+  const m=M(),st=St();
+  const order=m.mode==='order',hasQ=(svcOf(S.sel.svc)?.qs||[]).length>0;
+  const at=order?((S.step===1&&S.qi===0)||(S.step===2&&!hasQ)):(S.step===2||S.step===10);
+  if(S.role!=='client'||!at||S.sheet)return'';
+  const p=popStage();if(p>=2)return'';
+  if(p===0){
+    const used=[...new Set((svcOf(S.sel.svc)?.qs||m.services.flatMap(x=>x.qs)).map(q=>m.q[q]&&m.q[q].hint).filter(Boolean).concat(m.after?[m.after]:[]))].filter(k=>m.hints[k]&&st.hintsOn[k]);
+    const slides=(used.length?used:Object.keys(m.hints).filter(k=>st.hintsOn[k])).slice(0,4).map(k=>[k,m.hints[k]]);
+    const i=Math.min(S.slide||0,slides.length-1),[key,h]=slides[i],last=i===slides.length-1;
+    const shapes=h.items.filter(it=>it.svg).slice(0,4);
+    const rows=shapes.length?[]:h.items.slice(0,3);
+    const qs=svcOf(S.sel.svc)?.qs||[];
+    return`<div class="modal-back"><div class="modal pop story" role="dialog" aria-modal="true" aria-label="Памятка мастера: ${esc(h.name)}" tabindex="-1">
+      <div class="st-bars" aria-hidden="true">${slides.map((_,j)=>`<i class="${j<i?'done':j===i?'now':''}"></i>`).join('')}</div>
+      <div class="st-slide" data-k="${i}">
+        <div class="st-head"><span class="st-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1.1 2l.1.7h4.8l.1-.7c.1-.8.5-1.5 1.1-2A6 6 0 0 0 12 3z"/></svg></span><span>Совет мастера</span><span class="st-cnt">${i+1} из ${slides.length}</span></div>
+        <h2>${esc(h.title)}</h2>
+        ${shapes.length?`<ul class="st-sh">${shapes.map(it=>{const can=it.pick&&qs.includes(it.pick[0]),on=!!(it.pick&&S.sel.ans[it.pick[0]]===it.pick[1]);const inner=`<svg viewBox="0 0 40 66" aria-hidden="true"><path d="${it.svg}"/></svg><span><b>${esc(it.n)}</b><small>${esc(it.t)}</small></span>`;return`<li>${can?`<button class="st-shrow" aria-pressed="${on}" data-act="pick:${it.pick[0]}:${it.pick[1]}">${inner}<i class="st-mark" aria-hidden="true">${on?'✓':''}</i></button>`:`<div class="st-shrow">${inner}</div>`}</li>`}).join('')}</ul>${qs.includes(shapes[0].pick?.[0])?'<p class="small muted" style="margin:0">Можно сразу отметить форму, она попадёт в анкету</p>':''}`:''}
+        <ul class="st-list">${rows.map(it=>`<li><span class="cw on" aria-hidden="true"></span><span><b>${esc(it.n)}.</b> ${esc(it.t)}</span></li>`).join('')}</ul>
+        ${h.items.length>(shapes.length+rows.length)?`<button class="no st-more" data-act="pop-open:memo:${key}">Подробнее в памятке</button>`:''}
+      </div>
+      <div class="st-nav">${i>0?'<button class="back-btn" data-act="st-prev" aria-label="Назад"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>':''}${last?'<button class="main-btn" data-act="pop-ok:memo">Спасибо, понятно</button>':'<button class="main-btn" data-act="st-next">Следующий совет</button>'}</div>
+      <button class="no st-off" data-act="nopops">Больше не показывать подсказки</button></div></div>`;
+  }
+  const more=m.works.length-3;
+  return`<div class="modal-back"><div class="modal pop" role="dialog" aria-modal="true" aria-label="Работы мастера" tabindex="-1">
+    <div><span class="pop-tag">Работы мастера</span><h2>Так делает ${esc(m.who)}</h2></div>
+    <div class="pop-works">${m.works.slice(0,3).map(w=>artHtml(m,w)).join('')}${more>0?`<div class="art pop-more">+${more}</div>`:''}</div>
+    <div class="btns"><button class="main-btn" data-act="pop-ok:works">Спасибо, понятно</button><button class="no" data-act="pop-open:works">Смотреть все</button><button class="no st-off" data-act="nopops">Больше не показывать подсказки</button></div></div></div>`;
+}
+// «Спасибо, понятно»: содержимое гаснет, карточка по дуге перетекает в кнопку (размер, скругление, цвет), кнопка пружинит, окошко в ней загорается
+let flyGhost=null;
+function flyAway(kind,cb){
+  let fired=false;const done=()=>{if(!fired){fired=true;cb()}};
+  const ph=document.getElementById('phone'),md=document.querySelector('#overlay .modal'),bk=document.querySelector('#overlay .modal-back'),tg=document.querySelector(`#screen [data-pop="${kind}"]`);
+  if(!md||!tg||matchMedia('(prefers-reduced-motion: reduce)').matches||!md.animate){done();return}
+  setTimeout(done,1200);
+  const P=ph.getBoundingClientRect(),A=md.getBoundingClientRect(),B=tg.getBoundingClientRect(),ms=getComputedStyle(md),ts=getComputedStyle(tg);
+  const g=md.cloneNode(true);g.removeAttribute('role');g.removeAttribute('tabindex');g.setAttribute('aria-hidden','true');g.classList.add('flyghost');
+  const x0=A.left-P.left,y0=A.top-P.top,x1=B.left-P.left,y1=B.top-P.top;
+  Object.assign(g.style,{position:'absolute',left:x0+'px',top:y0+'px',width:A.width+'px',height:A.height+'px',margin:'0',maxHeight:'none',zIndex:'9',overflow:'hidden',animation:'none'});
+  ph.appendChild(g);md.style.visibility='hidden';flyGhost=g;
+  [...g.children].forEach(c=>c.animate([{opacity:1,transform:'none',filter:'blur(0)'},{opacity:0,transform:'scale(.94)',filter:'blur(3px)'}],{duration:170,easing:'cubic-bezier(.4,0,1,1)',fill:'forwards'}));
+  bk.animate([{backgroundColor:getComputedStyle(bk).backgroundColor},{backgroundColor:'rgba(0,0,0,0)'}],{duration:460,easing:'ease-out',fill:'forwards'});
+  const lerp=(p,q,t)=>p+(q-p)*t,cxA=x0+A.width/2,cyA=y0+A.height/2,cxB=x1+B.width/2,cyB=y1+B.height/2;
+  const mid=(t,lift)=>{const w=lerp(A.width,B.width,Math.min(1,t*1.5)),h=lerp(A.height,B.height,Math.min(1,t*1.6));return{left:(lerp(cxA,cxB,t)-w/2)+'px',top:(lerp(cyA,cyB,t)-lift-h/2)+'px',width:w+'px',height:h+'px'}};
+  const an=g.animate([
+    {left:x0+'px',top:y0+'px',width:A.width+'px',height:A.height+'px',borderRadius:'22px',backgroundColor:ms.backgroundColor,boxShadow:ms.boxShadow},
+    {offset:.4,...mid(.4,26),borderRadius:'28px',backgroundColor:ms.backgroundColor},
+    {offset:.75,...mid(.8,10),borderRadius:(B.height/2+2)+'px',backgroundColor:ts.backgroundColor},
+    {left:x1+'px',top:y1+'px',width:B.width+'px',height:B.height+'px',borderRadius:(B.height/2)+'px',backgroundColor:ts.backgroundColor,boxShadow:'0 0 0 0 transparent'}
+  ],{duration:620,easing:'cubic-bezier(.45,0,.15,1)',fill:'forwards'});
+  an.onfinish=done;
+}
+function landOn(kind){
+  const g=flyGhost;flyGhost=null;
+  if(g){g.animate([{opacity:1},{opacity:0}],{duration:140,fill:'forwards'}).onfinish=()=>g.remove();setTimeout(()=>g.remove(),400)}
+  const tg=document.querySelector(`#screen [data-pop="${kind}"]`);if(tg){tg.classList.add('got');setTimeout(()=>tg.classList.remove('got'),800)}
+}
+const REASONS=['Болезнь','Форс-мажор','Накладка в расписании','Другое'];
+const WLD=['Любой день','Будни','Выходные'],WLT=['Любое время','Утро','День','Вечер'];
+function freedFor(m,st,b){
+  const w=st.waitlist[0];if(!w)return;
+  st.feed.push({to:'Клиенту из листа ожидания',when:'сразу после отмены',text:`${w.client}, у мастера освободилось время: ${fmtDay(b.date)}, ${whenOf(m,b)}. Записаться? Кто первый нажмёт, тот и записан.`,btn:['Записаться','wlbook:'+w.id]});
+}
+function dfScreen(){
+  const m=M(),st=St(),sel=S.sel,minDur=Math.min(...m.services.map(s=>s.dur||60));
+  if(S.step===10){
+    const days=[];for(let i=0;i<st.horizon;i++){const k=keyOf(addDays(today,i));days.push([k,slotsFor(k,minDur).length])}
+    if(!sel.day){const f=days.find(d=>d[1]);sel.day=f?f[0]:null}
+    const sl=sel.day?slotsFor(sel.day,minDur):[];
+    return{body:prog(1,4,'Шаг 1 из 4 · дата и время')+`<div class="qhead"><h2>Когда удобно?</h2>${memoIcons()}</div><p class="small muted" style="margin:0">Сначала время, потом процедура: покажем только те, что помещаются в это окно.</p>
+      <div class="days">${days.map(([k,n])=>dayWin(k,n,sel.day,lWin)).join('')}</div>
+      ${sel.day?`<h3>${fmtDay(sel.day)}</h3>${slotGroups(sl,sel.start)}`:'<p class="muted">Свободных дат пока нет.</p>'}<button class="btn2" data-act="wl">Нет подходящего времени? Встать в лист ожидания</button>`,
+      foot:`${sel.start!=null?`<p class="foot-note fsum"><span>${fmtDay(sel.day)}, ${fmtT(sel.start)}</span></p>`:''}<button class="main-btn" data-act="dfnext" ${sel.start!=null?'':'disabled'}>${sel.start!=null?'Выбрать процедуру':'Выберите время'}</button>`};
+  }
+  return{body:prog(2,4,'Шаг 2 из 4 · процедура')+`<h2>${fmtDay(sel.day)}, ${fmtT(sel.start)}</h2><p class="small muted" style="margin:0">Что делаем?</p>
+    <div class="list">${m.services.map(s=>{const fits=slotsFor(sel.day,s.dur).includes(sel.start);return`<button class="svc2" ${fits?`data-act="dfsvc:${s.id}"`:'disabled style="opacity:.5;cursor:not-allowed"'}><span class="nm">${esc(s.name)}</span><span class="pr">${listPrice(m,s)}</span><span class="meta"><span>${durTxt(s.dur)}</span><span>${fits?esc(s.note||''):'Не помещается в это окно'}</span></span></button>`}).join('')}</div>`,foot:''};
+}
+
+// ===== мастер =====
+function recCard(m,b){
+  const s=svcOf(b.svc)||{name:b.svcName||'Услуга',est:false},hold=b.status==='hold';
+  return`<div class="rec ${b.isNew||hold?'new':''}"><div class="rec-top"><b>${hold?fmtDay(b.date)+', ':''}${rangeOf(m,b)}</b>${hold?'<span class="pill">бронь</span>':b.isNew?'<span class="pill">новая</span>':''}</div>
+    <div><button class="cname" data-act="client:${b.id}" aria-label="Карточка клиента: ${esc(b.client)}">${esc(b.client)}</button> · ${esc(s.name)} · ${priceTxt(s,b.price)}</div>${(()=>{const c=cli(St(),b.client);return`<div class="cmeta"><span class="vis ${c.past?'':'first'}">${c.past?(c.past+1)+'-й визит':'Новый клиент'}</span>${c.note?`<span class="cnote">${esc(c.note)}</span>`:''}</div>`})()}<div class="answers">${answersHtml(m,b)}${b.comment?`<span>Комментарий: <b>${esc(b.comment)}</b></span>`:''}${b.paid?`<span>Предоплата: <b>${rub(b.paid)} получена</b></span>`:''}</div>
+    <div class="small muted">${esc(b.phone||'телефон не указан')}</div>
+    <div class="row-btns">${hold?`<button class="btn2 fill" data-act="confirm:${b.id}">Подтвердить</button><button class="btn2" data-act="decline:${b.id}">Отклонить</button>`:`<button class="btn2 acc" data-act="toast:Откроется чат с клиентом в Telegram">Написать</button><button class="btn2" data-act="mmove:${b.id}">Перенести</button><button class="btn2" data-act="mcancel:${b.id}">Отменить</button>`}</div></div>`;
+}
+const gapBtn=(k,s,e,from,px)=>`<button class="blk gap" style="top:${(s-from)/30*px+1}px;height:${(e-s)/30*px-2}px" data-act="block:${k}:${s}:${e}">Свободно ${fmtT(s)}–${fmtT(e)} · закрыть</button>`;
+function calScreen(tabs){
+  const m=M(),st=St(),order=m.mode==='order';
+  if(!S.calMonth)S.calMonth=new Date(today.getFullYear(),today.getMonth(),1);
+  if(!S.calDay){const f=st.bookings.slice().sort((a,b)=>a.date.localeCompare(b.date))[0];S.calDay=f?f.date:keyOf(today)}
+  const holds=st.bookings.filter(b=>b.status==='hold');
+  const mo=S.calMonth,y=mo.getFullYear(),mn=mo.getMonth(),startW=(new Date(y,mn,1).getDay()+6)%7,nd=new Date(y,mn+1,0).getDate();
+  const minDur=Math.min(...m.services.map(s=>s.dur||60));
+  let cells=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(w=>`<span class="wd">${w}</span>`).join('')+'<span></span>'.repeat(startW);
+  for(let d=1;d<=nd;d++){const dt=new Date(y,mn,d),k=keyOf(dt),cnt=st.bookings.filter(b=>b.date===k).length,past=dt<today,open=!!dayHours(k);
+    const free=!past&&(order?orderLeft(k):slotsFor(k,minDur).length)>0;
+    cells+=`<button class="cal-d ${open?'':'off'} ${past?'past':''} ${k===keyOf(today)?'today':''} ${free?'free':''}" aria-pressed="${k===S.calDay}" aria-label="${fmtDay(k)}" data-act="calday:${k}"><b>${d}</b>${cnt?`<i>${cnt}</i>`:'<span></span>'}</button>`}
+  const k=S.calDay,hrs=dayHours(k),dayB=st.bookings.filter(b=>b.date===k).sort((a,b)=>a.start-b.start);
+  let day=`<div class="sec-h"><h2>${fmtDay(k)}</h2><button class="btn2" data-act="dayoffT:${k}">${hrs?'Сделать выходным':'Открыть день'}</button></div>`;
+  if(!hrs)day+='<p class="muted small" style="margin:0">Выходной. Клиенты этот день не видят.</p>';
+  else if(order)day+=`<p class="small muted" style="margin:0">Заказов: ${dayB.length} из ${st.cap}. ${orderLeft(k)?'Клиенты видят свободные места.':'Мест нет, клиенты этот день не видят.'}</p>`;
+  else{
+    const from=toMin(hrs.from),to=toMin(hrs.to),px=26;
+    const clip=(a,b)=>[Math.max(a,from),Math.min(b,to)];
+    const pos=(a,b)=>{[a,b]=clip(a,b);return`top:${(a-from)/30*px+1}px;height:${Math.max(0,(b-a)/30*px-2)}px`};
+    const occ=busy(k).map(([a,b])=>clip(a,b)).filter(([a,b])=>b>a).sort((a,b)=>a[0]-b[0]);
+    let tl='';
+    for(let t=Math.ceil(from/60)*60;t<=to;t+=60)tl+=`<div class="hr" style="top:${(t-from)/30*px}px"><span>${fmtT(t)}</span></div>`;
+    let cur=from;
+    for(const [s0,e0] of occ){if(s0-cur>=30)tl+=gapBtn(k,cur,s0,from,px);cur=Math.max(cur,e0)}
+    if(to-cur>=30)tl+=gapBtn(k,cur,to,from,px);
+    (st.blocks[k]||[]).forEach((x,i)=>{tl+=`<button class="blk closed" style="${pos(x[0],x[1])}" data-act="unblock:${k}:${i}">Закрыто ${fmtT(x[0])}–${fmtT(x[1])} · открыть</button>`});
+    for(const b of dayB){const dur=b.dur||svcOf(b.svc)?.dur||60;tl+=`<div class="blk ${b.status==='hold'?'hold':'bk'}" style="${pos(b.start,b.start+dur)}"><b>${fmtT(b.start)}</b> ${esc(b.client)} · ${esc(sName(b))}</div>`}
+    day+=`<div class="ovr small muted">Часы в этот день: <input type="time" step="1800" id="ov-from" value="${hrs.from}" aria-label="Начало дня"> – <input type="time" step="1800" id="ov-to" value="${hrs.to}" aria-label="Конец дня"></div>
+      <div class="legend"><span style="--c:var(--accent)">запись</span><span style="--c:var(--accent-soft)">бронь, ждёт ответа</span><span style="--c:var(--ok)">свободно, нажмите, чтобы закрыть</span><span style="--c:var(--line)">закрыто</span></div>
+      <div class="tl" style="height:${(to-from)/30*px}px">${tl}</div>`;
+  }
+  const steps=[['svc','Услуги и цены','mtab:svc'],['hours','Рабочие часы и правила брони','mtab:sched'],['prof','Фото, имя и описание','mtab:prof'],['link','Ссылка на запись в шапку канала','copylink']];
+  const doneN=steps.filter(([k])=>st.setup[k]).length;
+  const fin=doneN===4&&S.cur==='custom'&&!st.fin?`<div class="ed fin"><span class="win on" aria-hidden="true"></span><b>Окошко готово</b><span class="small muted">Ссылка для клиентов: ${linkOf('custom')}. Поставьте её в шапку канала или в описание профиля.</span>
+    <div class="row-btns"><button class="btn2 fill" data-act="role:client">Посмотреть глазами клиента</button><button class="btn2" data-act="findone">Скрыть</button></div></div>`:'';
+  const setup=doneN<4?`<div class="ed" style="border-color:var(--accent)"><div class="sec-h"><b>Настройка за 3 минуты</b><span class="small muted">${doneN} из 4</span></div>
+    <div class="prog"><div class="bar"><i style="width:${doneN/4*100}%"></i></div></div>
+    ${steps.map(([k,t,a])=>`<button class="opt" style="border:0;background:none;padding:6px 0;text-align:left;width:100%" data-act="${a}"><span>${st.setup[k]?'<span style="color:var(--ok)">✓</span>':'○'} ${t}</span><span class="muted">›</span></button>`).join('')}</div>`:'';
+  const wl=st.waitlist.length?`<h3>Лист ожидания</h3>${st.waitlist.map(w=>`<div class="rec"><div><b>${esc(w.client)}</b> · ${esc(svcOf(w.svc)?.name||'любая услуга')}</div><span class="small muted">Удобно: ${esc(w.pref)}</span><div class="row-btns"><button class="btn2 acc" data-act="wloffer:${w.id}">Предложить время</button><button class="btn2" data-act="wldel:${w.id}">Убрать</button></div></div>`).join('')}`:'';
+  if(hrs&&!dayB.length)day+=st.bookings.length?'<p class="muted small" style="margin:0">Записей на этот день пока нет.</p>':`<p class="muted small" style="margin:0">Записей пока нет. Отправьте ссылку ${linkOf(S.cur)} паре постоянных клиентов: первая запись появится здесь.</p>`;
+  return{body:tabs+fin+setup+(holds.length?`<h3>Ждут вашего ответа</h3>${holds.map(b=>recCard(m,b)).join('')}`:'')+wl
+    +`<div class="cal-h"><button data-act="calm:-1" aria-label="Прошлый месяц">‹</button><b>${mo.toLocaleDateString('ru-RU',{month:'long',year:'numeric'}).replace(' г.','')}</b><button data-act="calm:1" aria-label="Следующий месяц">›</button></div><div class="cal">${cells}</div>`
+    +day+dayB.filter(b=>b.status!=='hold').map(b=>recCard(m,b)).join(''),foot:''};
+}
+function pickScreen(){
+  if(S.mview==='mode')return{body:`<h2>Как к вам записываются?</h2><p class="muted small">Потом можно поменять.</p><div class="opts">
+    <button class="optc" data-act="mkcustom:slot"><span><b>Запись на время</b><span>Клиент приходит к вам или вы к нему в конкретный час: мастера, сервис, репетиторы.</span></span></button>
+    <button class="optc" data-act="mkcustom:order"><span><b>Заказ к дате</b><span>Вы делаете вещь к сроку, а клиент забирает: торты, детали, мебель, пошив.</span></span></button></div>`,foot:''};
+  return{body:`<h2>Чем вы занимаетесь?</h2><p class="muted small">Выберите профессию: услуги, анкета и памятки подставятся сами. Потом всё можно поменять под себя.</p>
+    <input class="tinput" id="prof-search" placeholder="Поиск: торты, сварка, массаж">
+    ${TEMPLATES.map(([g,list])=>`<div class="tgroup"><h3>${g}</h3><div class="list">${list.map(([n,id])=>`<button class="svc2" data-name="${n.toLowerCase()}" ${id?`data-act="tpl:${id}"`:'disabled'}><span class="nm">${n}</span><span class="pr small ${id?'':'muted'}">${id?'готово':'скоро'}</span></button>`).join('')}</div></div>`).join('')}
+    <button class="memo" data-act="custom"><span class="q">+</span><span><b>Моей профессии нет</b><br><span class="small muted">Соберите анкету из готовых блоков</span></span></button>`,foot:''};
+}
+function depEx(){const d=St().deposit;return typeof d==='string'?depOf(M().services[0].price||1000):d}
+function nightExample(st,order){
+  if(order){
+    if(st.leadDays>2)return`Пример: клиент в 3 ночи хочет заказ на послезавтра. С этими настройками он не увидит эту дату: заказы принимаются минимум за ${pl(st.leadDays,'день','дня','дней')}.`;
+    const hold=st.confirm==='manual'||(st.confirm==='urgent'&&55<st.urgentH);
+    return`Пример: клиент в 3 ночи хочет заказ на послезавтра. С этими настройками ${hold?'придёт бронь без звука, а вы утром подтвердите или откажете':'заказ оформится сразу'}${st.deposit?', предоплату клиент внесёт при оформлении':''}.`;
+  }
+  const leadTxt=(LEADS.find(l=>l[0]===st.lead)||[0,st.lead+' ч'])[1];
+  if(st.lead>7)return`Пример: клиент пишет в 3 ночи и хочет прийти в 10 утра. С этими настройками он не увидит это время: записаться можно минимум за ${leadTxt}.`;
+  const hold=st.confirm!=='auto';
+  return`Пример: клиент пишет в 3 ночи и хочет прийти в 10 утра. С этими настройками ${hold?'придёт бронь без звука, а вы утром подтвердите или откажете':'он запишется сразу'}${st.deposit?', предоплату клиент внесёт при записи':''}.`;
+}
+function masterScreen(){
+  if(S.mview)return pickScreen();
+  const m=M(),st=St(),order=m.mode==='order';
+  const tabs=`<div class="tabs">${[['rec','Записи'],['sched','Правила'],['svc','Услуги'],['prof','Профиль']].map(([k,t])=>`<button aria-pressed="${S.mtab===k}" data-act="mtab:${k}">${t}</button>`).join('')}</div>`;
+  if(S.mtab==='rec')return calScreen(tabs);
+  if(S.mtab==='sched'){
+    const rows=[1,2,3,4,5,6,0].map(i=>{const w=st.sched[i];return`<div class="srow"><b>${WD[i]}</b><button class="switch" aria-label="${WD[i]}: рабочий день" aria-pressed="${w.on}" data-act="wd:${i}"></button>
+      <div class="times">${!w.on?'<span class="muted small">выходной</span>':order?'<span class="muted small">принимаю заказы</span>':`<input type="time" step="1800" id="from-${i}" value="${w.from}" aria-label="Начало">–<input type="time" step="1800" id="to-${i}" value="${w.to}" aria-label="Конец">`}</div></div>`}).join('');
+    const sel=(id,arr,v)=>`<select id="${id}">${arr.map(([x,t])=>`<option value="${x}" ${String(x)===String(v)?'selected':''}>${t}</option>`).join('')}</select>`;
+    const lead=order
+      ?`<div class="field"><label for="leadDays">Принимаю заказы минимум за</label>${sel('leadDays',[1,2,3,5,7,14].map(h=>[h,pl(h,'день','дня','дней')+' до готовности']),st.leadDays)}</div>
+        <div class="field"><label for="cap">Заказов в день не больше</label>${sel('cap',[1,2,3,4,5,8].map(h=>[h,h]),st.cap)}</div>`
+      :`<div class="field"><label for="lead">Записываться можно минимум за</label>${sel('lead',LEADS,st.lead)}</div>`;
+    return{body:tabs+`<h2>Правила брони</h2>${lead}
+      <div class="field"><label for="horizon">Расписание открыто вперёд на</label>${sel('horizon',HORIZONS,st.horizon)}</div>
+      <div class="field"><label for="confirm">Кто подтверждает записи</label>${sel('confirm',CONFIRMS,st.confirm)}</div>
+      ${st.confirm==='urgent'?`<div class="field"><label for="urgentH">Срочной считается запись, если до неё меньше</label>${sel('urgentH',[[12,'12 часов'],[24,'суток'],[48,'2 суток']],st.urgentH)}</div>`:''}
+      ${order?'':`<div class="field"><label for="flow">Что клиент выбирает сначала</label>${sel('flow',[['service','Сначала услугу'],['date','Сначала дату и время']],st.flow)}</div>`}
+      <div class="field"><label for="deposit">Предоплата, чтобы подтвердить запись</label>${sel('deposit',[[0,'Без предоплаты'],[300,'300 ₽'],[500,'500 ₽'],[1000,'1 000 ₽'],['30','30% от цены'],['50','50% от цены']],st.deposit)}</div>
+      ${st.deposit?`<div class="field"><label for="refund">Если клиент отменил</label>${sel('refund',[['day','Возвращаем, если отмена за сутки и раньше'],['never','Не возвращаем']],st.refund)}</div><p class="small muted" style="margin:0">Комиссия сервиса — 5% с предоплаты: с ${rub(depEx())} вы получите ${rub(Math.round(depEx()*0.95))}. Остальную сумму клиент платит вам на месте как обычно.</p>`:''}
+      <p class="small muted">${nightExample(st,order)}</p>
+      ${order?'':`<div class="opt"><div><b>Без простоев между клиентами</b><br><span class="small muted">Клиенту видно только время вплотную к другим записям</span></div><button class="switch" aria-label="Без простоев между клиентами" aria-pressed="${st.noGaps}" data-act="nogaps"></button></div>`}
+      <h2>${order?'Когда беру заказы':'Рабочие часы'}</h2><div class="sched">${rows}</div>
+      <div class="field"><label for="dayoff">Закрыть дату (отпуск, личные дела)</label><input type="date" id="dayoff" min="${keyOf(today)}"></div>
+      <div class="offs">${st.daysOff.map(k=>`<button class="tag" data-act="unoff:${k}" aria-label="Открыть ${fmtDay(k)}">${fmtDay(k)} ✕</button>`).join('')}</div>`,foot:''};
+  }
+  if(S.mtab==='svc'){
+    const durs=[30,45,60,90,120,150,180,240,300];
+    const eds=m.services.map(s=>`<div class="ed"><button class="svc-row" data-act="svcopen:${s.id}" aria-expanded="${S.svcOpen===s.id}"><span><b>${esc(s.name)}</b><span class="small muted">${s.price===0?'бесплатно':rub(s.price)}${order?'':' · '+durTxt(s.dur)} · ${pl(s.qs.length,'вопрос','вопроса','вопросов')}</span></span><span class="small" style="color:var(--accent-text)">${S.svcOpen===s.id?'Свернуть':'Изменить'}</span></button>${S.svcOpen!==s.id?'':`<div class="ed-row">
+        <label>Название<input id="sv-name-${s.id}" value="${esc(s.name)}"></label>
+        <label>Цена, ₽<input id="sv-price-${s.id}" inputmode="numeric" value="${s.price}"></label>
+        ${order?'':`<label>Длится<select id="sv-dur-${s.id}">${durs.map(d=>`<option value="${d}" ${d===s.dur?'selected':''}>${durTxt(d)}</option>`).join('')}</select></label>`}</div>
+      <label>Описание<input id="sv-note-${s.id}" value="${esc(s.note||'')}" placeholder="Что входит"></label>
+      <span class="small muted">Вопросы анкеты для этой услуги:</span>
+      <div class="chips">${Object.entries(m.q).map(([k,Q])=>`<button class="qchip" aria-pressed="${s.qs.includes(k)}" data-act="sq:${s.id}:${k}">${esc(Q.t)}</button>`).join('')||'<span class="small muted">Пока нет вопросов. Добавьте свой ниже.</span>'}</div>
+      <div class="row-btns"><button class="btn2" data-act="sdel:${s.id}">Удалить услугу</button></div>`}</div>`).join('');
+    return{body:tabs+`<h2>Услуги и цены</h2>${eds}<button class="btn2 acc" data-act="sadd">+ Добавить услугу</button>
+      <h2>Свой вопрос в анкету</h2>
+      <div class="ed"><label>Вопрос<input id="cq-t" placeholder="Например: Какой краситель?"></label>
+        <label>Как отвечать<select id="cq-type"><option value="opts">Выбрать вариант</option><option value="text">Написать текстом</option><option value="photo">Прикрепить фото или файл</option></select></label>
+        <label id="cq-o-wrap">Варианты через запятую<input id="cq-o" placeholder="Розовый, голубой, без красителя"></label>
+        <label>Подсказка к вопросу, если нужна<input id="cq-h" placeholder="Например: голубой краситель натуральный, из спирулины"></label>
+        <label>Добавить в услугу<select id="cq-s">${m.services.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('')}</select></label>
+        <button class="btn2 acc" data-act="cqadd">Добавить вопрос</button></div>`,foot:''};
+  }
+  const used=St().bookings.length,pro=m.plan==='pro';
+  return{body:tabs+`<button class="plan-card ${pro?'pro':''}" data-act="plans"><span class="win ${pro?'on':''}" aria-hidden="true"></span><span><b>${pro?'Тариф «Про»':'Бесплатный тариф'}</b><span>${pro?'Без ограничений · 390 ₽ в месяц':`${used} из 30 записей в этом месяце`}</span>${pro?'':`<span class="plan-bar"><i style="width:${Math.min(100,used/30*100)}%"></i></span>`}</span><span class="plan-go">${pro?'Тариф':'Сравнить'}</span></button>
+    <div class="pf">
+    <div class="master"><div class="ava big" style="border-color:var(--line)">${m.avatar?`<img src="${m.avatar}" alt="">`:m.ini}</div><label class="btn2 acc" style="cursor:pointer">Сменить фото<input type="file" accept="image/*" id="ava-in" style="position:absolute;opacity:0;width:1px;height:1px"></label></div>
+    <label>Имя<input id="pf-name" value="${esc(m.name)}"></label>
+    <label>О себе<textarea id="pf-about" rows="2">${esc(m.about)}</textarea></label>
+    <label>Адрес или формат<textarea id="pf-addr" rows="2">${esc(m.addr)}</textarea></label>
+    <label>Тема<select id="pf-dark"><option value="" ${m.dark?'':'selected'}>Светлая</option><option value="1" ${m.dark?'selected':''}>Тёмная</option></select></label>
+    <label>Обложка<select id="pf-cover">${COVERS.map(([v,t])=>`<option value="${v}" ${!m.coverImg&&coverOf(m)===v?'selected':''}>${t}</option>`).join('')}${m.coverImg?'<option selected>Своё фото</option>':''}</select></label>
+    <label class="btn2 acc" style="cursor:pointer;align-self:flex-start;flex-direction:row">Загрузить фото на обложку<input type="file" accept="image/*" id="cover-in" style="position:absolute;opacity:0;width:1px;height:1px"></label>
+    <h3>Цвет оформления</h3><div class="swatches">${PALETTE.map(c=>`<button class="sw" style="background:${c}" aria-label="Цвет: ${PALETTE_N[PALETTE.indexOf(c)]||c}" aria-pressed="${c===m.color}" data-act="color:${c}"></button>`).join('')}</div>
+    <h3>Работы</h3><p class="small muted" style="margin:0">Клиент видит их на главной и может записаться «так же».</p>
+    <div class="wgrid">${m.works.map((w,i)=>`<div class="wcell">${artHtml(m,w)}<button aria-label="Убрать работу" data-act="wdel:${i}">✕</button></div>`).join('')}<label class="addph">+ Фото<br>работы<input type="file" accept="image/*" multiple id="work-add"></label></div>
+    <h3>Памятки для клиентов</h3>
+    <div class="list">${Object.entries(m.hints).map(([k,h])=>`<div class="opt"><div><b>${esc(h.name)}</b><br><button class="back small" data-act="hint:${k}">Посмотреть</button></div><button class="switch" aria-label="Показывать: ${esc(h.name)}" aria-pressed="${st.hintsOn[k]}" data-act="hon:${k}"></button></div>`).join('')||'<span class="small muted">Памятки появятся, когда вы добавите подсказки к вопросам.</span>'}</div>
+    <button class="btn2" data-act="pickprof">Сменить профессию</button></div>`,foot:''};
+}
+
+function sheetHtml(){
+  if(!S.sheet)return'';
+  const m=M(),st=St();
+  const wrap=inner=>`<div class="sheet-back" data-act="close"><div class="sheet" data-stop role="dialog" aria-modal="true" tabindex="-1"><div class="grab"></div>${inner}</div></div>`;
+  if(S.sheet.startsWith('cancelask-')){const b=st.bookings.find(z=>z.id===S.sheet.slice(10));if(!b)return'';
+    const back=b.paid&&st.refund==='day'&&visitTs(m,b)-Date.now()>864e5,ord=m.mode==='order';
+    return wrap(`<h2>Отменить ${ord?'заказ':'запись'}?</h2><div class="sum"><div class="kv"><span>Когда</span><span>${fmtDay(b.date)}, ${whenOf(m,b)}</span></div><div class="kv"><span>${ord?'Заказ':'Услуга'}</span><span>${esc(sName(b))}</span></div></div>
+      <p class="small muted" style="margin:0">${b.paid?(back?`Предоплата ${rub(b.paid)} вернётся на карту в течение 1–3 дней.`:`Предоплата ${rub(b.paid)} не вернётся: ${st.refund==='day'?`до ${ord?'получения':'визита'} меньше суток`:'таковы правила мастера'}.`):'Мастер получит уведомление, время снова станет свободным.'}</p>
+      <button class="main-btn" data-act="cancelmine:${b.id}">Да, отменить</button><button class="btn2" data-act="resched:${b.id}">Лучше перенести</button><button class="btn2" data-act="close">Не отменять</button>`)}
+  if(S.sheet.startsWith('client-')){const b0=st.bookings.find(z=>z.id===S.sheet.slice(7));if(!b0)return'';const c=cli(st,b0.client),ord=m.mode==='order';
+    const mine=st.bookings.filter(z=>z.client===b0.client).sort((a,b)=>a.date.localeCompare(b.date)||a.start-b.start);
+    const sum=c.spent+mine.reduce((a,z)=>a+z.price,0);
+    return wrap(`<div class="chead"><div class="ava big">${esc(b0.client.slice(0,1))}</div><div><h2>${esc(b0.client)}</h2><span class="small muted">${esc(b0.phone||'телефон не указан')}</span></div></div>
+      <div class="cstats"><div><b>${c.past||'—'}</b><span>${c.past?plural(c.past,'визит','визита','визитов')+' раньше':'первый раз'}</span></div><div><b>${rub(sum)}</b><span>${c.past?'вместе с этой':'эта запись'}</span></div><div><b>${c.last?esc(c.last):'—'}</b><span>${c.last?'с прошлого визита':'визитов не было'}</span></div></div>
+      <div class="field"><label for="cl-note">Заметка, клиент её не видит</label><textarea id="cl-note" rows="2" placeholder="Например: аллергия на клей, любит кофе без сахара">${esc(c.note)}</textarea></div>
+      <h3>${ord?'Ближайшие заказы':'Ближайшие записи'}</h3><div class="list">${mine.map(z=>`<div class="rec"><b>${fmtDay(z.date)}, ${whenOf(m,z)}</b><span>${esc(sName(z))} · ${priceTxt(svcOf(z.svc),z.price)}</span><div class="answers">${answersHtml(m,z)}</div></div>`).join('')}</div>
+      <div class="row-btns"><button class="btn2 acc" data-act="toast:Откроется чат с клиентом в Telegram">Написать</button><button class="btn2" data-act="close">Закрыть</button></div>`)}
+  if(S.sheet==='memos')return wrap(`<h2>Памятки мастера</h2><div class="opt"><div><b>Всплывающие подсказки</b><br><span class="small muted">Показывать перед выбором времени</span></div><button class="switch" aria-label="Всплывающие подсказки перед записью" aria-pressed="${!S.noPops}" data-act="togglepops"></button></div><div class="list">${Object.entries(m.hints).filter(([k])=>st.hintsOn[k]).map(([k,h])=>`<button class="svc" data-act="hint:${k}"><span class="nm">${esc(h.name)}</span><span class="muted">›</span></button>`).join('')}</div>`);
+  if(S.sheet.startsWith('work-')){const w=m.works[+S.sheet.slice(5)];const s=w.svc&&svcOf(w.svc);
+    return wrap(`${artHtml(m,w,'lg')}<h2>${esc(w.t)}</h2>${s?`<div class="answers">${answersHtml(m,{svc:w.svc,ans:w.ans})}</div><div class="total"><span>${esc(s.name)}</span><span>${priceTxt(s,priceOf(m,s.id,w.ans))}</span></div><button class="main-btn" data-act="likework:${S.sheet.slice(5)}">Хочу так же</button><p class="small muted" style="margin:0">Анкета заполнится сама, останется выбрать время.</p>`:'<button class="main-btn" data-act="close">Закрыть</button>'}`);}
+  if(S.sheet==='plans'){const pro=m.plan==='pro',li=a=>a.map(([t,ok])=>`<li class="${ok?'':'no'}"><span aria-hidden="true">${ok?'✓':'—'}</span>${t}</li>`).join('');
+    return wrap(`<h2>Тарифы для мастера</h2><p class="small muted" style="margin:0">Начните бесплатно. Платить имеет смысл, когда записей станет много.</p>
+      <div class="plans">
+        <div class="plan ${pro?'':'cur'}"><div class="plan-h"><b>Бесплатно</b><span class="plan-p">0 ₽</span></div>${pro?'':'<span class="plan-now">Ваш тариф</span>'}
+          <ul>${li([['До 30 записей в месяц',1],['Анкета, подсказки и памятки',1],['Напоминания клиентам в Telegram',1],['Предоплата и лист ожидания',1],['Общий бот @okoshko_bot',1],['Внизу страницы «Запись через Окошко»',0]])}</ul></div>
+        <div class="plan hi ${pro?'cur':''}"><div class="plan-h"><b>Про</b><span class="plan-p">390 ₽<small> / мес</small></span></div>${pro?'<span class="plan-now">Ваш тариф</span>':'<span class="plan-now soft">14 дней бесплатно</span>'}
+          <ul>${li([['Записи без ограничений',1],['Свой бот со своим именем',1],['Своя обложка и стиль',1],['Статистика: записи, неявки, доход',1],['Рассылка «освободилось окошко» вашим клиентам',1],['Без подписи «Окошко»',1]])}</ul></div>
+      </div>
+      <div class="note">Комиссия 5% с предоплаты — на любом тарифе: с предоплаты 500 ₽ вы получите 475 ₽. Без предоплаты комиссии нет.</div>
+      <p class="small muted" style="margin:0">Студия на несколько мастеров с общим календарём — скоро, от 990 ₽ в месяц.</p>
+      ${pro?'<button class="btn2" data-act="gofree">Вернуться на бесплатный</button>':'<button class="main-btn" data-act="gopro">Попробовать «Про» 14 дней бесплатно</button><button class="btn2" data-act="close">Пока хватает бесплатного</button>'}`)}
+  if(S.sheet==='works')return wrap(`<h2>Работы мастера</h2><div class="wtiles">${m.works.map((w,i)=>`<button class="work" data-act="work:${i}">${artHtml(m,w)}<b>${esc(w.t)}</b>${w.p!=null?`<span>${rub(w.p)}</span>`:''}</button>`).join('')}</div><button class="main-btn" data-act="close">Вернуться к записи</button>`);
+  if(S.sheet.startsWith('mcancel-')||S.sheet.startsWith('mmove-')){
+    const move=S.sheet.startsWith('mmove-'),id=S.sheet.slice(move?6:8),b=st.bookings.find(z=>z.id===id);if(!b)return'';
+    return wrap(`<h2>${move?'Перенести запись':'Отменить запись'}</h2><div class="sum"><div class="kv"><span>Клиент</span><span>${esc(b.client)}</span></div><div class="kv"><span>Когда</span><span>${fmtDay(b.date)}, ${whenOf(m,b)}</span></div><div class="kv"><span>Услуга</span><span>${esc(sName(b))}</span></div></div>
+      <span class="small muted">Причина, клиент увидит её в сообщении:</span><div class="chips">${REASONS.map((r,i)=>`<button class="chip" aria-pressed="${(S.reason||0)===i}" data-act="reason:${i}">${r}</button>`).join('')}</div>
+      <p class="small muted" style="margin:0">${move?'Клиенту придёт сообщение с кнопкой «Выбрать новое время». Анкета и предоплата сохранятся.':(b.paid?`Предоплата ${rub(b.paid)} вернётся клиенту автоматически.`:'Клиенту придёт сообщение с кнопкой записаться на другое время.')}${st.waitlist.length?' Освободившееся время сразу предложим первому из листа ожидания.':''}</p>
+      <button class="main-btn" data-act="${move?'mmovego':'mcancelgo'}:${b.id}">${move?'Попросить клиента перенести':'Отменить и сообщить клиенту'}</button>`)}
+  if(S.sheet==='wl'){const w=S.wl||(S.wl={d:0,t:0});
+    return wrap(`<h2>Лист ожидания</h2><p class="small muted" style="margin:0">Если у мастера освободится подходящее время, бот сразу напишет вам. Кто первый откликнулся, тот и записался.</p>
+      <h3>Какие дни</h3><div class="chips">${WLD.map((o,i)=>`<button class="chip" aria-pressed="${w.d===i}" data-act="wld:${i}">${o}</button>`).join('')}</div>
+      <h3>Какое время</h3><div class="chips">${WLT.map((o,i)=>`<button class="chip" aria-pressed="${w.t===i}" data-act="wlt:${i}">${o}</button>`).join('')}</div>
+      <button class="main-btn" data-act="wlgo">Встать в лист ожидания</button>`)}
+  if(S.sheet==='pay'){const s=svcOf(S.sel.svc),p=priceOf(m,s.id,S.sel.ans),dep=depOf(p),rb=refundBy(m,S.sel.day,S.sel.start),opts=ansShort(m,s.id,S.sel.ans),order=m.mode==='order';
+    return wrap(`<div class="master"><div class="ava" style="width:44px;height:44px;font-size:16px;overflow:hidden">${m.avatar?`<img src="${m.avatar}" alt="">`:m.ini}</div><div><b style="font-size:15px">${esc(m.name)}</b><span class="small muted">${fmtDay(S.sel.day)}, ${whenOf(m,S.sel)}</span></div></div>
+      <h2>Предоплата ${rub(dep)}</h2><div class="sum"><div class="kv"><span>${esc(s.name)}</span><span>${priceTxt(s,p)}</span></div>${opts?`<div class="kv"><span>Выбор</span><span>${esc(opts)}</span></div>`:''}<div class="kv"><span>Сейчас</span><span>${rub(dep)}</span></div><div class="kv"><span>${order?'При получении':'На месте'}</span><span>${rub(Math.max(0,p-dep))}</span></div></div>
+      <p class="small" style="margin:0">${St().refund!=='day'?'При отмене предоплата не возвращается.':rb?`Передумаете — вернём ${rub(dep)}, если отмените до ${rb}.`:`До ${order?'получения':'визита'} меньше суток: при отмене предоплата не вернётся.`}</p>
+      <button class="main-btn" data-act="paid">Оплатить через СБП</button><button class="btn2" data-act="paid">Оплатить картой</button><button class="btn2" data-act="close">Не сейчас</button>
+      <p class="small muted" style="margin:0">Демо: деньги не списываются. В рабочей версии здесь откроется окно ЮKassa, и деньги сразу уйдут мастеру за вычетом комиссии сервиса.</p>`)}
+  const h=m.hints[S.sheet];if(!h)return'';
+  const qs=S.role==='client'&&S.step===1?svcOf(S.sel.svc).qs:[];
+  const pickBtn=it=>!it.pick||!qs.includes(it.pick[0])?'':S.sel.ans[it.pick[0]]===it.pick[1]?`<span class="near pick">Выбрано</span>`:`<button class="btn2 acc pick" data-act="pick:${it.pick[0]}:${it.pick[1]}">Выбрать</button>`;
+  const inner=h.items.some(it=>it.svg)
+    ?`<div class="shapes">${h.items.map(it=>`<div class="shape"><svg viewBox="0 0 40 66" aria-hidden="true"><path d="${it.svg}"/></svg><div><b>${esc(it.n)}</b><span>${esc(it.t)}</span><br>${pickBtn(it)}</div></div>`).join('')}</div>`
+    :`<div>${h.items.map(it=>`<div class="hitem"><b>${esc(it.n)}</b><span>${esc(it.t)}</span>${pickBtn(it)?`<div>${pickBtn(it)}</div>`:''}</div>`).join('')}</div>`;
+  return wrap(`<h2>${esc(h.title)}</h2>${inner}<button class="main-btn" data-act="close">Понятно</button>`);
+}
+
+// ===== отрисовка =====
+function renderNiches(){
+  const ids=[...ORDER,...(MASTERS.custom?['custom']:[])];
+  const box=document.getElementById('niches');
+  box.innerHTML=ids.map(id=>{const m=MASTERS[id];return`<button class="niche" aria-pressed="${id===S.cur}" data-act="master:${id}"><b>${esc(m.tab)}</b><span>${esc(m.name.split(' ')[0])} · ${m.mode==='slot'?'на время':'к дате'}</span></button>`}).join('')
+    +`<button class="niche" data-act="pickprof"><b>+ Любая профессия</b><span>выбрать или собрать свою</span></button>`;
+  const on=box.querySelector('[aria-pressed="true"]');if(on)box.scrollLeft=on.offsetLeft-box.offsetLeft-16;
+}
+function renderChan(){const m=M();
+  document.getElementById('chan').innerHTML=`<div class="chan-top"><div class="ava" style="width:44px;height:44px;font-size:16px;overflow:hidden">${m.avatar?`<img src="${m.avatar}" alt="">`:m.ini}</div><div><b>${esc(m.name.split(' ')[0])} · ${esc(m.tab.toLowerCase())}</b><span class="small muted">Telegram-канал мастера · описание</span></div></div>
+    <p>${esc(m.about)}. Работы — в канале. Записаться, узнать цены и свободное время: <button class="linkbtn" data-act="startbot">${linkOf(S.cur)}</button></p>
+    <p class="small muted">Клиенту не нужно регистрироваться: Telegram сам передаёт имя, номер — в одну кнопку.</p>`}
+const seenFeed={};
+function renderFeed(){
+  const f=document.getElementById('feed'),fold=document.getElementById('fold-bot'),n=St().feed.length;
+  if(fold.open||seenFeed[S.cur]==null)seenFeed[S.cur]=n;
+  document.getElementById('bot-new').hidden=fold.open||n<=seenFeed[S.cur];
+  renderChan();
+  f.innerHTML=St().feed.map(x=>`<div class="msg ${x.me?'me':''}">${x.me?'':`<span class="who">${x.to}</span>`}<span>${esc(x.text).replace(/\n/g,'<br>')}</span>${(x.btns||(x.btn?[x.btn]:[])).map(q=>`<button class="msg-btn" data-act="${q[1]}">${esc(q[0])}</button>`).join('')}<span class="when">${x.when}</span></div>`).join('');
+  f.scrollTop=f.scrollHeight;
+}
+const withBack=f=>`<button class="back-btn" data-act="back" aria-label="Назад"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span>Назад</span></button>${f}`;
+function render(){
+  const m=M(),w=document.querySelector('.wrap');
+  for(const el of [w,document.body]){el.classList.remove('t-light','t-dark');el.classList.add('t-'+themeOf(m))}
+  w.style.setProperty('--accent',m.color);w.style.setProperty('--accent-ink','#fff');
+  document.getElementById('tg-title').textContent=m.bar;
+  document.getElementById('r-client').setAttribute('aria-pressed',S.role==='client');
+  document.getElementById('r-master').setAttribute('aria-pressed',S.role==='master');
+  const tl=document.getElementById('tg-left'),inFlow=(S.role==='client'&&(S.step>=1&&S.step<=3||S.step>=10))||(S.role==='master'&&S.mview);
+  tl.textContent=inFlow?'‹ Назад':'Закрыть';
+  document.querySelector('.roles').hidden=S.role==='client'&&inFlow;document.getElementById('stage').classList.toggle('noroles',S.role==='client'&&inFlow);
+  tl.dataset.act=inFlow?'back':(inTG?'tgclose':'toast:Закроет мини-приложение и вернёт в чат');
+  S._inFlow=inFlow;
+  const v=S.role==='client'?clientScreen():masterScreen();
+  const scr=document.getElementById('screen'),key=[S.role,S.step,S.qi,S.mtab,S.mview,S.cur].join('|');
+  const backFoot=S.role==='client'&&inFlow;scr.innerHTML=v.body;
+  if(lastKey&&key!==lastKey&&!matchMedia('(prefers-reduced-motion: reduce)').matches){scr.classList.remove('enter-f','enter-b');void scr.offsetWidth;scr.classList.add(S._back?'enter-b':'enter-f')}
+  lastKey=key;const ft=document.getElementById('foot');ft.innerHTML=backFoot?withBack(v.foot):v.foot;ft.classList.toggle('has-back',backFoot);
+  const ov=sheetHtml()+memoModal(),ovKey=ov?(S.sheet||'modal'):'';
+  document.getElementById('overlay').innerHTML=ov;
+  if(ovKey&&ovKey!==lastOv)document.querySelector('#overlay .sheet,#overlay .modal')?.focus({preventScroll:true});
+  lastOv=ovKey;
+  const bw=document.querySelector('#screen .bigwin[data-light]');
+  tgSync();
+  {const f=document.getElementById('foot');document.getElementById('stage').style.setProperty('--fh',(f.offsetHeight?f.offsetHeight+10:0)+'px')}
+  if(bw){if(lastLit!==bw.dataset.light&&!matchMedia('(prefers-reduced-motion: reduce)').matches){lastLit=bw.dataset.light;setTimeout(()=>bw.classList.add('on'),300)}else{lastLit=bw.dataset.light;bw.classList.add('on')}}
+}
+let lastLit='',lastKey='';
+try{new ResizeObserver(()=>{const f=document.getElementById('foot');document.getElementById('stage').style.setProperty('--fh',(f.offsetHeight?f.offsetHeight+10:0)+'px')}).observe(document.getElementById('foot'))}catch(e){}
+let lastOv='';
+let toastT;
+function toast(t){
+  const p=document.getElementById('phone');p.querySelector('.toast')?.remove();
+  const el=document.createElement('div');el.className='toast';el.textContent=t;p.appendChild(el);
+  clearTimeout(toastT);toastT=setTimeout(()=>el.remove(),2400);
+}
+const scrollTop=()=>{document.getElementById('screen').scrollTop=0};
+
+function book(){
+  const m=M(),st=St(),sel=S.sel,s=svcOf(sel.svc),c=S.contact,order=m.mode==='order';
+  const hold=needsConfirm(sel.day,sel.start),files=Object.values(sel.files||{});
+  const b={id:'n'+Date.now(),date:sel.day,start:sel.start,svc:sel.svc,svcName:s.name,dur:s.dur||60,client:c.name.trim(),phone:c.phone.trim(),comment:c.comment.trim(),ans:{...sel.ans},files:{...sel.files},photo:files.length>0,photoUrl:files.find(f=>f!=='file')||null,isNew:true,price:priceOf(m,sel.svc,sel.ans),status:hold?'hold':'ok',paid:S.payNow||S.carryPaid||0};
+  const old=S.reschedOf&&st.bookings.find(z=>z.id===S.reschedOf);
+  if(old)st.bookings=st.bookings.filter(z=>z!==old);
+  if(S.rebookOf)delete st.moved[S.rebookOf];
+  st.bookings.forEach(x=>x.isNew=false);st.bookings.push(b);st.lastNew=b.id;
+  st.hist={prev:st.hist&&old&&st.hist.bid===old.id?st.hist.prev:st.hist,svc:b.svc,ans:{...b.ans},date:fmtDay(b.date),bid:b.id,rep:(st.hist&&st.hist.rep)||['месяц','Пора записаться снова?']};
+  const when=fmtDay(b.date)+', '+whenOf(m,b);
+  const ans=s.qs.filter(q=>m.q[q]&&!m.q[q].photo&&answered(m.q[q],b.ans[q])).map(q=>m.q[q].t+': '+ansText(m.q[q],b.ans[q])).join('\n');
+  const body=`${when}\n${b.client} · ${s.name} · ${priceTxt(s,b.price)}\n${ans}${b.photo?'\nЕсть файл':''}${b.paid?`\nПредоплата ${rub(b.paid)} ${S.carryPaid?'перенесена с прошлой записи':`получена, вам ${rub(Math.round(b.paid*0.95))} (комиссия 5%)`}`:''}`;
+  const head=old?`Перенос: было ${fmtDay(old.date)}, ${whenOf(m,old)}\n`:'';
+  if(hold){
+    st.feed.push({to:'Мастеру',when:'без звука, увидите утром',text:`${head}Запрос на бронь\n${body}`,btn:['Подтвердить или отклонить','openrec']});
+    st.feed.push({to:'Клиенту',when:'сразу',text:`Бронь отправлена: ${when}. Мастер подтвердит её сам, ответ придёт сюда.`});
+  }else{
+    st.feed.push({to:'Мастеру',when:'сразу, без звука ночью',text:`${head}${old?'Новое время':order?'Новый заказ':'Новая запись'}\n${body}`,btn:[order?'Открыть заказ':'Открыть запись','openrec']});
+    if(inTG)try{TG.HapticFeedback.notificationOccurred('success')}catch(e){}
+    st.feed.push({to:'Клиенту',when:'сразу',text:`${order?'Заказ принят':'Вы записаны'}: ${when}. Адрес: ${m.addr}.`});
+    remind(m,st,b);
+  }
+  S.step=4;S.sel=blankSel();S.contact.comment='';resetFlow();
+  renderFeed();
+}
+function remind(m,st,b){
+  const d=parseKey(b.date),same=d<=today,nm=sName(b),day=same?'сегодня':'завтра';
+  const when=same?(m.mode==='order'?'придёт утром в день готовности':'придёт за 2 часа до визита'):`придёт ${addDays(d,-1).toLocaleDateString('ru-RU',{day:'numeric',month:'long'})}`;
+  st.feed.push({to:'Клиенту',when,text:m.mode==='order'?`Напоминание: ${day} ваш заказ «${nm}» будет готов. ${m.winLabel}: ${m.wins[b.start]}.`:`Напоминание: ${day} в ${fmtT(b.start)} у вас «${nm}». ${m.addr}.`,
+    btns:[['Всё в силе','toast:Мастер увидит отметку «Клиент подтвердил»'],['Перенести','resched:'+b.id]]});
+}
+function makeCustom(mode){
+  MASTERS.custom={tab:'Своя профессия',who:'Вы',name:'Ваше имя',ini:'В',bar:'Ваше дело',about:'Расскажите, чем занимаетесь и где',addr:'Укажите адрес',
+    links:[],mode,lead:12,leadDays:2,cap:3,wins:['Заберу сам','Доставка'],winLabel:'Получение',sched:week('10:00','18:00'),memo:'Ответы на частые вопросы',after:null,
+    services:[{id:'s1',name:'Моя услуга',dur:60,price:1000,note:'',qs:[]}],q:{},hints:{},seed:[],color:'#5B5FC7',rating:null,reviews:[],works:[]};
+  initMaster('custom');
+}
+
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]');if(!el||el.disabled)return;
+  if(el.dataset.act==='close'&&e.target.closest('[data-stop]')&&!e.target.closest('.main-btn'))return;
+  const act=el.dataset.act;
+  if(act.startsWith('toast:')){toast(act.slice(6));return}
+  const parts=act.split(':'),[a,x,y]=parts;const st=St(),m=M();S._back=a==='back'||a==='home'||a==='st-prev';
+  if(inTG&&['slot','day','ans','pick','svc','wld','wlt','reason','calday','color'].includes(a))try{TG.HapticFeedback.selectionChanged()}catch(e){}
+  switch(a){
+    case'tgclose':TG.close();return;
+    case'master':resetFlow();S.contact.comment='';S.calDay=null;S.calMonth=null;S.cur=x;S.role='client';S.step=0;S.sheet=null;S.mtab='rec';S.mview=null;S.sel=blankSel();renderNiches();renderFeed();break;
+    case'role':S.role=x;S.sheet=null;S.mview=null;if(x==='client'&&S.step===4)S.step=0;break;
+    case'svc':{const q=S.quick;resetFlow();startFlow(x);const sv=svcOf(x);if(q&&sv&&S.sel.svc===x&&slotsFor(q[0],sv.dur).includes(q[1])){S.sel.day=q[0];S.sel.start=q[1]}break}
+    case'quick':{const d=x,t=+y;
+      if(st.flow==='date'){resetFlow();S.df=true;S.sel=blankSel();S.sel.day=d;S.sel.start=t;S.step=11;break}
+      const fit=m.services.filter(sv=>slotsFor(d,sv.dur).includes(t));
+      if(fit.length===1||m.services.length===1){const id=(fit[0]||m.services[0]).id;resetFlow();startFlow(id);if(slotsFor(d,svcOf(id).dur).includes(t)){S.sel.day=d;S.sel.start=t}break}
+      resetFlow();S.quick=[d,t];render();document.getElementById('svc-list')?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});toast(`Выберите услугу, время ${fmtT(t)} сохраним`);return}
+    case'work':S.sheet='work-'+x;break;
+    case'likework':{const w=m.works[+x];S.sheet=null;resetFlow();if(w&&w.svc)startFlow(w.svc,w.ans);break}
+    case'ans':{const p0=priceOf(m,S.sel.svc,S.sel.ans);S.sel.ans[x]=+y;const dp=priceOf(m,S.sel.svc,S.sel.ans)-p0;render();S.pDelta=dp;const qi=S.qi;setTimeout(()=>{if(S.step===1&&S.qi===qi&&svcOf(S.sel.svc).qs[qi]===x){advanceQ();render();scrollTop()}S.pDelta=0},matchMedia('(prefers-reduced-motion: reduce)').matches?0:240);return}
+    case'pick':{if(el.closest('.story')&&S.sel.ans[x]===+y){delete S.sel.ans[x];break}S.sel.ans[x]=+y;if(el.closest('.story')){toast('Отметили в анкете: '+ansText(m.q[x],+y));break}S.sheet=null;if(svcOf(S.sel.svc).qs[S.qi]===x)advanceQ();break}
+    case'hint':S.sheet=x;break;
+    case'memos':S.sheet='memos';break;
+    case'close':S.sheet=null;break;
+    case'client':S.sheet='client-'+x;break;
+    case'findone':st.fin=true;break;
+    case'next':if(S.step===1)advanceQ();else S.step++;break;
+    case'back':
+      if(S.role==='master'){S.mview=S.mview==='mode'?'pick':null;break}
+      if(S.step===1){if(S.qi>0)S.qi--;else{S.step=S.df?11:0;if(!S.step)resetFlow()}}
+      else if(S.step===2){const s=svcOf(S.sel.svc);S.sel.day=null;S.sel.start=null;if(s&&s.qs.length){S.step=1;S.qi=s.qs.length-1}else{S.step=0;resetFlow()}}
+      else if(S.step===3&&S.df){const s=svcOf(S.sel.svc);if(s.qs.length){S.step=1;S.qi=s.qs.length-1}else S.step=11}
+      else if(S.step===11)S.step=10;
+      else if(S.step===10){S.step=0;resetFlow()}
+      else S.step--;
+      break;
+    case'day':S.sel.day=x;S.sel.start=null;break;
+    case'slot':S.sel.start=+x;break;
+    case'share':if(inTG&&TG.requestContact){TG.requestContact((ok,res)=>{if(ok){const p=res&&res.responseUnsafe&&res.responseUnsafe.contact&&res.responseUnsafe.contact.phone_number;S.contact.phone=p?'+'+String(p).replace(/^\+/,''):'+7 900 123-45-67';render()}else toast('Можно ввести номер вручную')});return}
+      S.contact.phone='+7 900 123-45-67';toast('Telegram передал номер с согласия клиента');break;
+    case'gobook':{if(st.flow==='date'&&m.mode==='slot'){resetFlow();S.df=true;S.sel=blankSel();S.step=10;scrollTop();break}
+      if(m.services.length===1){resetFlow();startFlow(m.services[0].id);scrollTop();break}
+      document.getElementById('svc-list')?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});toast(m.mode==='order'?'Выберите, что заказать':'Выберите услугу');return}
+    case'toreviews':document.getElementById('reviews')?.scrollIntoView({behavior:'smooth',block:'start'});return;
+    case'book':book();break;
+    case'home':S.step=0;resetFlow();S.role='client';break;
+    case'dfstart':resetFlow();S.df=true;S.sel=blankSel();S.step=10;break;
+    case'dfnext':S.step=11;break;
+    case'dfsvc':{const d=S.sel.day,t=S.sel.start;startFlow(x);S.sel.day=d;S.sel.start=t;break}
+    case'paysheet':S.sheet='pay';break;
+    case'mcancel':S.reason=0;S.sheet='mcancel-'+x;break;
+    case'mmove':S.reason=0;S.sheet='mmove-'+x;break;
+    case'reason':S.reason=+x;break;
+    case'mcancelgo':case'mmovego':{const b=st.bookings.find(z=>z.id===x);if(!b)break;st.bookings=st.bookings.filter(z=>z!==b);st.moved[b.id]={...b,carry:a==='mmovego'?(b.paid||0):0};
+      const when=fmtDay(b.date)+', '+whenOf(m,b),R=REASONS[S.reason||0].toLowerCase();
+      if(a==='mcancelgo'){st.feed.push({to:'Клиенту',when:'сразу',text:`${b.client}, мастер отменил запись: ${when}. Причина: ${R}.${b.paid?' Предоплата вернётся на карту в течение 1–3 дней.':''} Извините! Можно выбрать другое время.`,btn:['Записаться на другое время','rebook:'+b.id]});toast('Отменено. Клиент получил сообщение')}
+      else{st.feed.push({to:'Клиенту',when:'сразу',text:`${b.client}, мастеру нужно перенести вашу запись ${when}. Причина: ${R}. Выберите новое время, анкета и предоплата сохранятся.`,btn:['Выбрать новое время','rebook:'+b.id]});toast('Клиент получил просьбу выбрать новое время')}
+      freedFor(m,st,b);S.sheet=null;renderFeed();break}
+    case'rebook':{const b=st.moved[x];if(!b){toast('Новое время уже выбрано');return}resetFlow();S.role='client';S.mview=null;S.sheet=null;
+      S.nameBack=S.contact.name;S.contact.name=b.client;S.sel={svc:b.svc,ans:{...b.ans},files:{...(b.files||{})},day:null,start:null};S.carryPaid=b.carry||0;S.rebookOf=x;
+      if(svcOf(b.svc))S.step=2;else{S.step=0;resetFlow();toast('Эту услугу мастер убрал, выберите другую')}break}
+    case'repeat':{const h=st.hist;S.role='client';resetFlow();if(!h||!svcOf(h.svc)){S.step=0;toast('Эту услугу мастер убрал, выберите другую');break}startFlow(h.svc,h.ans);if(svcOf(h.svc).qs.every(q=>!need(m.q[q])||answered(m.q[q],S.sel.ans[q])))S.step=2;break}
+    case'wl':S.wl={d:0,t:0};S.sheet='wl';break;
+    case'wld':S.wl.d=+x;break;
+    case'wlt':S.wl.t=+x;break;
+    case'wlgo':{const pref=WLD[S.wl.d]+', '+WLT[S.wl.t].toLowerCase();st.waitlist.push({id:'w'+Date.now(),client:S.contact.name,svc:S.sel.svc||null,pref});
+      st.feed.push({to:'Клиенту',when:'сразу',text:`Вы в листе ожидания (${pref}). Как только у мастера освободится время, напишу сюда.`});S.sheet=null;renderFeed();toast('Готово. Бот напишет, когда освободится время');break}
+    case'wloffer':{const w=st.waitlist.find(z=>z.id===x);if(!w)break;const s=svcOf(w.svc)||m.services.reduce((p,q)=>(p.dur||60)<=(q.dur||60)?p:q),n=nearest(s);if(!n){toast('Свободного времени пока нет');return}
+      st.feed.push({to:'Клиенту из листа ожидания',when:'сразу',text:`${w.client}, у мастера есть время: ${n}. Записаться?`,btn:['Записаться','wlbook:'+w.id]});renderFeed();toast(`Отправили ${w.client} ближайшее время`);break}
+    case'wldel':st.waitlist=st.waitlist.filter(z=>z.id!==x);break;
+    case'wlbook':{const w=st.waitlist.find(z=>z.id===x);if(!w){toast('Это предложение уже неактуально');return}st.waitlist=st.waitlist.filter(z=>z!==w);resetFlow();S.role='client';S.mview=null;S.sheet=null;
+      S.nameBack=S.contact.name;S.contact.name=w.client;if(svcOf(w.svc))startFlow(w.svc);else{S.step=0;toast('Выберите услугу, и покажем свободное время')}break}
+    case'copylink':st.setup.link=true;try{navigator.clipboard.writeText('https://'+linkOf(S.cur)).catch(()=>{})}catch(e){}toast('Ссылка '+linkOf(S.cur)+' скопирована. Вставьте её в описание канала');break;
+    case'worksheet':S.sheet='works';break;
+    case'plans':S.sheet='plans';break;
+    case'gopro':m.plan='pro';S.sheet=null;toast('«Про» включён на 14 дней. Деньги не спишутся до конца пробного периода');break;
+    case'gofree':m.plan=null;S.sheet=null;toast('Вы на бесплатном тарифе');break;
+    case'pop-ok':{if(el.dataset.busy)return;el.dataset.busy=1;flyAway(x,()=>{st.pop=x==='memo'?1:2;S.slide=0;render();landOn(x)});return}
+    case'pop-open':st.pop=x==='memo'?1:2;S.slide=0;S.sheet=x==='memo'?(y||'memos'):'works';break;
+    case'st-next':S.slide=(S.slide||0)+1;break;
+    case'st-prev':S.slide=Math.max(0,(S.slide||0)-1);break;
+    case'st-noop':return;
+    case'nopops':S.noPops=true;saveNoPops();S.slide=0;toast('Подсказки больше не всплывают. Памятка и работы остаются в кнопках сверху');break;
+    case'togglepops':S.noPops=!S.noPops;saveNoPops();if(!S.noPops){for(const k in ST){ST[k].pop=0;ST[k].memoSeen=false}}toast(S.noPops?'Всплывающие подсказки выключены':'Подсказки снова будут всплывать перед записью');break;
+    case'paid':{const s=svcOf(S.sel.svc);S.payNow=depOf(priceOf(m,s.id,S.sel.ans));S.sheet=null;book();S.payNow=0;toast('Оплата прошла (демо)');break}
+    case'startbot':st.feed.push({me:true,when:'клиент',text:'/start'});st.feed.push({to:'Бот Окошка',when:'сразу',text:`Привет! Это запись к мастеру: ${m.name}. Здесь можно записаться в пару касаний, без переписки. Сюда же придут подтверждение и напоминание.`,btn:['Открыть запись','home']});renderFeed();break;
+    case'calday':S.calDay=x;break;
+    case'calm':S.calMonth=new Date(S.calMonth.getFullYear(),S.calMonth.getMonth()+(+x),1);break;
+    case'block':(st.blocks[x]||(st.blocks[x]=[])).push([+y,+parts[3]]);toast('Окно закрыто. Клиенты его больше не видят');break;
+    case'unblock':st.blocks[x].splice(+y,1);break;
+    case'dayoffT':{const wd=parseKey(x).getDay();
+      if(dayHours(x)){const n=st.bookings.filter(b=>b.date===x).length;if(n){toast(`На этот день ${pl(n,'запись','записи','записей')}. Сначала перенесите или отмените их`);return}
+        if(st.overrides[x]&&!st.sched[wd].on)delete st.overrides[x];else st.daysOff.push(x)}
+      else{st.daysOff=st.daysOff.filter(k=>k!==x);if(!dayHours(x)){const w=st.sched.find(z=>z.on)||{from:'10:00',to:'18:00'};st.overrides[x]={from:w.from,to:w.to}}}
+      break}
+    case'mtab':S.mtab=x;break;
+    case'openrec':{S.role='master';S.mtab='rec';S.mview=null;S.sheet=null;const lb=st.bookings.find(b=>b.id===st.lastNew)||st.bookings.find(b=>b.status==='hold');if(lb){S.calDay=lb.date;const d=parseKey(lb.date);S.calMonth=new Date(d.getFullYear(),d.getMonth(),1)}break}
+    case'confirm':{const b=st.bookings.find(z=>z.id===x);if(!b)break;b.status='ok';b.isNew=true;
+      st.feed.push({to:'Клиенту',when:'сразу после ответа мастера',text:`Мастер подтвердил бронь: ${fmtDay(b.date)}, ${whenOf(m,b)}. Ждём вас!`});remind(m,st,b);renderFeed();toast('Подтверждено. Клиент получил сообщение');break}
+    case'decline':{const b=st.bookings.find(z=>z.id===x);if(!b)break;st.bookings=st.bookings.filter(z=>z!==b);
+      st.feed.push({to:'Клиенту',when:'сразу после ответа мастера',text:`К сожалению, мастер не сможет принять вас ${fmtDay(b.date)}.${b.paid?' Предоплата вернётся на карту.':''} Выберите другое время в приложении.`,btn:['Выбрать другое время','role:client']});renderFeed();toast('Отклонено. Клиенту предложено другое время');break}
+    case'cancelask':S.sheet='cancelask-'+x;break;
+    case'cancelmine':case'resched':{
+      const b=st.bookings.find(z=>z.id===(x||st.lastNew));S.sheet=null;if(!b){toast('Эта запись уже изменена');break}
+      if(a==='cancelmine'){
+        st.bookings=st.bookings.filter(z=>z!==b);if(st.hist&&st.hist.bid===b.id)st.hist=st.hist.prev||null;
+        const when=fmtDay(b.date)+', '+whenOf(m,b),back=st.refund==='day'&&visitTs(m,b)-Date.now()>864e5;
+        st.feed.push({to:'Мастеру',when:'сразу',text:`Клиент отменил ${m.mode==='order'?'заказ':'запись'}\n${when}\n${b.client} · ${sName(b)}\nВремя снова открыто.${b.paid?(back?'\nПредоплата вернётся клиенту.':'\nПредоплата остаётся у вас.'):''}`});
+        freedFor(m,st,b);S.step=0;resetFlow();toast('Отменено. Мастер получит уведомление')}
+      else{resetFlow();S.role='client';S.mview=null;S.reschedOf=b.id;S.carryPaid=b.paid||0;S.sel={svc:b.svc,ans:{...b.ans},files:{...(b.files||{})},day:null,start:null};
+        if(svcOf(b.svc))S.step=2;else{S.step=0;resetFlow();toast('Эту услугу мастер убрал, выберите другую')}}
+      renderFeed();break}
+    case'wd':st.sched[x].on=!st.sched[x].on;break;
+    case'nogaps':st.noGaps=!st.noGaps;break;
+    case'unoff':st.daysOff=st.daysOff.filter(k=>k!==x);break;
+    case'hon':st.hintsOn[x]=!st.hintsOn[x];break;
+    case'sq':{const s=svcOf(x);const on=s.qs.includes(y);const keep=new Set(s.qs);on?keep.delete(y):keep.add(y);s.qs=Object.keys(m.q).filter(k=>keep.has(k));break}
+    case'sdel':{if(m.services.length<2){toast('Нужна хотя бы одна услуга');return}
+      const n=st.bookings.filter(b=>b.svc===x).length;if(n){toast(`На эту услугу ${pl(n,'запись','записи','записей')}. Сначала перенесите или отмените их`);return}
+      m.services=m.services.filter(s=>s.id!==x);if(st.hist&&st.hist.svc===x)st.hist=null;
+      st.waitlist.forEach(w=>{if(w.svc===x)w.svc=null});m.works.forEach(w=>{if(w.svc===x)w.svc=null});break}
+    case'sadd':{const id='s'+Date.now();m.services.push({id,name:'Новая услуга',dur:60,price:1000,note:'',qs:[]});S.svcOpen=id;toast('Услуга добавлена, заполните её');break}
+    case'svcopen':S.svcOpen=S.svcOpen===x?null:x;break;
+    case'cqadd':{
+      const t=document.getElementById('cq-t').value.trim(),type=document.getElementById('cq-type').value,hint=document.getElementById('cq-h').value.trim(),sid=document.getElementById('cq-s').value;
+      if(!t){toast('Напишите сам вопрос');return}
+      const id='c'+Date.now();let Q;
+      if(type==='opts'){const opts=document.getElementById('cq-o').value.split(',').map(v=>v.trim().replace(/ · /g,' - ')).filter(Boolean);if(opts.length<2){toast('Нужно хотя бы два варианта через запятую');return}Q={t,opts}}
+      else if(type==='text')Q={t,text:'Ваш ответ'};else Q={t,photo:'Прикрепите фото или файл',accept:'image/*,.pdf'};
+      if(hint){m.hints[id]={name:t,title:t,items:[{n:'Подсказка мастера',t:hint}]};st.hintsOn[id]=true;Q.hint=id}
+      m.q[id]=Q;const s=svcOf(sid);s.qs.push(id);toast(`Вопрос добавлен в «${s.name}». Проверьте его на стороне клиента`);break}
+    case'color':m.color=x;break;
+    case'wdel':m.works.splice(+x,1);break;
+    case'pickprof':S.role='master';S.mview='pick';S.sheet=null;break;
+    case'tpl':{const t=JSON.parse(JSON.stringify(MASTERS[x]));delete ST.custom;
+      MASTERS.custom=Object.assign(t,{fromTpl:x,tab:'Моя страница',bar:'Ваше имя · '+(MASTERS[x].bar.split(' · ')[1]||MASTERS[x].tab.toLowerCase()),who:'Вы',name:'Ваше имя',ini:'В',about:'Расскажите, чем занимаетесь и где',addr:'Укажите адрес',links:[],seed:[],rating:null,reviews:[],works:[],avatar:null,coverImg:null,cover:COVER_OF[x],plan:'free'});
+      initMaster('custom');ST.custom.setup.svc=false;
+      resetFlow();S.calDay=null;S.calMonth=null;S.cur='custom';S.role='master';S.mview=null;S.mtab='rec';S.step=0;S.sel=blankSel();renderNiches();renderFeed();toast(`Услуги, анкета и памятки «${MASTERS[x].tab}» уже на месте. Осталось 4 шага`);break}
+    case'custom':S.mview='mode';break;
+    case'mkcustom':{if(MASTERS.custom&&MASTERS.custom.fromTpl){delete MASTERS.custom;delete ST.custom}const had=MASTERS.custom;if(had){if(had.mode!==x){had.mode=x;ST.custom.horizon=x==='order'?30:14;ST.custom.bookings=[]}}else makeCustom(x);resetFlow();S.calDay=null;S.calMonth=null;S.cur='custom';S.mview=null;S.mtab='rec';S.step=0;S.sel=blankSel();renderNiches();renderFeed();toast(had?'Ваши настройки сохранены, поменялся только способ записи':'Готово. Пройдите настройку из 4 шагов');break}
+  }
+  if(S.role==='master'&&St().setup){const su=St().setup;if(['sq','sdel','sadd','cqadd'].includes(a))su.svc=true;if(['wd','nogaps','unoff'].includes(a))su.hours=true;if(['color','wdel'].includes(a))su.prof=true}
+  render();
+  if(['quick','repeat','rebook','wlbook','dfstart','dfnext','dfsvc','paid','master','svc','likework','resched','next','back','home','role','mtab','openrec','pickprof','tpl','custom','mkcustom','pick'].includes(a))scrollTop();
+});
+document.addEventListener('input',e=>{
+  const t=e.target,id=t.id;
+  if(id==='c-name'||id==='c-phone'||id==='c-comment'){
+    S.contact[{'c-name':'name','c-phone':'phone','c-comment':'comment'}[id]]=t.value;
+    if(S.role==='client'&&S.step===3){document.getElementById('foot').innerHTML=withBack(clientScreen().foot);tgSync();const er=document.getElementById('c-phone-err');if(er)er.hidden=!(S.contact.phone&&!phoneOk(S.contact.phone)&&S.contact.phone.replace(/\D/g,'').length>=6)}
+  }
+  if(id==='cl-note'&&S.sheet&&S.sheet.startsWith('client-')){const b=St().bookings.find(z=>z.id===S.sheet.slice(7));if(b)cli(St(),b.client).note=t.value.trim();return}
+  if(id.startsWith('t-')){S.sel.ans[id.slice(2)]=t.value;document.getElementById('foot').innerHTML=clientScreen().foot}
+  if(id==='prof-search'){const v=t.value.trim().toLowerCase();
+    document.querySelectorAll('[data-name]').forEach(r=>r.hidden=!!v&&!r.dataset.name.includes(v));
+    document.querySelectorAll('.tgroup').forEach(g=>g.hidden=!g.querySelector('[data-name]:not([hidden])'))}
+});
+document.addEventListener('change',e=>{
+  const t=e.target,id=t.id,st=St(),m=M();let r;
+  if(st.setup){if(/^sv-/.test(id))st.setup.svc=true;if(/^(from|to)-|^(lead|leadDays|cap|horizon|urgentH|confirm|flow|deposit|refund|dayoff)$/.test(id))st.setup.hours=true;if(/^pf-|^ava-in$|^work-add$/.test(id))st.setup.prof=true}
+  if((r=id.match(/^photo-(.+)$/))&&t.files[0]){const f=t.files[0];S.sel.files[r[1]]=f.type.startsWith('image/')?URL.createObjectURL(f):'file';render();return}
+  if(id==='cq-type'){document.getElementById('cq-o-wrap').hidden=t.value!=='opts';return}
+  if(id==='ava-in'&&t.files[0]){m.avatar=URL.createObjectURL(t.files[0]);render();return}
+  if(id==='work-add'&&t.files.length){for(const f of t.files)m.works.push({t:'Новая работа',img:URL.createObjectURL(f)});render();toast('Работы добавлены на главную');return}
+  if((r=id.match(/^(from|to)-(\d)$/))&&t.value){const w=st.sched[r[2]],nw={...w,[r[1]]:t.value};if(toMin(nw.from)>=toMin(nw.to)){toast('Конец рабочего дня должен быть позже начала');render();return}w[r[1]]=t.value;render();return}
+  if((r=id.match(/^sv-(name|price|dur|note)-(.+)$/))){const s=svcOf(r[2]);if(!s)return;
+    if(r[1]==='name')s.name=t.value.trim()||s.name;else if(r[1]==='note')s.note=t.value.trim();else{const n=parseInt(t.value.replace(/\D/g,''),10);if(!isNaN(n))s[r[1]==='price'?'price':'dur']=n}
+    render();return}
+  if(id==='pf-name'&&t.value.trim()){m.name=t.value.trim();m.ini=m.name[0].toUpperCase();m.bar=m.name.split(' ')[0]+' · '+m.tab.toLowerCase();renderNiches();render();return}
+  if(id==='pf-dark'){m.dark=!!t.value;render();return}
+  if(id==='pf-cover'){m.cover=t.value;m.coverImg=null;render();return}
+  if(id==='cover-in'&&t.files[0]){m.coverImg=URL.createObjectURL(t.files[0]);if(st.setup)st.setup.prof=true;render();return}
+  if(id==='pf-about'){m.about=t.value.trim();return}
+  if(id==='pf-addr'){m.addr=t.value.trim();return}
+  if(['lead','leadDays','cap','horizon','urgentH'].includes(id)){st[id]=+t.value;render();return}
+  if(id==='flow'||id==='refund'){st[id]=t.value;render();return}
+  if(id==='deposit'){st.deposit=(t.value==='30'||t.value==='50')?t.value:+t.value;render();return}
+  if((id==='ov-from'||id==='ov-to')&&t.value){const h=dayHours(S.calDay)||{from:'10:00',to:'18:00'},nw={from:id==='ov-from'?t.value:h.from,to:id==='ov-to'?t.value:h.to};if(toMin(nw.from)>=toMin(nw.to)){toast('Конец дня должен быть позже начала');render();return}st.overrides[S.calDay]=nw;render();return}
+  if(id==='confirm'){st.confirm=t.value;render();return}
+  if(id==='dayoff'&&t.value){const n=st.bookings.filter(b=>b.date===t.value).length;if(n){toast(`На этот день ${pl(n,'запись','записи','записей')}. Сначала перенесите или отмените их`);t.value='';return}
+    if(!st.daysOff.includes(t.value))st.daysOff.push(t.value);st.daysOff.sort();render()}
+});
+// ===== Telegram Mini App =====
+// Внутри Telegram: тема из Telegram, системные кнопки «Назад» и главная кнопка, вибрация, номер через requestContact.
+// В браузере всё работает как обычная страница. ?m=nails (или startapp=nails в Telegram) открывает одного мастера.
+let tgMain=null;
+function hexOf(c){const m=String(c).match(/\d+(\.\d+)?/g);if(!m||m.length<3)return null;return'#'+m.slice(0,3).map(v=>Math.round(+v).toString(16).padStart(2,'0')).join('')}
+function tgSync(){
+  if(!inTG)return;
+  try{S._inFlow?TG.BackButton.show():TG.BackButton.hide()}catch(e){}
+  const f=document.getElementById('foot'),btns=f.querySelectorAll('button'),mb=f.querySelector('.main-btn');
+  const cover=document.querySelector('#overlay .sheet,#overlay .modal');
+  try{
+    if(mb&&f.querySelectorAll('.main-btn').length===1&&!cover){f.classList.add('tg-hide');TG.MainButton.setParams({text:mb.textContent.trim(),color:M().dark?'#F2EBEE':'#2B2530',text_color:M().dark?'#1A1418':'#ffffff',is_active:!mb.disabled,is_visible:true})}
+    else{f.classList.remove('tg-hide');TG.MainButton.hide()}
+  }catch(e){}
+  try{const bg=hexOf(getComputedStyle(document.getElementById('phone')).backgroundColor);if(bg){TG.setHeaderColor(bg);TG.setBackgroundColor(bg);TG.setBottomBarColor&&TG.setBottomBarColor(bg)}}catch(e){}
+}
+function tgTheme(){const dark=TG.colorScheme==='dark';for(const k in MASTERS)MASTERS[k].dark=dark}
+if(inTG){
+  document.body.classList.add('tgapp');
+  try{TG.ready();TG.expand();TG.disableVerticalSwipes&&TG.disableVerticalSwipes()}catch(e){}
+  const u=TG.initDataUnsafe&&TG.initDataUnsafe.user;if(u&&u.first_name)S.contact.name=u.first_name;
+  tgTheme();TG.onEvent('themeChanged',()=>{tgTheme();render()});
+  TG.MainButton.onClick(()=>{const b=document.querySelector('#foot .main-btn');if(b&&!b.disabled)b.click()});
+  TG.BackButton.onClick(()=>{document.getElementById('tg-left').click()});
+}
+{const sp=(inTG&&TG.initDataUnsafe&&TG.initDataUnsafe.start_param)||new URLSearchParams(location.search).get('m');
+  if(sp&&MASTERS[sp]){S.cur=sp;document.body.classList.add('single')}}
+if(matchMedia('(max-width:600px)').matches)document.querySelectorAll('.fold').forEach(d=>d.open=false);
+document.getElementById('fold-bot').addEventListener('toggle',e=>{if(e.target.open){seenFeed[S.cur]=St().feed.length;document.getElementById('bot-new').hidden=true}});
+{let sx=null;
+  document.addEventListener('touchstart',e=>{sx=e.target.closest('.story')?e.touches[0].clientX:null},{passive:true});
+  document.addEventListener('touchend',e=>{if(sx==null)return;const dx=e.changedTouches[0].clientX-sx;sx=null;if(Math.abs(dx)<50)return;
+    const b=document.querySelector(dx<0?'.story [data-act="st-next"]':'.story [data-act="st-prev"]');if(b)b.click()},{passive:true});}
+document.addEventListener('scroll',e=>{const t=e.target;if(!t.classList||!t.classList.contains('hslides'))return;
+  const i=Math.round(t.scrollLeft/t.clientWidth);t.parentElement.querySelectorAll('.hdots i').forEach((d,j)=>d.classList.toggle('on',j===i))},true);
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(S.sheet){S.sheet=null;render()}else if(memoModal()){St().pop=popStage()+1;render()}});
+renderNiches();render();renderFeed();
+</script>
+
+</body></html>
