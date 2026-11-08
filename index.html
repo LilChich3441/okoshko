@@ -316,6 +316,68 @@ h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
 /* ===== сворачиваемые блоки и телефонный вид ===== */
 .demo{font-family:var(--body);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;vertical-align:middle;padding:3px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent-text)}
 .m-hint{display:none}
+/* ===== вид A + фото из B ===== */
+.t-light .phone,.t-dark .phone{background:var(--bg)}
+.t-light .roles{background:var(--surface)}
+.cal-d{border-color:transparent;background:var(--surface)}.t-dark .cal-d{background:var(--bubble)}.cal-d.off,.cal-d.past{background:transparent}.cal-d[aria-pressed="true"]{border-color:var(--ink)}
+.rev{background:var(--surface)}.t-dark .rev{background:var(--bubble)}
+.hero{position:relative;margin:-16px -16px 0;height:min(340px,52vh);flex:none;overflow:hidden;background:var(--sunk)}
+.hslides{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.hslides::-webkit-scrollbar{display:none}
+.hslide{flex:0 0 100%;height:100%;scroll-snap-align:start;border:0;padding:0;background:none;display:block;position:relative}
+.hslide.cover{margin:0;height:100%;display:grid;place-items:center}
+.hini{width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.88);color:var(--accent);display:grid;place-items:center;font:600 36px/1 var(--display);overflow:hidden;margin-bottom:60px;position:relative;z-index:1}
+.hini img{width:100%;height:100%;object-fit:cover}
+.art.hero{aspect-ratio:auto;height:100%;border-radius:0}
+.art.hero .nails{width:62%;margin-bottom:22%}
+.art.hero>svg{width:34%;margin-bottom:18%}
+.hero::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,0) 38%,rgba(18,8,14,.74) 100%)}
+.hcap{position:absolute;left:16px;right:16px;bottom:40px;z-index:2;color:#fff;display:flex;flex-direction:column;align-items:flex-start;gap:4px;pointer-events:none}
+.hcap>*{pointer-events:auto}
+.hcap h1{font:700 25px/1.08 var(--display);letter-spacing:-.02em;margin:0;text-wrap:balance;text-shadow:0 1px 12px rgba(0,0,0,.25)}
+.hcap p{margin:0;font-size:13.5px;opacity:.92;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hrate{border:0;background:rgba(255,255,255,.2);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#fff;border-radius:99px;padding:0 12px;min-height:32px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;margin-top:4px}
+.hdots{display:flex;gap:4px;margin-bottom:6px}.hdots i{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.5);transition:width .2s}.hdots i.on{width:18px;background:#fff}
+.hall{position:absolute;right:12px;top:12px;z-index:2;border:0;border-radius:99px;padding:0 12px;min-height:34px;background:rgba(20,10,16,.38);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#fff;font-size:13px;font-weight:600}
+.hero+.lit{position:relative;z-index:3;margin-top:-40px}
+.lit.qnear{display:flex;flex-direction:column;align-items:stretch;gap:12px;cursor:default}
+.near-h{display:flex;align-items:center;gap:12px}
+.qt{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.qbtn{border:0;background:var(--sunk);border-radius:14px;min-height:52px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;transition:transform .12s,background .15s}
+.qbtn small{font-size:12px;color:var(--muted)}
+.qbtn b{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.qbtn:first-child{background:var(--accent);color:var(--accent-ink)}.qbtn:first-child small{color:inherit;opacity:.85}
+.qbtn:active,.svc2:active,.optc:active,.slot:active,.main-btn:active,.btn2:active{transform:scale(.97)}
+.main-btn,.btn2,.svc2,.optc{transition:transform .12s,background .15s,border-color .15s}
+/* списки без рамок, как в iPhone */
+.list.svcs{background:var(--surface);border-radius:18px;padding:0 14px}
+.svcs .svc2{padding:14px 0}
+.t-dark .list.svcs{background:var(--bubble)}
+.svc2,.rec,.ed,.note,.sum{border-color:transparent}
+.svc2{background:var(--surface)}
+.rec,.ed{background:var(--surface);box-shadow:0 6px 18px -14px rgba(60,25,15,.35)}
+.t-dark .rec,.t-dark .ed,.t-dark .svc2{background:var(--bubble);box-shadow:none}
+.rec.new{box-shadow:inset 0 0 0 1.5px var(--accent)}
+.ed.fin{box-shadow:inset 0 0 0 1.5px var(--ok)}
+.note,.sum{background:var(--surface)}
+.t-dark .note,.t-dark .sum{background:var(--bubble)}
+.optc{border-color:transparent;background:var(--surface);box-shadow:0 4px 14px -12px rgba(60,25,15,.4)}
+.t-dark .optc{background:var(--bubble);box-shadow:none}
+.optc[aria-pressed="true"]{border-color:var(--accent)}
+.slot{border-color:transparent;box-shadow:0 4px 12px -10px rgba(60,25,15,.45)}
+.t-dark .slot{background:var(--bubble);box-shadow:none}
+/* панель итога внизу */
+.foot{border-top:0;border-radius:22px 22px 0 0;box-shadow:0 -12px 30px -22px rgba(60,20,30,.45)}
+.t-dark .foot{box-shadow:0 -1px 0 var(--line)}
+.foot-note.fsum{display:flex;justify-content:space-between;gap:12px;text-align:left;color:var(--ink);font-size:14px;margin:2px 2px 10px}
+.foot-note.fsum b{font-variant-numeric:tabular-nums;white-space:nowrap}
+.foot-note.fsum span::first-letter{text-transform:uppercase}
+/* переходы между экранами */
+.screen.enter-f{animation:scrF .28s cubic-bezier(.22,1,.36,1)}
+.screen.enter-b{animation:scrB .28s cubic-bezier(.22,1,.36,1)}
+@keyframes scrF{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+@keyframes scrB{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.screen.enter-f,.screen.enter-b{animation:none}.qbtn,.main-btn,.btn2,.svc2,.optc{transition:none}}
 /* зоны нажатия не меньше 44px (ui-ux-pro-max: touch targets) */
 .switch::before{content:"";position:absolute;inset:-9px -4px}
 .wcell button::before{content:"";position:absolute;inset:-6px}
@@ -1053,7 +1115,7 @@ const M=()=>MASTERS[S.cur], St=()=>ST[S.cur];
 const svcOf=id=>M().services.find(s=>s.id===id);
 const sName=b=>svcOf(b.svc)?.name||b.svcName||'Услуга';
 const visitTs=(m,b)=>parseKey(b.date).getTime()+(m.mode==='slot'?b.start:600)*60e3;
-function resetFlow(){S.slide=0;S.carryPaid=0;S.reschedOf=null;S.rebookOf=null;S.df=false;if(S.nameBack){S.contact.name=S.nameBack;S.nameBack=null}}
+function resetFlow(){S.slide=0;S.quick=null;S.carryPaid=0;S.reschedOf=null;S.rebookOf=null;S.df=false;if(S.nameBack){S.contact.name=S.nameBack;S.nameBack=null}}
 const blankSel=()=>({svc:null,ans:{},files:{},day:null,start:null});
 S.sel=blankSel();
 function priceOf(m,svc,ans){const s=m.services.find(x=>x.id===svc);if(!s)return 0;let p=s.price;for(const q of s.qs){const Q=m.q[q];if(Q&&Q.add&&ans[q]!=null)p+=Q.add[ans[q]]}return p}
@@ -1071,6 +1133,19 @@ function facadeHtml(m){
   const pick=w.length===1?[[0,'big']]:w.length===2?[[0,''],[1,'big']]:[[1,''],[0,'big'],[2,'']];
   return`<div class="facade ${w.length===1?'one':''}" aria-label="Работы мастера">${pick.map(([i,c])=>`<button class="fwork ${c}" data-act="work:${i}" aria-label="Работа: ${esc(w[i].t)}">${artHtml(m,w[i],'arch')}</button>`).join('')}</div>${w.length>3?`<button class="back small allworks" data-act="worksheet">Все работы · ${w.length}</button>`:''}`;
 }
+function heroHtml(m){
+  const w=m.works,rate=m.rating?`<button class="hrate" data-act="toreviews">★ ${String(m.rating[0]).replace('.',',')} · ${pl(m.rating[1],'отзыв','отзыва','отзывов')}</button>`:'<span class="hrate">Новый мастер</span>';
+  const slides=w.length?w.map((x,i)=>`<button class="hslide" data-act="work:${i}" aria-label="Работа: ${esc(x.t)}">${artHtml(m,x,'hero')}</button>`).join('')
+    :`<div class="hslide cover cv-${coverOf(m)}" ${m.coverImg?`style="background-image:url('${m.coverImg}');background-size:cover;background-position:center"`:''}><span class="hini">${m.avatar?`<img src="${m.avatar}" alt="">`:esc(m.ini)}</span></div>`;
+  return`<div class="hero"><div class="hslides" aria-label="Работы мастера">${slides}</div>
+    <div class="hcap">${w.length>1?`<div class="hdots" aria-hidden="true">${w.map((_,i)=>`<i class="${i?'':'on'}"></i>`).join('')}</div>`:''}<h1>${esc(m.name)}</h1><p>${esc(m.about)}</p>${rate}</div>
+    ${w.length>1?`<button class="hall" data-act="worksheet">Все работы · ${w.length}</button>`:''}</div>`;
+}
+function quickSlots(m,st){
+  if(m.mode!=='slot')return[];const minDur=Math.min(...m.services.map(x=>x.dur||60)),out=[];
+  for(let i=0;i<st.horizon&&out.length<3;i++){const k=keyOf(addDays(today,i));slotsFor(k,minDur).slice(0,2).forEach(t=>{if(out.length<3)out.push([k,t])})}
+  return out;
+}
 function litHtml(m,st){
   const order=m.mode==='order',minDur=Math.min(...m.services.map(x=>x.dur||60));
   let first=null,cnt=0;
@@ -1078,7 +1153,9 @@ function litHtml(m,st){
     if(order){const n=orderLeft(k);if(n){if(!first)first=[k,null];if(i<30)cnt++}}
     else{const sl=slotsFor(k,minDur);if(sl.length){if(!first)first=[k,sl[0]];if(i<7)cnt+=sl.length}}}
   if(!first)return`<button class="lit" data-act="wl"><span class="win" aria-hidden="true"></span><span><b>Свободного времени пока нет</b><span>Встаньте в лист ожидания, бот напишет, когда освободится</span></span></button>`;
-  const [k,t]=first,more=cnt-1;
+  const [k,t]=first,more=cnt-1,q=quickSlots(m,st);
+  if(q.length>1)return`<div class="lit qnear"><div class="near-h"><span class="win on" aria-hidden="true"></span><span><b>Ближайшие окошки</b><span>${more>2?`и ещё ${lWin(more-2)} на этой неделе`:'Нажмите, чтобы записаться'}</span></span></div>
+    <div class="qt">${q.map(([d,tt])=>`<button class="qbtn" data-act="quick:${d}:${tt}" aria-label="Записаться: ${relDay(d)}, ${fmtT(tt)}"><small>${relDay(d).replace(/^(\S+), (\d+) .*/,'$1, $2')}</small><b>${fmtT(tt)}</b></button>`).join('')}</div></div>`;
   return`<button class="lit" data-act="gobook"><span class="win on" aria-hidden="true"></span><span><b>${order?`Можно заказать на ${relDay(k)}`:`Свободно ${relDay(k)} в ${fmtT(t)}`}</b><span>${more>0?(order?`и ещё ${pl(more,'свободная дата','свободные даты','свободных дат')} в этом месяце`:`и ещё ${lWin(more)} на этой неделе`):'Успейте записаться'}</span></span></button>`;
 }
 const phoneOk=p=>(p||'').replace(/\D/g,'').length>=11;
@@ -1148,8 +1225,8 @@ function orderLeft(key){
 function freeOn(key,svc){return M().mode==='slot'?slotsFor(key,svc.dur).length:orderLeft(key)}
 function nearest(svc){
   for(let i=0;i<St().horizon;i++){const k=keyOf(addDays(today,i));
-    if(M().mode==='slot'){const sl=slotsFor(k,svc.dur);if(sl.length)return fmtDay(k)+', '+fmtT(sl[0])}
-    else if(orderLeft(k))return fmtDay(k);}
+    if(M().mode==='slot'){const sl=slotsFor(k,svc.dur);if(sl.length)return relDay(k)+', '+fmtT(sl[0])}
+    else if(orderLeft(k))return relDay(k);}
   return null;
 }
 function needsConfirm(key,start){
@@ -1193,8 +1270,7 @@ function clientScreen(){
   const m=M(),st=St(),sel=S.sel,step=S.step,order=m.mode==='order';
   if(step===0){
     const hasHints=Object.keys(m.hints).some(k=>st.hintsOn[k]);
-    return{body:`${facadeHtml(m)}
-    <div class="who"><h1>${esc(m.name)}</h1><p>${esc(m.about)}</p>${m.rating?`<button class="rate" data-act="toreviews"><em>★ ${String(m.rating[0]).replace('.',',')}</em> · ${pl(m.rating[1],'отзыв','отзыва','отзывов')}</button>`:'<span class="rate">Новый мастер</span>'}</div>
+    return{body:`${heroHtml(m)}
     ${litHtml(m,st)}
     ${(()=>{const nb=st.hist&&st.hist.bid&&st.bookings.find(z=>z.id===st.hist.bid&&visitTs(m,z)>Date.now());return nb?`<div class="rev" style="background:var(--accent-soft)"><b style="font-size:15px">${nb.status==='hold'?'Бронь ждёт ответа мастера':order?'Ваш заказ':'Ваша запись'}: ${relDay(nb.date)}, ${whenOf(m,nb)}</b><span>${esc(sName(nb))}${ansShort(m,nb.svc,nb.ans)?' · '+esc(ansShort(m,nb.svc,nb.ans)):''}</span><div class="row-btns"><button class="btn2" data-act="resched:${nb.id}">Перенести</button><button class="btn2" data-act="cancelask:${nb.id}">Отменить</button></div></div>`:''})()}
     ${st.hist&&svcOf(st.hist.svc)&&!(st.hist.bid&&st.bookings.some(z=>z.id===st.hist.bid&&visitTs(m,z)>Date.now()))?`<div class="rev" style="background:var(--accent-soft)"><b style="font-size:15px">С возвращением, ${esc(S.contact.name)}!</b><span>В прошлый раз, ${st.hist.date}: ${esc(svcOf(st.hist.svc).name)}</span>${ansShort(m,st.hist.svc,st.hist.ans)?`<span class="small muted">${esc(ansShort(m,st.hist.svc,st.hist.ans))}</span>`:''}<button class="btn2 acc" data-act="repeat">Записаться так же</button></div>`:''}
@@ -1202,7 +1278,7 @@ function clientScreen(){
     ${hasHints?`<button class="memo" data-act="memos"><span class="q">?</span><span><b>Не знаете, что выбрать?</b><br><span class="small muted">${esc(m.memo)}</span></span></button>`:''}
     <h3 id="svc-list">${order?'Что можно заказать':'Услуги'}</h3>
     <div class="list svcs">${m.services.map(s=>{const n=nearest(s);return`<button class="svc2" data-act="svc:${s.id}"><span class="nm">${esc(s.name)}</span><span class="pr">${listPrice(m,s)}</span>
-      <span class="meta">${s.dur&&!order?`<span>${durTxt(s.dur)}</span>`:''}${s.note?`<span>${esc(s.note)}</span>`:''}<span class="${n?'near':''}">${n?(order?'Ближайшая дата: ':'Ближайшее время: ')+n:'Свободного времени пока нет'}</span></span></button>`}).join('')}</div>
+      <span class="meta">${s.dur&&!order?`<span>${durTxt(s.dur)}</span>`:''}${s.note?`<span>${esc(s.note)}</span>`:''}<span class="${n?'near':''}">${n?'Ближайшее: '+n:'Свободного времени пока нет'}</span></span></button>`}).join('')}</div>
     ${m.reviews.length?`<h3 id="reviews">Отзывы</h3><div class="list">${m.reviews.map(([n,t])=>`<div class="rev"><span class="st">★★★★★</span><span>${esc(t)}</span><b>${esc(n)}</b></div>`).join('')}</div>`:''}${m.plan==='pro'?'':'<p class="made">Запись через Окошко</p>'}`,foot:`<button class="main-btn" data-act="gobook">${order?'Оформить заказ':st.flow==='date'?'Выбрать дату и время':'Записаться'}</button>`};
   }
   if(step===10||step===11)return dfScreen();
@@ -1249,7 +1325,7 @@ function clientScreen(){
       <button class="btn2" data-act="wl">${order?'Нет подходящей даты':'Нет подходящего времени'}? Встать в лист ожидания</button>
       <div class="note">${rules}</div>
       <div class="total"><span>${esc(s.name)}</span><span>${price}</span></div>`;
-    return{body,foot:`<button class="main-btn" data-act="next" ${sel.start!=null?'':'disabled'}>${sel.start!=null?'Дальше · '+price:order?(sel.day?'Выберите, когда получите':'Выберите дату'):'Выберите время'}</button>`};
+    return{body,foot:`${sel.start!=null?`<p class="foot-note fsum"><span>${fmtDay(sel.day)}, ${order?esc(m.wins[sel.start]).toLowerCase():fmtT(sel.start)}</span><b>${price}</b></p>`:''}<button class="main-btn" data-act="next" ${sel.start!=null?'':'disabled'}>${sel.start!=null?'Дальше':order?(sel.day?'Выберите, когда получите':'Выберите дату'):'Выберите время'}</button>`};
   }
   if(step===3){
     const c=S.contact,hold=needsConfirm(sel.day,sel.start),dep=S.carryPaid?0:depOf(priceOf(m,s.id,sel.ans)),ok=c.name.trim()&&phoneOk(c.phone);
@@ -1362,7 +1438,7 @@ function dfScreen(){
     return{body:prog(1,4,'Шаг 1 из 4 · дата и время')+`<div class="qhead"><h2>Когда удобно?</h2>${memoIcons()}</div><p class="small muted" style="margin:0">Сначала время, потом процедура: покажем только те, что помещаются в это окно.</p>
       <div class="days">${days.map(([k,n])=>dayWin(k,n,sel.day,lWin)).join('')}</div>
       ${sel.day?`<h3>${fmtDay(sel.day)}</h3>${slotGroups(sl,sel.start)}`:'<p class="muted">Свободных дат пока нет.</p>'}<button class="btn2" data-act="wl">Нет подходящего времени? Встать в лист ожидания</button>`,
-      foot:`<button class="main-btn" data-act="dfnext" ${sel.start!=null?'':'disabled'}>${sel.start!=null?'Дальше: выбрать процедуру':'Выберите время'}</button>`};
+      foot:`${sel.start!=null?`<p class="foot-note fsum"><span>${fmtDay(sel.day)}, ${fmtT(sel.start)}</span></p>`:''}<button class="main-btn" data-act="dfnext" ${sel.start!=null?'':'disabled'}>${sel.start!=null?'Выбрать процедуру':'Выберите время'}</button>`};
   }
   return{body:prog(2,4,'Шаг 2 из 4 · процедура')+`<h2>${fmtDay(sel.day)}, ${fmtT(sel.start)}</h2><p class="small muted" style="margin:0">Что делаем?</p>
     <div class="list">${m.services.map(s=>{const fits=slotsFor(sel.day,s.dur).includes(sel.start);return`<button class="svc2" ${fits?`data-act="dfsvc:${s.id}"`:'disabled style="opacity:.5;cursor:not-allowed"'}><span class="nm">${esc(s.name)}</span><span class="pr">${listPrice(m,s)}</span><span class="meta"><span>${durTxt(s.dur)}</span><span>${fits?esc(s.note||''):'Не помещается в это окно'}</span></span></button>`}).join('')}</div>`,foot:''};
@@ -1598,7 +1674,10 @@ function render(){
   tl.dataset.act=inFlow?'back':(inTG?'tgclose':'toast:Закроет мини-приложение и вернёт в чат');
   S._inFlow=inFlow;
   const v=S.role==='client'?clientScreen():masterScreen();
-  const backFoot=S.role==='client'&&inFlow;document.getElementById('screen').innerHTML=v.body;const ft=document.getElementById('foot');ft.innerHTML=backFoot?withBack(v.foot):v.foot;ft.classList.toggle('has-back',backFoot);
+  const scr=document.getElementById('screen'),key=[S.role,S.step,S.qi,S.mtab,S.mview,S.cur].join('|');
+  const backFoot=S.role==='client'&&inFlow;scr.innerHTML=v.body;
+  if(lastKey&&key!==lastKey&&!matchMedia('(prefers-reduced-motion: reduce)').matches){scr.classList.remove('enter-f','enter-b');void scr.offsetWidth;scr.classList.add(S._back?'enter-b':'enter-f')}
+  lastKey=key;const ft=document.getElementById('foot');ft.innerHTML=backFoot?withBack(v.foot):v.foot;ft.classList.toggle('has-back',backFoot);
   const ov=sheetHtml()+memoModal(),ovKey=ov?(S.sheet||'modal'):'';
   document.getElementById('overlay').innerHTML=ov;
   if(ovKey&&ovKey!==lastOv)document.querySelector('#overlay .sheet,#overlay .modal')?.focus({preventScroll:true});
@@ -1607,7 +1686,7 @@ function render(){
   tgSync();
   if(bw){if(lastLit!==bw.dataset.light&&!matchMedia('(prefers-reduced-motion: reduce)').matches){lastLit=bw.dataset.light;setTimeout(()=>bw.classList.add('on'),300)}else{lastLit=bw.dataset.light;bw.classList.add('on')}}
 }
-let lastLit='';
+let lastLit='',lastKey='';
 let lastOv='';
 let toastT;
 function toast(t){
@@ -1660,13 +1739,18 @@ document.addEventListener('click',e=>{
   if(el.dataset.act==='close'&&e.target.closest('[data-stop]')&&!e.target.closest('.main-btn'))return;
   const act=el.dataset.act;
   if(act.startsWith('toast:')){toast(act.slice(6));return}
-  const parts=act.split(':'),[a,x,y]=parts;const st=St(),m=M();
+  const parts=act.split(':'),[a,x,y]=parts;const st=St(),m=M();S._back=a==='back'||a==='home'||a==='st-prev';
   if(inTG&&['slot','day','ans','pick','svc','wld','wlt','reason','calday','color'].includes(a))try{TG.HapticFeedback.selectionChanged()}catch(e){}
   switch(a){
     case'tgclose':TG.close();return;
     case'master':resetFlow();S.contact.comment='';S.calDay=null;S.calMonth=null;S.cur=x;S.role='client';S.step=0;S.sheet=null;S.mtab='rec';S.mview=null;S.sel=blankSel();renderNiches();renderFeed();break;
     case'role':S.role=x;S.sheet=null;S.mview=null;if(x==='client'&&S.step===4)S.step=0;break;
-    case'svc':resetFlow();startFlow(x);break;
+    case'svc':{const q=S.quick;resetFlow();startFlow(x);const sv=svcOf(x);if(q&&sv&&S.sel.svc===x&&slotsFor(q[0],sv.dur).includes(q[1])){S.sel.day=q[0];S.sel.start=q[1]}break}
+    case'quick':{const d=x,t=+y;
+      if(st.flow==='date'){resetFlow();S.df=true;S.sel=blankSel();S.sel.day=d;S.sel.start=t;S.step=11;break}
+      const fit=m.services.filter(sv=>slotsFor(d,sv.dur).includes(t));
+      if(fit.length===1||m.services.length===1){const id=(fit[0]||m.services[0]).id;resetFlow();startFlow(id);if(slotsFor(d,svcOf(id).dur).includes(t)){S.sel.day=d;S.sel.start=t}break}
+      resetFlow();S.quick=[d,t];render();document.getElementById('svc-list')?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});toast(`Выберите услугу, время ${fmtT(t)} сохраним`);return}
     case'work':S.sheet='work-'+x;break;
     case'likework':{const w=m.works[+x];S.sheet=null;resetFlow();if(w&&w.svc)startFlow(w.svc,w.ans);break}
     case'ans':{const p0=priceOf(m,S.sel.svc,S.sel.ans);S.sel.ans[x]=+y;const dp=priceOf(m,S.sel.svc,S.sel.ans)-p0;render();S.pDelta=dp;const qi=S.qi;setTimeout(()=>{if(S.step===1&&S.qi===qi&&svcOf(S.sel.svc).qs[qi]===x){advanceQ();render();scrollTop()}S.pDelta=0},matchMedia('(prefers-reduced-motion: reduce)').matches?0:240);return}
@@ -1793,7 +1877,7 @@ document.addEventListener('click',e=>{
   }
   if(S.role==='master'&&St().setup){const su=St().setup;if(['sq','sdel','sadd','cqadd'].includes(a))su.svc=true;if(['wd','nogaps','unoff'].includes(a))su.hours=true;if(['color','wdel'].includes(a))su.prof=true}
   render();
-  if(['repeat','rebook','wlbook','dfstart','dfnext','dfsvc','paid','master','svc','likework','resched','next','back','home','role','mtab','openrec','pickprof','tpl','custom','mkcustom','pick'].includes(a))scrollTop();
+  if(['quick','repeat','rebook','wlbook','dfstart','dfnext','dfsvc','paid','master','svc','likework','resched','next','back','home','role','mtab','openrec','pickprof','tpl','custom','mkcustom','pick'].includes(a))scrollTop();
 });
 document.addEventListener('input',e=>{
   const t=e.target,id=t.id;
@@ -1865,6 +1949,8 @@ document.getElementById('fold-bot').addEventListener('toggle',e=>{if(e.target.op
   document.addEventListener('touchstart',e=>{sx=e.target.closest('.story')?e.touches[0].clientX:null},{passive:true});
   document.addEventListener('touchend',e=>{if(sx==null)return;const dx=e.changedTouches[0].clientX-sx;sx=null;if(Math.abs(dx)<50)return;
     const b=document.querySelector(dx<0?'.story [data-act="st-next"]':'.story [data-act="st-prev"]');if(b)b.click()},{passive:true});}
+document.addEventListener('scroll',e=>{const t=e.target;if(!t.classList||!t.classList.contains('hslides'))return;
+  const i=Math.round(t.scrollLeft/t.clientWidth);t.parentElement.querySelectorAll('.hdots i').forEach((d,j)=>d.classList.toggle('on',j===i))},true);
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(S.sheet){S.sheet=null;render()}else if(memoModal()){St().pop=popStage()+1;render()}});
 renderNiches();render();renderFeed();
 </script>
