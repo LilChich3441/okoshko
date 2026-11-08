@@ -3,6 +3,7 @@
 <meta name="theme-color" content="#F2F3F5">
 <meta name="description" content="Окошко — запись к частному мастеру в Telegram">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%23B0265A%27/%3E%3Crect x=%279%27 y=%279%27 width=%2714%27 height=%2714%27 rx=%273%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272.5%27/%3E%3Cpath d=%27M16 9v14M9 16h14%27 stroke=%27white%27 stroke-width=%272%27/%3E%3C/svg%3E">
+<script src="https://telegram.org/js/telegram-web-app.js?59"></script>
 </head><body>
 <title>Окошко</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -314,6 +315,16 @@ h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
 /* ===== сворачиваемые блоки и телефонный вид ===== */
 .demo{font-family:var(--body);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;vertical-align:middle;padding:3px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent-text)}
 .m-hint{display:none}
+body.single .niche-h{display:none}
+body.tgapp{padding:0;background:var(--bg)}
+body.tgapp .wrap{max-width:none;gap:0}
+body.tgapp .intro,body.tgapp .niche-h,body.tgapp .side,body.tgapp .tg-bar{display:none}
+body.tgapp .grid{display:block}
+body.tgapp .phone{width:100%;max-width:none;margin:0;border:0;border-radius:0;box-shadow:none;min-height:0;
+  height:var(--tg-viewport-stable-height,100vh);padding-top:calc(var(--tg-safe-area-inset-top,0px) + var(--tg-content-safe-area-inset-top,0px))}
+body.tgapp .foot.tg-hide .main-btn{display:none}
+body.tgapp .foot.tg-hide:not(:has(.foot-note)){display:none}
+body.tgapp .foot{padding-bottom:max(10px,var(--tg-safe-area-inset-bottom,0px))}
 .plan-card{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:16px;padding:12px 14px}
 .plan-card .win{width:28px;height:36px}
 .plan-card>span:nth-child(2){flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
@@ -549,6 +560,7 @@ button:active{opacity:.85}
 </div>
 
 <script>
+const TG=window.Telegram&&window.Telegram.WebApp,inTG=!!(TG&&TG.initData);
 const pad=n=>String(n).padStart(2,'0');
 const fmtT=m=>pad(Math.floor(m/60))+':'+pad(m%60);
 const toMin=s=>{const[h,m]=s.split(':').map(Number);return h*60+m};
@@ -1462,7 +1474,8 @@ function render(){
   const tl=document.getElementById('tg-left'),inFlow=(S.role==='client'&&(S.step>=1&&S.step<=3||S.step>=10))||(S.role==='master'&&S.mview);
   tl.textContent=inFlow?'‹ Назад':'Закрыть';
   document.querySelector('.roles').hidden=S.role==='client'&&inFlow;
-  tl.dataset.act=inFlow?'back':'toast:Закроет мини-приложение и вернёт в чат';
+  tl.dataset.act=inFlow?'back':(inTG?'tgclose':'toast:Закроет мини-приложение и вернёт в чат');
+  S._inFlow=inFlow;
   const v=S.role==='client'?clientScreen():masterScreen();
   document.getElementById('screen').innerHTML=v.body;document.getElementById('foot').innerHTML=v.foot;
   const ov=sheetHtml()+memoModal(),ovKey=ov?(S.sheet||'modal'):'';
@@ -1470,6 +1483,7 @@ function render(){
   if(ovKey&&ovKey!==lastOv)document.querySelector('#overlay .sheet,#overlay .modal')?.focus({preventScroll:true});
   lastOv=ovKey;
   const bw=document.querySelector('#screen .bigwin[data-light]');
+  tgSync();
   if(bw){if(lastLit!==bw.dataset.light&&!matchMedia('(prefers-reduced-motion: reduce)').matches){lastLit=bw.dataset.light;setTimeout(()=>bw.classList.add('on'),300)}else{lastLit=bw.dataset.light;bw.classList.add('on')}}
 }
 let lastLit='';
@@ -1499,6 +1513,7 @@ function book(){
     st.feed.push({to:'Клиенту',when:'сразу',text:`Бронь отправлена: ${when}. Мастер подтвердит её сам, ответ придёт сюда.`});
   }else{
     st.feed.push({to:'Мастеру',when:'сразу, без звука ночью',text:`${head}${old?'Новое время':order?'Новый заказ':'Новая запись'}\n${body}`,btn:[order?'Открыть заказ':'Открыть запись','openrec']});
+    if(inTG)try{TG.HapticFeedback.notificationOccurred('success')}catch(e){}
     st.feed.push({to:'Клиенту',when:'сразу',text:`${order?'Заказ принят':'Вы записаны'}: ${when}. Адрес: ${m.addr}.`});
     remind(m,st,b);
   }
@@ -1524,7 +1539,9 @@ document.addEventListener('click',e=>{
   const act=el.dataset.act;
   if(act.startsWith('toast:')){toast(act.slice(6));return}
   const parts=act.split(':'),[a,x,y]=parts;const st=St(),m=M();
+  if(inTG&&['slot','day','ans','pick','svc','wld','wlt','reason','calday','color'].includes(a))try{TG.HapticFeedback.selectionChanged()}catch(e){}
   switch(a){
+    case'tgclose':TG.close();return;
     case'master':resetFlow();S.contact.comment='';S.calDay=null;S.calMonth=null;S.cur=x;S.role='client';S.step=0;S.sheet=null;S.mtab='rec';S.mview=null;S.sel=blankSel();renderNiches();renderFeed();break;
     case'role':S.role=x;S.sheet=null;S.mview=null;if(x==='client'&&S.step===4)S.step=0;break;
     case'svc':resetFlow();startFlow(x);break;
@@ -1547,7 +1564,8 @@ document.addEventListener('click',e=>{
       break;
     case'day':S.sel.day=x;S.sel.start=null;break;
     case'slot':S.sel.start=+x;break;
-    case'share':S.contact.phone='+7 900 123-45-67';toast('Telegram передал номер с согласия клиента');break;
+    case'share':if(inTG&&TG.requestContact){TG.requestContact((ok,res)=>{if(ok){const p=res&&res.responseUnsafe&&res.responseUnsafe.contact&&res.responseUnsafe.contact.phone_number;S.contact.phone=p?'+'+String(p).replace(/^\+/,''):'+7 900 123-45-67';render()}else toast('Можно ввести номер вручную')});return}
+      S.contact.phone='+7 900 123-45-67';toast('Telegram передал номер с согласия клиента');break;
     case'gobook':{if(st.flow==='date'&&m.mode==='slot'){resetFlow();S.df=true;S.sel=blankSel();S.step=10;scrollTop();break}
       if(m.services.length===1){resetFlow();startFlow(m.services[0].id);scrollTop();break}
       document.getElementById('svc-list')?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});toast(m.mode==='order'?'Выберите, что заказать':'Выберите услугу');return}
@@ -1649,7 +1667,7 @@ document.addEventListener('input',e=>{
   const t=e.target,id=t.id;
   if(id==='c-name'||id==='c-phone'||id==='c-comment'){
     S.contact[{'c-name':'name','c-phone':'phone','c-comment':'comment'}[id]]=t.value;
-    if(S.role==='client'&&S.step===3){document.getElementById('foot').innerHTML=clientScreen().foot;const er=document.getElementById('c-phone-err');if(er)er.hidden=!(S.contact.phone&&!phoneOk(S.contact.phone)&&S.contact.phone.replace(/\D/g,'').length>=6)}
+    if(S.role==='client'&&S.step===3){document.getElementById('foot').innerHTML=clientScreen().foot;tgSync();const er=document.getElementById('c-phone-err');if(er)er.hidden=!(S.contact.phone&&!phoneOk(S.contact.phone)&&S.contact.phone.replace(/\D/g,'').length>=6)}
   }
   if(id.startsWith('t-')){S.sel.ans[id.slice(2)]=t.value;document.getElementById('foot').innerHTML=clientScreen().foot}
   if(id==='prof-search'){const v=t.value.trim().toLowerCase();
@@ -1681,6 +1699,33 @@ document.addEventListener('change',e=>{
   if(id==='dayoff'&&t.value){const n=st.bookings.filter(b=>b.date===t.value).length;if(n){toast(`На этот день ${pl(n,'запись','записи','записей')}. Сначала перенесите или отмените их`);t.value='';return}
     if(!st.daysOff.includes(t.value))st.daysOff.push(t.value);st.daysOff.sort();render()}
 });
+// ===== Telegram Mini App =====
+// Внутри Telegram: тема из Telegram, системные кнопки «Назад» и главная кнопка, вибрация, номер через requestContact.
+// В браузере всё работает как обычная страница. ?m=nails (или startapp=nails в Telegram) открывает одного мастера.
+let tgMain=null;
+function hexOf(c){const m=String(c).match(/\d+(\.\d+)?/g);if(!m||m.length<3)return null;return'#'+m.slice(0,3).map(v=>Math.round(+v).toString(16).padStart(2,'0')).join('')}
+function tgSync(){
+  if(!inTG)return;
+  try{S._inFlow?TG.BackButton.show():TG.BackButton.hide()}catch(e){}
+  const f=document.getElementById('foot'),btns=f.querySelectorAll('button'),mb=f.querySelector('.main-btn');
+  const cover=document.querySelector('#overlay .sheet,#overlay .modal');
+  try{
+    if(mb&&btns.length===1&&!cover){f.classList.add('tg-hide');TG.MainButton.setParams({text:mb.textContent.trim(),color:M().color,text_color:'#ffffff',is_active:!mb.disabled,is_visible:true})}
+    else{f.classList.remove('tg-hide');TG.MainButton.hide()}
+  }catch(e){}
+  try{const bg=hexOf(getComputedStyle(document.getElementById('phone')).backgroundColor);if(bg){TG.setHeaderColor(bg);TG.setBackgroundColor(bg);TG.setBottomBarColor&&TG.setBottomBarColor(bg)}}catch(e){}
+}
+function tgTheme(){const dark=TG.colorScheme==='dark';for(const k in MASTERS)MASTERS[k].dark=dark}
+if(inTG){
+  document.body.classList.add('tgapp');
+  try{TG.ready();TG.expand();TG.disableVerticalSwipes&&TG.disableVerticalSwipes()}catch(e){}
+  const u=TG.initDataUnsafe&&TG.initDataUnsafe.user;if(u&&u.first_name)S.contact.name=u.first_name;
+  tgTheme();TG.onEvent('themeChanged',()=>{tgTheme();render()});
+  TG.MainButton.onClick(()=>{const b=document.querySelector('#foot .main-btn');if(b&&!b.disabled)b.click()});
+  TG.BackButton.onClick(()=>{document.getElementById('tg-left').click()});
+}
+{const sp=(inTG&&TG.initDataUnsafe&&TG.initDataUnsafe.start_param)||new URLSearchParams(location.search).get('m');
+  if(sp&&MASTERS[sp]){S.cur=sp;document.body.classList.add('single')}}
 if(matchMedia('(max-width:600px)').matches)document.querySelectorAll('.fold').forEach(d=>d.open=false);
 document.getElementById('fold-bot').addEventListener('toggle',e=>{if(e.target.open){seenFeed[S.cur]=St().feed.length;document.getElementById('bot-new').hidden=true}});
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(S.sheet){S.sheet=null;render()}else if(memoModal()){St().pop=popStage()+1;render()}});
