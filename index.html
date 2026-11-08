@@ -309,6 +309,24 @@ h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
 .cover.cv-plain::after{display:none}
 .cover.cv-photo{background-size:cover;background-position:center}
 .cover.cv-photo::after{background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.25))}
+/* ===== сворачиваемые блоки и телефонный вид ===== */
+.demo{font-family:var(--body);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;vertical-align:middle;padding:3px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent-text)}
+.m-hint{display:none}
+.fold{display:flex;flex-direction:column}
+.fold summary{cursor:pointer;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;padding:6px 0;list-style-position:inside}
+.fold-in{display:flex;flex-direction:column;gap:12px;margin-top:8px}
+.badge{font-size:11px;letter-spacing:.02em;text-transform:none;background:var(--accent);color:var(--accent-ink);border-radius:99px;padding:2px 8px;margin-left:4px}
+@media (max-width:600px){
+  .wrap{gap:12px}
+  .intro h1{font-size:26px}
+  .intro p{display:none}
+  .intro .m-hint{display:block;font-size:14px}
+  .niche-h h3{display:none}
+  .niche{padding:6px 12px}
+  .niche span{display:none}
+  .phone{margin:0 -16px;width:auto;max-width:none;border-radius:0;border-left:0;border-right:0;box-shadow:none;height:calc(100dvh - 110px);min-height:500px}
+  .fold summary{font-size:14px;padding:12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;text-transform:none;letter-spacing:0;color:var(--ink)}
+}
 /* ===== правки после аудита: узкие телефоны, фокус, модалки ===== */
 [hidden]{display:none!important}
 .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
@@ -331,11 +349,12 @@ h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
 
 <div class="wrap">
   <header class="intro">
-    <h1>Очкошко</h1>
-    <p>Мини-приложение в Telegram для любого частного мастера: ногти, брови, торты, автосервис, сварка, токарка. Клиент сам заполняет анкету, читает подсказки и записывается. Мастер не отвлекается от работы и видит готовую анкету.</p>
+    <h1>Очкошко <span class="demo">демо</span></h1>
+    <p>Запись к частному мастеру прямо в Telegram. Клиент сам заполняет анкету и выбирает время, мастер получает готовую заявку.</p>
+    <p class="m-hint">Нажимайте, как будто вы клиент. «Я мастер» — кабинет мастера.</p>
   </header>
   <div class="niche-h">
-    <h3>Чьё приложение показать</h3>
+    <h3>Выберите мастера</h3>
     <div class="niches" id="niches"></div>
   </div>
   <div class="grid">
@@ -354,20 +373,20 @@ h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
       <div id="overlay"></div>
     </div>
     <aside class="side">
-      <div class="chan" id="chan"></div>
-      <div class="feed-h"><h3>Telegram: бот Очкошка</h3><span class="small muted">так выглядят уведомления</span></div>
-      <div class="feed" id="feed"></div>
-      <h3>Что попробовать</h3>
-      <ul class="tips">
-        <li><b>0</b><span>Справа шапка канала мастера со ссылкой на запись. У всех мастеров один бот, а ссылка у каждого своя. Нажмите на неё, как сделает клиент, и откройте запись из сообщения бота.</span></li>
-        <li><b>1</b><span>Переключите мастера сверху. Ядро одно, а анкета, подсказки и способ записи у каждого свои.</span></li>
-        <li><b>2</b><span>Ногти, брови, автосервис и сварка записывают на время. Приложение предлагает только время вплотную к другим записям, чтобы у мастера не было простоев.</span></li>
-        <li><b>3</b><span>Торты и токарка принимают заказы к дате: клиент выбирает день готовности, а мастер задаёт, сколько заказов берёт в день.</span></li>
-        <li><b>4</b><span>Нажмите на работу в ленте и «Хочу так же»: анкета заполнится сама.</span></li>
-        <li><b>5</b><span>У мастера во вкладке «Правила»: за сколько можно записаться, на сколько вперёд, какие записи он подтверждает сам и нужна ли предоплата. Срочная запись придёт как бронь, мастер утром нажмёт «Подтвердить».</span></li>
-        <li><b>6</b><span>Во вкладке «Услуги» меняются цены и вопросы анкеты, в «Профиле» — фото, цвет и работы. Кнопка «+ Любая профессия» сверху показывает, как зарегистрируется кто угодно.</span></li>
-      </ul>
-      <p class="small muted">Прототип: мастера и данные примерные и живут только на этой странице.</p>
+      <details class="fold" id="fold-bot" open><summary>Что приходит в Telegram <span class="badge" id="bot-new" hidden>новое</span></summary>
+        <div class="fold-in">
+          <div class="chan" id="chan"></div>
+          <div class="feed" id="feed"></div>
+        </div></details>
+      <details class="fold" open><summary>Что попробовать</summary>
+        <ul class="tips fold-in">
+          <li><b>1</b><span>Запишитесь как клиент: анкета, подсказки, время, предоплата.</span></li>
+          <li><b>2</b><span>Нажмите на работу мастера и «Хочу так же» — анкета заполнится сама.</span></li>
+          <li><b>3</b><span>Переключитесь на «Я мастер»: календарь, правила записи, услуги и цены.</span></li>
+          <li><b>4</b><span>Торты и токарка принимают заказы к дате, остальные — на время.</span></li>
+          <li><b>5</b><span>В блоке «Что приходит в Telegram» — сообщения бота. По их кнопкам тоже можно нажимать.</span></li>
+        </ul>
+        <p class="small muted">Мастера и данные выдуманные и живут только на этой странице.</p></details>
     </aside>
   </div>
 </div>
@@ -899,7 +918,7 @@ function clientScreen(){
     return{body:`<div class="cover cv-${coverOf(m)}" ${m.coverImg?`style="background-image:url('${m.coverImg}')"`:''}></div>
     <div class="prof"><div class="ava big">${m.avatar?`<img src="${m.avatar}" alt="">`:m.ini}</div><div class="prof-txt"><b>${esc(m.name)}</b>${m.rating?`<span class="rate"><em>★ ${String(m.rating[0]).replace('.',',')}</em> · ${pl(m.rating[1],'отзыв','отзыва','отзывов')}</span>`:'<span class="rate">Новый мастер</span>'}</div></div>
     <p class="about">${esc(m.about)}</p>
-    ${st.hist&&svcOf(st.hist.svc)?`<div class="rev" style="background:var(--accent-soft)"><b style="font-size:15px">С возвращением, ${esc(S.contact.name)}!</b><span>В прошлый раз, ${st.hist.date}: ${esc(svcOf(st.hist.svc).name)} · ${esc(svcOf(st.hist.svc).qs.filter(q=>m.q[q]&&!m.q[q].photo&&answered(m.q[q],st.hist.ans[q])).map(q=>ansText(m.q[q],st.hist.ans[q])).join(', '))}</span><button class="main-btn" data-act="repeat">Записаться так же</button><span class="small muted">Анкета заполнится сама, останется выбрать время.</span></div>`:''}
+    ${st.hist&&svcOf(st.hist.svc)?`<div class="rev" style="background:var(--accent-soft)"><b style="font-size:15px">С возвращением, ${esc(S.contact.name)}!</b><span>В прошлый раз, ${st.hist.date}: ${esc(svcOf(st.hist.svc).name)}</span><button class="main-btn" data-act="repeat">Записаться так же</button></div>`:''}
     ${m.links.length?`<div class="links">${m.links.map(l=>`<button class="tag" data-act="toast:Откроет: ${esc(l)}">${esc(l)}</button>`).join('')}</div>`:''}
     ${m.works.length?`<div class="sec-h"><h3>Работы</h3><span class="small muted">нажмите, чтобы записаться так же</span></div>
     <div class="works">${m.works.map((w,i)=>`<button class="work" data-act="work:${i}">${artHtml(m,w)}<b>${esc(w.t)}</b>${w.p!=null?`<span>${rub(w.p)}</span>`:''}</button>`).join('')}</div>`:''}
@@ -1191,8 +1210,11 @@ function renderChan(){const m=M();
   document.getElementById('chan').innerHTML=`<div class="chan-top"><div class="ava" style="width:44px;height:44px;font-size:16px;overflow:hidden">${m.avatar?`<img src="${m.avatar}" alt="">`:m.ini}</div><div><b>${esc(m.name.split(' ')[0])} · ${esc(m.tab.toLowerCase())}</b><span class="small muted">Telegram-канал мастера · описание</span></div></div>
     <p>${esc(m.about)}. Работы — в канале. Записаться, узнать цены и свободное время: <button class="linkbtn" data-act="startbot">${linkOf(S.cur)}</button></p>
     <p class="small muted">Клиенту не нужно регистрироваться: Telegram сам передаёт имя, номер — в одну кнопку.</p>`}
+const seenFeed={};
 function renderFeed(){
-  const f=document.getElementById('feed');
+  const f=document.getElementById('feed'),fold=document.getElementById('fold-bot'),n=St().feed.length;
+  if(fold.open||seenFeed[S.cur]==null)seenFeed[S.cur]=n;
+  document.getElementById('bot-new').hidden=fold.open||n<=seenFeed[S.cur];
   renderChan();
   f.innerHTML=St().feed.map(x=>`<div class="msg ${x.me?'me':''}">${x.me?'':`<span class="who">${x.to}</span>`}<span>${esc(x.text).replace(/\n/g,'<br>')}</span>${(x.btns||(x.btn?[x.btn]:[])).map(q=>`<button class="msg-btn" data-act="${q[1]}">${esc(q[0])}</button>`).join('')}<span class="when">${x.when}</span></div>`).join('');
   f.scrollTop=f.scrollHeight;
@@ -1415,6 +1437,8 @@ document.addEventListener('change',e=>{
   if(id==='dayoff'&&t.value){const n=st.bookings.filter(b=>b.date===t.value).length;if(n){toast(`На этот день ${pl(n,'запись','записи','записей')}. Сначала перенесите или отмените их`);t.value='';return}
     if(!st.daysOff.includes(t.value))st.daysOff.push(t.value);st.daysOff.sort();render()}
 });
+if(matchMedia('(max-width:600px)').matches)document.querySelectorAll('.fold').forEach(d=>d.open=false);
+document.getElementById('fold-bot').addEventListener('toggle',e=>{if(e.target.open){seenFeed[S.cur]=St().feed.length;document.getElementById('bot-new').hidden=true}});
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(S.sheet){S.sheet=null;render()}else if(memoModal()){St().memoSeen=true;render()}});
 renderNiches();render();renderFeed();
 </script>
