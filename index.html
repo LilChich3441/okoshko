@@ -315,6 +315,31 @@ h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
 /* ===== сворачиваемые блоки и телефонный вид ===== */
 .demo{font-family:var(--body);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;vertical-align:middle;padding:3px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent-text)}
 .m-hint{display:none}
+.story{gap:12px}
+.st-bars{display:flex;gap:4px}
+.st-bars i{flex:1;height:3px;border-radius:3px;background:var(--line);overflow:hidden;position:relative}
+.st-bars i.done{background:var(--accent)}
+.st-bars i.now::after{content:"";position:absolute;inset:0;background:var(--accent);transform-origin:left;animation:stbar .45s ease-out forwards}
+@keyframes stbar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.st-slide{display:flex;flex-direction:column;gap:10px;animation:stin .32s cubic-bezier(.22,1,.36,1)}
+@keyframes stin{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+.st-slide h2{margin:0}
+.st-shapes{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.st-shape{display:flex;flex-direction:column;align-items:center;gap:4px;border:1.5px solid var(--line);background:var(--sunk);border-radius:22px 22px 12px 12px;padding:8px 2px;min-height:44px;color:var(--ink)}
+.st-shape[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.st-shape svg{width:24px;height:40px}
+.st-shape svg path{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2.2}
+.st-shape b{font-size:11.5px;font-weight:600;line-height:1.2;text-align:center}
+.st-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.st-list li{display:grid;grid-template-columns:16px 1fr;gap:8px;font-size:14px;line-height:1.4;text-align:left}
+.st-list .cw{margin:3px 0 0}
+.st-list b{font-weight:600}
+.st-more{align-self:flex-start;padding:4px 0}
+.st-nav{display:flex;gap:8px}
+.st-nav .back-btn{height:52px;padding:0 14px}
+.st-nav .main-btn{flex:1}
+.st-off{font-size:13px;opacity:.85}
+@media (prefers-reduced-motion:reduce){.st-slide,.st-bars i.now::after{animation:none}.st-bars i.now{background:var(--accent)}}
 .foot.has-back{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:end}
 .foot.has-back>.foot-note{grid-column:1/-1;margin-bottom:0;order:-1}
 .foot.tg-hide.has-back{grid-template-columns:1fr}
@@ -987,12 +1012,14 @@ const TEMPLATES=[
 
 // ===== состояние =====
 const ST={};
-const S={cur:'nails',role:'client',step:0,qi:0,mtab:'rec',mview:null,sheet:null,sel:null,contact:{name:'Мария',phone:'',comment:''}};
+const S={cur:'nails',role:'client',step:0,qi:0,mtab:'rec',mview:null,sheet:null,sel:null,slide:0,contact:{name:'Мария',phone:'',comment:''}};
+try{S.noPops=localStorage.getItem('okoshko-nopops')==='1'}catch(e){S.noPops=false}
+const saveNoPops=()=>{try{S.noPops?localStorage.setItem('okoshko-nopops','1'):localStorage.removeItem('okoshko-nopops')}catch(e){}};
 const M=()=>MASTERS[S.cur], St=()=>ST[S.cur];
 const svcOf=id=>M().services.find(s=>s.id===id);
 const sName=b=>svcOf(b.svc)?.name||b.svcName||'Услуга';
 const visitTs=(m,b)=>parseKey(b.date).getTime()+(m.mode==='slot'?b.start:600)*60e3;
-function resetFlow(){S.carryPaid=0;S.reschedOf=null;S.rebookOf=null;S.df=false;if(S.nameBack){S.contact.name=S.nameBack;S.nameBack=null}}
+function resetFlow(){S.slide=0;S.carryPaid=0;S.reschedOf=null;S.rebookOf=null;S.df=false;if(S.nameBack){S.contact.name=S.nameBack;S.nameBack=null}}
 const blankSel=()=>({svc:null,ans:{},files:{},day:null,start:null});
 S.sel=blankSel();
 function priceOf(m,svc,ans){const s=m.services.find(x=>x.id===svc);if(!s)return 0;let p=s.price;for(const q of s.qs){const Q=m.q[q];if(Q&&Q.add&&ans[q]!=null)p+=Q.add[ans[q]]}return p}
@@ -1216,7 +1243,7 @@ const hasMemos=()=>Object.keys(M().hints).some(k=>St().hintsOn[k]);
 function memoIcons(){const m=M(),p=popStage();return`<div class="mini">${hasMemos()?`<button class="hint-btn" data-pop="memo" data-act="memos"><span class="cw ${p>=1?'on':''}" aria-hidden="true"></span>Памятка</button>`:''}${m.works.length?`<button class="hint-btn" data-pop="works" data-act="worksheet"><span class="cw ${p>=2?'on':''}" aria-hidden="true"></span>Работы мастера</button>`:''}</div>`}
 // всплывашки на экране выбора времени: сначала памятка, потом работы; «Спасибо, понятно» — карточка улетает в кнопку сверху
 function popStage(){
-  const m=M(),st=St();if(st.memoSeen)return 2;
+  const m=M(),st=St();if(st.memoSeen||S.noPops)return 2;
   let p=st.pop||0;if(p===0&&!hasMemos())p=1;if(p===1&&!m.works.length)p=2;return p;
 }
 function memoModal(){
@@ -1226,18 +1253,29 @@ function memoModal(){
   if(S.role!=='client'||!at||S.sheet)return'';
   const p=popStage();if(p>=2)return'';
   if(p===0){
-    const items=Object.entries(m.hints).filter(([k])=>st.hintsOn[k]).slice(0,3).map(([,h])=>`<li>${esc(h.name)}</li>`).join('');
-    const pic=m.works.length?artHtml(m,m.works[0],'pop-pic'):'';
-    return`<div class="modal-back"><div class="modal pop" role="dialog" aria-modal="true" aria-label="Памятка мастера" tabindex="-1">
-      <div class="pop-row"><div><span class="pop-tag">Памятка</span><h2>Загляните перед ${order?'заказом':'записью'}</h2></div>${pic}</div>
-      <ul class="pop-list">${items}</ul>
-      <div class="btns"><button class="main-btn" data-act="pop-ok:memo">Спасибо, понятно</button><button class="no" data-act="pop-open:memo">Открыть подробно</button></div></div></div>`;
+    const used=[...new Set((svcOf(S.sel.svc)?.qs||m.services.flatMap(x=>x.qs)).map(q=>m.q[q]&&m.q[q].hint).filter(Boolean).concat(m.after?[m.after]:[]))].filter(k=>m.hints[k]&&st.hintsOn[k]);
+    const slides=(used.length?used:Object.keys(m.hints).filter(k=>st.hintsOn[k])).slice(0,4).map(k=>[k,m.hints[k]]);
+    const i=Math.min(S.slide||0,slides.length-1),[key,h]=slides[i],last=i===slides.length-1;
+    const shapes=h.items.filter(it=>it.svg).slice(0,4);
+    const rows=(shapes.length?h.items.filter(it=>!it.svg):h.items).slice(0,shapes.length?1:3);
+    const qs=svcOf(S.sel.svc)?.qs||[];
+    return`<div class="modal-back"><div class="modal pop story" role="dialog" aria-modal="true" aria-label="Памятка мастера: ${esc(h.name)}" tabindex="-1">
+      <div class="st-bars" aria-hidden="true">${slides.map((_,j)=>`<i class="${j<i?'done':j===i?'now':''}"></i>`).join('')}</div>
+      <div class="st-slide" data-k="${i}">
+        <span class="pop-tag">Памятка · ${i+1} из ${slides.length}</span>
+        <h2>${esc(h.title)}</h2>
+        ${shapes.length?`<div class="st-shapes">${shapes.map(it=>`<button class="st-shape" aria-pressed="${!!(it.pick&&S.sel.ans[it.pick[0]]===it.pick[1])}" data-act="${it.pick&&qs.includes(it.pick[0])?`pick:${it.pick[0]}:${it.pick[1]}`:'st-noop'}"><svg viewBox="0 0 40 66" aria-hidden="true"><path d="${it.svg}"/></svg><b>${esc(it.n)}</b></button>`).join('')}</div>${qs.includes(shapes[0].pick?.[0])?'<p class="small muted" style="margin:0">Нажмите на форму, и она отметится в анкете</p>':''}`:''}
+        <ul class="st-list">${rows.map(it=>`<li><span class="cw on" aria-hidden="true"></span><span><b>${esc(it.n)}.</b> ${esc(it.t)}</span></li>`).join('')}</ul>
+        ${h.items.length>(shapes.length+rows.length)?`<button class="no st-more" data-act="pop-open:memo:${key}">Подробнее в памятке</button>`:''}
+      </div>
+      <div class="st-nav">${i>0?'<button class="back-btn" data-act="st-prev" aria-label="Назад"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>':''}${last?'<button class="main-btn" data-act="pop-ok:memo">Спасибо, понятно</button>':'<button class="main-btn" data-act="st-next">Дальше</button>'}</div>
+      <button class="no st-off" data-act="nopops">Больше не показывать подсказки</button></div></div>`;
   }
   const more=m.works.length-3;
   return`<div class="modal-back"><div class="modal pop" role="dialog" aria-modal="true" aria-label="Работы мастера" tabindex="-1">
     <div><span class="pop-tag">Работы мастера</span><h2>Так делает ${esc(m.who)}</h2></div>
     <div class="pop-works">${m.works.slice(0,3).map(w=>artHtml(m,w)).join('')}${more>0?`<div class="art pop-more">+${more}</div>`:''}</div>
-    <div class="btns"><button class="main-btn" data-act="pop-ok:works">Спасибо, понятно</button><button class="no" data-act="pop-open:works">Смотреть все</button></div></div></div>`;
+    <div class="btns"><button class="main-btn" data-act="pop-ok:works">Спасибо, понятно</button><button class="no" data-act="pop-open:works">Смотреть все</button><button class="no st-off" data-act="nopops">Больше не показывать подсказки</button></div></div></div>`;
 }
 // «Спасибо, понятно»: содержимое гаснет, карточка по дуге перетекает в кнопку (размер, скругление, цвет), кнопка пружинит, окошко в ней загорается
 let flyGhost=null;
@@ -1433,7 +1471,7 @@ function sheetHtml(){
     return wrap(`<h2>Отменить ${ord?'заказ':'запись'}?</h2><div class="sum"><div class="kv"><span>Когда</span><span>${fmtDay(b.date)}, ${whenOf(m,b)}</span></div><div class="kv"><span>${ord?'Заказ':'Услуга'}</span><span>${esc(sName(b))}</span></div></div>
       <p class="small muted" style="margin:0">${b.paid?(back?`Предоплата ${rub(b.paid)} вернётся на карту в течение 1–3 дней.`:`Предоплата ${rub(b.paid)} не вернётся: ${st.refund==='day'?`до ${ord?'получения':'визита'} меньше суток`:'таковы правила мастера'}.`):'Мастер получит уведомление, время снова станет свободным.'}</p>
       <button class="main-btn" data-act="cancelmine:${b.id}">Да, отменить</button><button class="btn2" data-act="resched:${b.id}">Лучше перенести</button><button class="btn2" data-act="close">Не отменять</button>`)}
-  if(S.sheet==='memos')return wrap(`<h2>Памятки мастера</h2><div class="list">${Object.entries(m.hints).filter(([k])=>st.hintsOn[k]).map(([k,h])=>`<button class="svc" data-act="hint:${k}"><span class="nm">${esc(h.name)}</span><span class="muted">›</span></button>`).join('')}</div>`);
+  if(S.sheet==='memos')return wrap(`<h2>Памятки мастера</h2><div class="opt"><div><b>Всплывающие подсказки</b><br><span class="small muted">Показывать перед выбором времени</span></div><button class="switch" aria-label="Всплывающие подсказки перед записью" aria-pressed="${!S.noPops}" data-act="togglepops"></button></div><div class="list">${Object.entries(m.hints).filter(([k])=>st.hintsOn[k]).map(([k,h])=>`<button class="svc" data-act="hint:${k}"><span class="nm">${esc(h.name)}</span><span class="muted">›</span></button>`).join('')}</div>`);
   if(S.sheet.startsWith('work-')){const w=m.works[+S.sheet.slice(5)];const s=w.svc&&svcOf(w.svc);
     return wrap(`${artHtml(m,w,'lg')}<h2>${esc(w.t)}</h2>${s?`<div class="answers">${answersHtml(m,{svc:w.svc,ans:w.ans})}</div><div class="total"><span>${esc(s.name)}</span><span>${priceTxt(s,priceOf(m,s.id,w.ans))}</span></div><button class="main-btn" data-act="likework:${S.sheet.slice(5)}">Хочу так же</button><p class="small muted" style="margin:0">Анкета заполнится сама, останется выбрать время.</p>`:'<button class="main-btn" data-act="close">Закрыть</button>'}`);}
   if(S.sheet==='plans'){const pro=m.plan==='pro',li=a=>a.map(([t,ok])=>`<li class="${ok?'':'no'}"><span aria-hidden="true">${ok?'✓':'—'}</span>${t}</li>`).join('');
@@ -1580,7 +1618,7 @@ document.addEventListener('click',e=>{
     case'work':S.sheet='work-'+x;break;
     case'likework':{const w=m.works[+x];S.sheet=null;resetFlow();if(w&&w.svc)startFlow(w.svc,w.ans);break}
     case'ans':{S.sel.ans[x]=+y;render();const qi=S.qi;setTimeout(()=>{if(S.step===1&&S.qi===qi&&svcOf(S.sel.svc).qs[qi]===x){advanceQ();render();scrollTop()}},matchMedia('(prefers-reduced-motion: reduce)').matches?0:240);return}
-    case'pick':{S.sel.ans[x]=+y;S.sheet=null;if(svcOf(S.sel.svc).qs[S.qi]===x)advanceQ();break}
+    case'pick':{S.sel.ans[x]=+y;if(el.closest('.story')){toast('Отметили в анкете: '+ansText(m.q[x],+y));break}S.sheet=null;if(svcOf(S.sel.svc).qs[S.qi]===x)advanceQ();break}
     case'hint':S.sheet=x;break;
     case'memos':S.sheet='memos';break;
     case'close':S.sheet=null;break;
@@ -1635,8 +1673,13 @@ document.addEventListener('click',e=>{
     case'plans':S.sheet='plans';break;
     case'gopro':m.plan='pro';S.sheet=null;toast('«Про» включён на 14 дней. Деньги не спишутся до конца пробного периода');break;
     case'gofree':m.plan=null;S.sheet=null;toast('Вы на бесплатном тарифе');break;
-    case'pop-ok':{if(el.dataset.busy)return;el.dataset.busy=1;flyAway(x,()=>{st.pop=x==='memo'?1:2;render();landOn(x)});return}
-    case'pop-open':st.pop=x==='memo'?1:2;S.sheet=x==='memo'?'memos':'works';break;
+    case'pop-ok':{if(el.dataset.busy)return;el.dataset.busy=1;flyAway(x,()=>{st.pop=x==='memo'?1:2;S.slide=0;render();landOn(x)});return}
+    case'pop-open':st.pop=x==='memo'?1:2;S.slide=0;S.sheet=x==='memo'?(y||'memos'):'works';break;
+    case'st-next':S.slide=(S.slide||0)+1;break;
+    case'st-prev':S.slide=Math.max(0,(S.slide||0)-1);break;
+    case'st-noop':return;
+    case'nopops':S.noPops=true;saveNoPops();S.slide=0;toast('Подсказки больше не всплывают. Памятка и работы остаются в кнопках сверху');break;
+    case'togglepops':S.noPops=!S.noPops;saveNoPops();if(!S.noPops){for(const k in ST){ST[k].pop=0;ST[k].memoSeen=false}}toast(S.noPops?'Всплывающие подсказки выключены':'Подсказки снова будут всплывать перед записью');break;
     case'paid':{const s=svcOf(S.sel.svc);S.payNow=depOf(priceOf(m,s.id,S.sel.ans));S.sheet=null;book();S.payNow=0;toast('Оплата прошла (демо)');break}
     case'startbot':st.feed.push({me:true,when:'клиент',text:'/start'});st.feed.push({to:'Бот Окошка',when:'сразу',text:`Привет! Это запись к мастеру: ${m.name}. Здесь можно записаться в пару касаний, без переписки. Сюда же придут подтверждение и напоминание.`,btn:['Открыть запись','home']});renderFeed();break;
     case'calday':S.calDay=x;break;
@@ -1760,6 +1803,10 @@ if(inTG){
   if(sp&&MASTERS[sp]){S.cur=sp;document.body.classList.add('single')}}
 if(matchMedia('(max-width:600px)').matches)document.querySelectorAll('.fold').forEach(d=>d.open=false);
 document.getElementById('fold-bot').addEventListener('toggle',e=>{if(e.target.open){seenFeed[S.cur]=St().feed.length;document.getElementById('bot-new').hidden=true}});
+{let sx=null;
+  document.addEventListener('touchstart',e=>{sx=e.target.closest('.story')?e.touches[0].clientX:null},{passive:true});
+  document.addEventListener('touchend',e=>{if(sx==null)return;const dx=e.changedTouches[0].clientX-sx;sx=null;if(Math.abs(dx)<50)return;
+    const b=document.querySelector(dx<0?'.story [data-act="st-next"]':'.story [data-act="st-prev"]');if(b)b.click()},{passive:true});}
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(S.sheet){S.sheet=null;render()}else if(memoModal()){St().pop=popStage()+1;render()}});
 renderNiches();render();renderFeed();
 </script>
