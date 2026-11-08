@@ -315,6 +315,14 @@ h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
 /* ===== сворачиваемые блоки и телефонный вид ===== */
 .demo{font-family:var(--body);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;vertical-align:middle;padding:3px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent-text)}
 .m-hint{display:none}
+.foot.has-back{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:end}
+.foot.has-back>.foot-note{grid-column:1/-1;margin-bottom:0;order:-1}
+.foot.tg-hide.has-back{grid-template-columns:1fr}
+.foot.has-back>.foot-row{min-width:0}
+.back-btn{display:flex;align-items:center;gap:4px;height:52px;padding:0 14px 0 10px;border:1px solid var(--line);background:var(--sunk);border-radius:14px;font-weight:500;color:var(--ink)}
+.back-btn svg{flex:none}
+.foot.tg-hide .back-btn{width:100%;justify-content:center}
+@media (max-width:360px){.back-btn span{display:none}.back-btn{padding:0 14px}}
 body.single .niche-h{display:none}
 body.tgapp{padding:0;background:var(--bg)}
 body.tgapp .wrap{max-width:none;gap:0}
@@ -323,7 +331,7 @@ body.tgapp .grid{display:block}
 body.tgapp .phone{width:100%;max-width:none;margin:0;border:0;border-radius:0;box-shadow:none;min-height:0;
   height:var(--tg-viewport-stable-height,100vh);padding-top:calc(var(--tg-safe-area-inset-top,0px) + var(--tg-content-safe-area-inset-top,0px))}
 body.tgapp .foot.tg-hide .main-btn{display:none}
-body.tgapp .foot.tg-hide:not(:has(.foot-note)){display:none}
+body.tgapp .foot.tg-hide:not(:has(.foot-note,.back-btn,.skip)){display:none}
 body.tgapp .foot{padding-bottom:max(10px,var(--tg-safe-area-inset-bottom,0px))}
 .plan-card{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:16px;padding:12px 14px}
 .plan-card .win{width:28px;height:36px}
@@ -594,7 +602,7 @@ nails:{tab:'Маникюр',who:'Аня',name:'Аня Морозова',ini:'А'
     base:{t:'Покрытие',opts:['На натуральные ногти','С укреплением гелем'],hint:'gels'},
     length:{t:'Длина',opts:['Короткая','Средняя','Длинная'],hint:'types'},
     design:{t:'Дизайн',opts:['Без дизайна','Простой · +300 ₽','Сложный · +700 ₽'],add:[0,300,700],hint:'designs'},
-    removal:{t:'Снятие',opts:['Ногти без покрытия','Снять покрытие после Ани','Снять покрытие другого мастера · +200 ₽'],add:[0,0,200]},
+    removal:{t:'Что сейчас на ногтях',opts:['Ничего, ногти чистые','Покрытие, которое делала Аня','Покрытие другого мастера · +200 ₽'],add:[0,0,200]},
     problem:{t:'Есть особенности?',opts:['Нет','Вросший ноготь','Трещины на пятках'],hint:'pedi'},
     photo:{t:'Пример, как хотите',photo:'Прикрепите фото или скрин. Необязательно'}},
   hints:{
@@ -1150,7 +1158,7 @@ function clientScreen(){
       const items=Q.opts.map((o,i)=>[o,hintFor(m,q,i)]);
       const pics=items.some(([,h])=>h&&h.svg);
       body+=`<div class="opts ${pics?'grid2':''}">${items.map(([o,h],i)=>{const [nm,add]=o.split(' · ');return`<button class="optc ${pics?'pic':''}" aria-pressed="${sel.ans[q]===i}" data-act="ans:${q}:${i}">${h&&h.svg?`<svg viewBox="0 0 40 66" aria-hidden="true"><path d="${h.svg}"/></svg>`:''}<span><b>${esc(nm)}</b>${h?`<span>${esc(h.t)}</span>`:''}${add?`<span class="add">${esc(add)}</span>`:''}</span></button>`}).join('')}</div>`;
-      foot=`<button class="main-btn" data-act="next" ${sel.ans[q]!=null?'':'disabled'}>${sel.ans[q]!=null?'Дальше':'Выберите вариант'} · ${price}</button>`;
+      foot=`<button class="main-btn" data-act="next" ${sel.ans[q]!=null?'':'disabled'}>${sel.ans[q]!=null?'Дальше · '+price:'Выберите вариант'}</button>`;
     }
     return{body,foot};
   }
@@ -1487,6 +1495,7 @@ function renderFeed(){
   f.innerHTML=St().feed.map(x=>`<div class="msg ${x.me?'me':''}">${x.me?'':`<span class="who">${x.to}</span>`}<span>${esc(x.text).replace(/\n/g,'<br>')}</span>${(x.btns||(x.btn?[x.btn]:[])).map(q=>`<button class="msg-btn" data-act="${q[1]}">${esc(q[0])}</button>`).join('')}<span class="when">${x.when}</span></div>`).join('');
   f.scrollTop=f.scrollHeight;
 }
+const withBack=f=>`<button class="back-btn" data-act="back" aria-label="Назад"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span>Назад</span></button>${f}`;
 function render(){
   const m=M(),w=document.querySelector('.wrap');
   for(const el of [w,document.body]){el.classList.remove('t-light','t-dark');el.classList.add('t-'+themeOf(m))}
@@ -1500,7 +1509,7 @@ function render(){
   tl.dataset.act=inFlow?'back':(inTG?'tgclose':'toast:Закроет мини-приложение и вернёт в чат');
   S._inFlow=inFlow;
   const v=S.role==='client'?clientScreen():masterScreen();
-  document.getElementById('screen').innerHTML=v.body;document.getElementById('foot').innerHTML=v.foot;
+  const backFoot=S.role==='client'&&inFlow;document.getElementById('screen').innerHTML=v.body;const ft=document.getElementById('foot');ft.innerHTML=backFoot?withBack(v.foot):v.foot;ft.classList.toggle('has-back',backFoot);
   const ov=sheetHtml()+memoModal(),ovKey=ov?(S.sheet||'modal'):'';
   document.getElementById('overlay').innerHTML=ov;
   if(ovKey&&ovKey!==lastOv)document.querySelector('#overlay .sheet,#overlay .modal')?.focus({preventScroll:true});
@@ -1690,7 +1699,7 @@ document.addEventListener('input',e=>{
   const t=e.target,id=t.id;
   if(id==='c-name'||id==='c-phone'||id==='c-comment'){
     S.contact[{'c-name':'name','c-phone':'phone','c-comment':'comment'}[id]]=t.value;
-    if(S.role==='client'&&S.step===3){document.getElementById('foot').innerHTML=clientScreen().foot;tgSync();const er=document.getElementById('c-phone-err');if(er)er.hidden=!(S.contact.phone&&!phoneOk(S.contact.phone)&&S.contact.phone.replace(/\D/g,'').length>=6)}
+    if(S.role==='client'&&S.step===3){document.getElementById('foot').innerHTML=withBack(clientScreen().foot);tgSync();const er=document.getElementById('c-phone-err');if(er)er.hidden=!(S.contact.phone&&!phoneOk(S.contact.phone)&&S.contact.phone.replace(/\D/g,'').length>=6)}
   }
   if(id.startsWith('t-')){S.sel.ans[id.slice(2)]=t.value;document.getElementById('foot').innerHTML=clientScreen().foot}
   if(id==='prof-search'){const v=t.value.trim().toLowerCase();
@@ -1733,7 +1742,7 @@ function tgSync(){
   const f=document.getElementById('foot'),btns=f.querySelectorAll('button'),mb=f.querySelector('.main-btn');
   const cover=document.querySelector('#overlay .sheet,#overlay .modal');
   try{
-    if(mb&&btns.length===1&&!cover){f.classList.add('tg-hide');TG.MainButton.setParams({text:mb.textContent.trim(),color:M().color,text_color:'#ffffff',is_active:!mb.disabled,is_visible:true})}
+    if(mb&&f.querySelectorAll('.main-btn').length===1&&!cover){f.classList.add('tg-hide');TG.MainButton.setParams({text:mb.textContent.trim(),color:M().color,text_color:'#ffffff',is_active:!mb.disabled,is_visible:true})}
     else{f.classList.remove('tg-hide');TG.MainButton.hide()}
   }catch(e){}
   try{const bg=hexOf(getComputedStyle(document.getElementById('phone')).backgroundColor);if(bg){TG.setHeaderColor(bg);TG.setBackgroundColor(bg);TG.setBottomBarColor&&TG.setBottomBarColor(bg)}}catch(e){}
