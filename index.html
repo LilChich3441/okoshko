@@ -316,6 +316,14 @@ h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
 /* ===== сворачиваемые блоки и телефонный вид ===== */
 .demo{font-family:var(--body);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;vertical-align:middle;padding:3px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent-text)}
 .m-hint{display:none}
+/* общий цвет кнопок: графит (в тёмной теме — светлые) */
+.t-light{--btn:#2B2530;--btn-ink:#FFFFFF}
+.t-dark{--btn:#F2EBEE;--btn-ink:#1A1418}
+.main-btn,.btn2.fill,.lit .qbtn:first-child,.lit .go,.near .go{background:var(--btn);color:var(--btn-ink);border-color:var(--btn)}
+.lit .qbtn:first-child small{color:inherit}
+.btn2.acc{border-color:var(--btn);color:var(--ink)}
+.t-dark .btn2.acc{border-color:color-mix(in srgb,var(--btn) 55%,transparent)}
+.main-btn:disabled{background:var(--line);color:var(--muted);border-color:var(--line)}
 /* услуги: карточки с картинкой */
 .list.svcs,.t-dark .list.svcs{background:none;padding:0;gap:8px}
 .svcs .svc2{grid-template-columns:56px minmax(0,1fr) auto;grid-template-rows:auto auto;gap:2px 12px;align-items:center;background:var(--surface);border:0;border-radius:18px;padding:10px 12px 10px 10px;box-shadow:0 6px 18px -14px rgba(60,25,15,.4)}
@@ -1958,7 +1966,7 @@ function tgSync(){
   const f=document.getElementById('foot'),btns=f.querySelectorAll('button'),mb=f.querySelector('.main-btn');
   const cover=document.querySelector('#overlay .sheet,#overlay .modal');
   try{
-    if(mb&&f.querySelectorAll('.main-btn').length===1&&!cover){f.classList.add('tg-hide');TG.MainButton.setParams({text:mb.textContent.trim(),color:M().color,text_color:'#ffffff',is_active:!mb.disabled,is_visible:true})}
+    if(mb&&f.querySelectorAll('.main-btn').length===1&&!cover){f.classList.add('tg-hide');TG.MainButton.setParams({text:mb.textContent.trim(),color:M().dark?'#F2EBEE':'#2B2530',text_color:M().dark?'#1A1418':'#ffffff',is_active:!mb.disabled,is_visible:true})}
     else{f.classList.remove('tg-hide');TG.MainButton.hide()}
   }catch(e){}
   try{const bg=hexOf(getComputedStyle(document.getElementById('phone')).backgroundColor);if(bg){TG.setHeaderColor(bg);TG.setBackgroundColor(bg);TG.setBottomBarColor&&TG.setBottomBarColor(bg)}}catch(e){}
