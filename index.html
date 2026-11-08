@@ -314,6 +314,30 @@ h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
 /* ===== сворачиваемые блоки и телефонный вид ===== */
 .demo{font-family:var(--body);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;vertical-align:middle;padding:3px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent-text)}
 .m-hint{display:none}
+.plan-card{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:16px;padding:12px 14px}
+.plan-card .win{width:28px;height:36px}
+.plan-card>span:nth-child(2){flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.plan-card b{font-weight:600}
+.plan-card>span:nth-child(2)>span{font-size:13px;color:var(--muted)}
+.plan-bar{height:4px;border-radius:4px;background:var(--line);overflow:hidden;display:block}
+.plan-bar i{display:block;height:100%;background:var(--accent);border-radius:4px}
+.plan-go{font-size:14px;font-weight:600;color:var(--accent-text);flex:none}
+.plans{display:grid;grid-template-columns:1fr;gap:10px}
+.plan{border:1.5px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:8px;background:var(--surface)}
+.plan.hi{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 6%,var(--surface))}
+.plan-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.plan-h b{font:600 18px/1.1 var(--display)}
+.plan-p{font:600 18px/1 var(--display);font-variant-numeric:tabular-nums}
+.plan-p small{font:500 13px var(--body);color:var(--muted)}
+.plan-now{align-self:flex-start;font-size:12px;font-weight:600;border-radius:99px;padding:3px 10px;background:var(--accent);color:var(--accent-ink)}
+.plan-now.soft{background:color-mix(in srgb,var(--glow) 35%,var(--surface));color:var(--glow-ink)}
+.t-dark .plan-now.soft{color:#FFE2A6;background:color-mix(in srgb,var(--glow) 18%,var(--surface))}
+.plan ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.plan li{display:grid;grid-template-columns:18px 1fr;gap:6px}
+.plan li span{color:var(--accent-text);font-weight:700}
+.plan li.no{color:var(--muted)}
+.plan li.no span{color:var(--muted)}
+.made{margin:0;text-align:center;font-size:12px;color:var(--muted)}
 /* ===== стиль «Окошки»: арка = окно и ноготь «миндаль», свободное время светится ===== */
 .wrap{--night:#2C2338;--glow:#FFC46B;--glow-2:#FF9F43;--glow-ink:#4A2A10}
 .arch,.art.arch{border-radius:50% 50% 16px 16px / 40% 40% 16px 16px;overflow:hidden}
@@ -1088,7 +1112,7 @@ function clientScreen(){
     <h3 id="svc-list">${order?'Что можно заказать':'Услуги'}</h3>
     <div class="list svcs">${m.services.map(s=>{const n=nearest(s);return`<button class="svc2" data-act="svc:${s.id}"><span class="nm">${esc(s.name)}</span><span class="pr">${listPrice(m,s)}</span>
       <span class="meta">${s.dur&&!order?`<span>${durTxt(s.dur)}</span>`:''}${s.note?`<span>${esc(s.note)}</span>`:''}<span class="${n?'near':''}">${n?(order?'Ближайшая дата: ':'Ближайшее время: ')+n:'Свободного времени пока нет'}</span></span></button>`}).join('')}</div>
-    ${m.reviews.length?`<h3 id="reviews">Отзывы</h3><div class="list">${m.reviews.map(([n,t])=>`<div class="rev"><span class="st">★★★★★</span><span>${esc(t)}</span><b>${esc(n)}</b></div>`).join('')}</div>`:''}`,foot:`<button class="main-btn" data-act="gobook">${order?'Оформить заказ':st.flow==='date'?'Выбрать дату и время':'Записаться'}</button>`};
+    ${m.reviews.length?`<h3 id="reviews">Отзывы</h3><div class="list">${m.reviews.map(([n,t])=>`<div class="rev"><span class="st">★★★★★</span><span>${esc(t)}</span><b>${esc(n)}</b></div>`).join('')}</div>`:''}${m.plan==='pro'?'':'<p class="made">Запись через Окошко</p>'}`,foot:`<button class="main-btn" data-act="gobook">${order?'Оформить заказ':st.flow==='date'?'Выбрать дату и время':'Записаться'}</button>`};
   }
   if(step===10||step===11)return dfScreen();
   const s=svcOf(sel.svc)||{qs:[],price:0,name:''},total=s.qs.length+2,price=priceTxt(s,priceOf(m,s.id,sel.ans));
@@ -1339,7 +1363,9 @@ function masterScreen(){
         <label>Добавить в услугу<select id="cq-s">${m.services.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('')}</select></label>
         <button class="btn2 acc" data-act="cqadd">Добавить вопрос</button></div>`,foot:''};
   }
-  return{body:tabs+`<div class="pf">
+  const used=St().bookings.length,pro=m.plan==='pro';
+  return{body:tabs+`<button class="plan-card ${pro?'pro':''}" data-act="plans"><span class="win ${pro?'on':''}" aria-hidden="true"></span><span><b>${pro?'Тариф «Про»':'Бесплатный тариф'}</b><span>${pro?'Без ограничений · 390 ₽ в месяц':`${used} из 30 записей в этом месяце`}</span>${pro?'':`<span class="plan-bar"><i style="width:${Math.min(100,used/30*100)}%"></i></span>`}</span><span class="plan-go">${pro?'Тариф':'Сравнить'}</span></button>
+    <div class="pf">
     <div class="master"><div class="ava big" style="border-color:var(--line)">${m.avatar?`<img src="${m.avatar}" alt="">`:m.ini}</div><label class="btn2 acc" style="cursor:pointer">Сменить фото<input type="file" accept="image/*" id="ava-in" style="position:absolute;opacity:0;width:1px;height:1px"></label></div>
     <label>Имя<input id="pf-name" value="${esc(m.name)}"></label>
     <label>О себе<textarea id="pf-about" rows="2">${esc(m.about)}</textarea></label>
@@ -1367,6 +1393,17 @@ function sheetHtml(){
   if(S.sheet==='memos')return wrap(`<h2>Памятки мастера</h2><div class="list">${Object.entries(m.hints).filter(([k])=>st.hintsOn[k]).map(([k,h])=>`<button class="svc" data-act="hint:${k}"><span class="nm">${esc(h.name)}</span><span class="muted">›</span></button>`).join('')}</div>`);
   if(S.sheet.startsWith('work-')){const w=m.works[+S.sheet.slice(5)];const s=w.svc&&svcOf(w.svc);
     return wrap(`${artHtml(m,w,'lg')}<h2>${esc(w.t)}</h2>${s?`<div class="answers">${answersHtml(m,{svc:w.svc,ans:w.ans})}</div><div class="total"><span>${esc(s.name)}</span><span>${priceTxt(s,priceOf(m,s.id,w.ans))}</span></div><button class="main-btn" data-act="likework:${S.sheet.slice(5)}">Хочу так же</button><p class="small muted" style="margin:0">Анкета заполнится сама, останется выбрать время.</p>`:'<button class="main-btn" data-act="close">Закрыть</button>'}`);}
+  if(S.sheet==='plans'){const pro=m.plan==='pro',li=a=>a.map(([t,ok])=>`<li class="${ok?'':'no'}"><span aria-hidden="true">${ok?'✓':'—'}</span>${t}</li>`).join('');
+    return wrap(`<h2>Тарифы для мастера</h2><p class="small muted" style="margin:0">Начните бесплатно. Платить имеет смысл, когда записей станет много.</p>
+      <div class="plans">
+        <div class="plan ${pro?'':'cur'}"><div class="plan-h"><b>Бесплатно</b><span class="plan-p">0 ₽</span></div>${pro?'':'<span class="plan-now">Ваш тариф</span>'}
+          <ul>${li([['До 30 записей в месяц',1],['Анкета, подсказки и памятки',1],['Напоминания клиентам в Telegram',1],['Предоплата и лист ожидания',1],['Общий бот @okoshko_bot',1],['Внизу страницы «Запись через Окошко»',0]])}</ul></div>
+        <div class="plan hi ${pro?'cur':''}"><div class="plan-h"><b>Про</b><span class="plan-p">390 ₽<small> / мес</small></span></div>${pro?'<span class="plan-now">Ваш тариф</span>':'<span class="plan-now soft">14 дней бесплатно</span>'}
+          <ul>${li([['Записи без ограничений',1],['Свой бот со своим именем',1],['Своя обложка и стиль',1],['Статистика: записи, неявки, доход',1],['Рассылка «освободилось окошко» вашим клиентам',1],['Без подписи «Окошко»',1]])}</ul></div>
+      </div>
+      <div class="note">Комиссия 5% с предоплаты — на любом тарифе: с предоплаты 500 ₽ вы получите 475 ₽. Без предоплаты комиссии нет.</div>
+      <p class="small muted" style="margin:0">Студия на несколько мастеров с общим календарём — скоро, от 990 ₽ в месяц.</p>
+      ${pro?'<button class="btn2" data-act="gofree">Вернуться на бесплатный</button>':'<button class="main-btn" data-act="gopro">Попробовать «Про» 14 дней бесплатно</button><button class="btn2" data-act="close">Пока хватает бесплатного</button>'}`)}
   if(S.sheet==='works')return wrap(`<h2>Работы мастера</h2><div class="wtiles">${m.works.map((w,i)=>`<button class="work" data-act="work:${i}">${artHtml(m,w)}<b>${esc(w.t)}</b>${w.p!=null?`<span>${rub(w.p)}</span>`:''}</button>`).join('')}</div><button class="main-btn" data-act="close">Вернуться к записи</button>`);
   if(S.sheet.startsWith('mcancel-')||S.sheet.startsWith('mmove-')){
     const move=S.sheet.startsWith('mmove-'),id=S.sheet.slice(move?6:8),b=st.bookings.find(z=>z.id===id);if(!b)return'';
@@ -1545,6 +1582,9 @@ document.addEventListener('click',e=>{
       S.nameBack=S.contact.name;S.contact.name=w.client;if(svcOf(w.svc))startFlow(w.svc);else{S.step=0;toast('Выберите услугу, и покажем свободное время')}break}
     case'copylink':st.setup.link=true;try{navigator.clipboard.writeText('https://'+linkOf(S.cur)).catch(()=>{})}catch(e){}toast('Ссылка '+linkOf(S.cur)+' скопирована. Вставьте её в описание канала');break;
     case'worksheet':S.sheet='works';break;
+    case'plans':S.sheet='plans';break;
+    case'gopro':m.plan='pro';S.sheet=null;toast('«Про» включён на 14 дней. Деньги не спишутся до конца пробного периода');break;
+    case'gofree':m.plan=null;S.sheet=null;toast('Вы на бесплатном тарифе');break;
     case'pop-ok':{if(el.dataset.busy)return;el.dataset.busy=1;flyAway(x,()=>{st.pop=x==='memo'?1:2;render();landOn(x)});return}
     case'pop-open':st.pop=x==='memo'?1:2;S.sheet=x==='memo'?'memos':'works';break;
     case'paid':{const s=svcOf(S.sel.svc);S.payNow=depOf(priceOf(m,s.id,S.sel.ans));S.sheet=null;book();S.payNow=0;toast('Оплата прошла (демо)');break}
