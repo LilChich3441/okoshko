@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#F2F3F5">
-<meta name="description" content="Очкошко — запись к частному мастеру в Telegram">
+<meta name="description" content="Окошко — запись к частному мастеру в Telegram">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%23B0265A%27/%3E%3Crect x=%279%27 y=%279%27 width=%2714%27 height=%2714%27 rx=%273%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272.5%27/%3E%3Cpath d=%27M16 9v14M9 16h14%27 stroke=%27white%27 stroke-width=%272%27/%3E%3C/svg%3E">
 </head><body>
-<title>Очкошко</title>
+<title>Окошко</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Unbounded:wght@500;600&display=swap">
 <style>
@@ -300,8 +300,8 @@ h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
 .wtiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .wtiles .work{width:auto}
 /* ===== единая основа: светлая или тёмная тема на выбор мастера ===== */
-.t-light{--muted:#5F6670;--accent-text:var(--accent);--ok:#2E7D5B;--ok-soft:#DDF1E7;--bg:#F2F3F5;--surface:#FFFFFF;--sunk:#F7F8FA;--ink:#1C1F24;--line:#E2E5EA;--bubble:#FFFFFF;--feed:#E5E9EE;color-scheme:light}
-.t-dark{--accent-text:color-mix(in srgb,var(--accent) 58%,#fff);--ok-soft:#173327;--bg:#111316;--surface:#1A1D22;--sunk:#15181C;--ink:#ECEEF1;--muted:#9AA1AA;--line:#2B3037;--bubble:#23272E;--feed:#0D0F12;--ok:#4CC38A;color-scheme:dark}
+.t-light{--muted:#655960;--accent-text:var(--accent);--ok:#2E7D5B;--ok-soft:#DDF1E7;--bg:#F5EFE9;--surface:#FFFCF9;--sunk:#F8F2EC;--ink:#241A20;--line:#EADFD6;--bubble:#FFFCF9;--feed:#EEE5DD;--night:#2C2338;--glow:#FFC46B;--glow-2:#FF9F43;--glow-ink:#4A2A10;color-scheme:light}
+.t-dark{--accent-text:color-mix(in srgb,var(--accent) 58%,#fff);--ok-soft:#173327;--bg:#141017;--surface:#1C171F;--sunk:#18131B;--ink:#F2EBEE;--muted:#A99EA5;--line:#30293A;--bubble:#251F29;--feed:#0F0C12;--ok:#4CC38A;--night:#0C0910;--glow:#FFC46B;--glow-2:#FF9F43;--glow-ink:#4A2A10;color-scheme:dark}
 .t-light,.t-dark{background:var(--bg);color:var(--ink)}
 /* узоры обложки, если у мастера нет своего фото */
 .cover.cv-soft{background:linear-gradient(120deg,color-mix(in srgb,var(--accent) 55%,#fff),var(--accent) 75%)}
@@ -314,6 +314,70 @@ h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
 /* ===== сворачиваемые блоки и телефонный вид ===== */
 .demo{font-family:var(--body);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;vertical-align:middle;padding:3px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent-text)}
 .m-hint{display:none}
+/* ===== стиль «Окошки»: арка = окно и ноготь «миндаль», свободное время светится ===== */
+.wrap{--night:#2C2338;--glow:#FFC46B;--glow-2:#FF9F43;--glow-ink:#4A2A10}
+.arch,.art.arch{border-radius:50% 50% 16px 16px / 40% 40% 16px 16px;overflow:hidden}
+.facade{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:10px;align-items:end;padding-top:4px}
+.facade.one{grid-template-columns:minmax(0,62%);justify-content:center}
+.fwork{border:0;background:none;padding:0;display:block;min-width:0}
+.fwork .art{aspect-ratio:4/5;width:100%}
+.fwork.big .art,.facade .arch.big{aspect-ratio:4/5.6}
+.facade .arch.big{display:grid;place-items:center;width:100%}
+.facade .ini{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.85);color:var(--accent);display:grid;place-items:center;font:600 28px/1 var(--display);overflow:hidden;position:relative;z-index:1}
+.facade .ini img{width:100%;height:100%;object-fit:cover}
+.allworks{align-self:center;margin-top:-8px}
+.who{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+.who h1{font:600 23px/1.15 var(--display);letter-spacing:-.02em;margin:0;text-wrap:balance}
+.who p{margin:0;color:var(--muted);font-size:14px;max-width:34ch}
+.who .rate{font-size:13px;color:var(--muted);padding:6px 4px}
+.win{position:relative;flex:none;border-radius:50% 50% 5px 5px / 40% 40% 5px 5px;background:var(--night);overflow:hidden}
+.win::before,.win::after{content:"";position:absolute;background:rgba(255,255,255,.5)}
+.win::before{left:50%;top:0;height:46%;width:2px;transform:translateX(-50%)}
+.win::after{left:0;right:0;top:46%;height:2px}
+.win.on{background:radial-gradient(120% 90% at 50% 75%,#FFE7B0 0,var(--glow) 45%,var(--glow-2) 100%);box-shadow:0 6px 16px -6px rgba(255,159,67,.8)}
+.lit{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:0;background:var(--surface);border-radius:16px;padding:12px 14px;box-shadow:0 8px 22px -14px rgba(90,40,20,.45)}
+.t-dark .lit{background:var(--bubble);box-shadow:none}
+.lit .win{width:30px;height:38px}
+.lit b{display:block;font-weight:600;font-size:15px}
+.lit span span,.lit>span>span{display:block;font-size:13px;color:var(--muted)}
+.list.svcs{gap:0}
+.svcs .svc2{background:none;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:14px 2px}
+.svcs .svc2:last-child{border-bottom:0}
+.day.dw{width:54px;border:0;background:none;padding:0;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--ink)}
+.day.dw .win{width:44px;height:56px;display:grid;place-items:center;transition:box-shadow .3s,background .3s}
+.day.dw .n{position:relative;z-index:1;font:600 16px/1 var(--display);color:#fff;font-variant-numeric:tabular-nums}
+.day.dw .win.on .n{color:var(--glow-ink)}
+.day.dw small{font-size:12px;color:var(--muted)}
+.day.dw:disabled{opacity:.5}
+.day.dw[aria-pressed="true"]{background:none}
+.day.dw[aria-pressed="true"] .win{outline:2.5px solid var(--accent);outline-offset:3px}
+.day.dw[aria-pressed="true"] small{color:var(--ink);font-weight:600}
+.part{display:flex;flex-direction:column;gap:8px}
+.part h4{margin:0;font-size:13px;font-weight:600;color:var(--muted)}
+.slots{grid-template-columns:repeat(3,1fr)}
+.slots.wins{grid-template-columns:1fr}
+.slot{border:1.5px solid var(--line);background:var(--surface);border-radius:22px 22px 12px 12px;padding:12px 0;font-weight:600;font-size:16px;min-height:48px;color:var(--ink);transition:background .25s,box-shadow .25s,border-color .25s}
+.slots.wins .slot{border-radius:16px;padding:14px}
+.slot[aria-pressed="true"]{border-color:transparent;background:radial-gradient(120% 120% at 50% 80%,#FFE7B0 0,var(--glow) 55%,var(--glow-2) 100%);color:var(--glow-ink);box-shadow:0 8px 20px -8px rgba(255,159,67,.9)}
+.done{align-items:center;text-align:center}
+.done .sum,.done>p{align-self:stretch;text-align:left}
+.done .row-btns{justify-content:center}
+.bigwin{width:180px;height:226px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;padding:0 10px 28px;
+  border-radius:50% 50% 22px 22px / 40% 40% 22px 22px;background:var(--night);position:relative;overflow:hidden;color:#fff;
+  transition:background .9s cubic-bezier(.22,1,.36,1),box-shadow .9s cubic-bezier(.22,1,.36,1),color .5s .2s}
+.bigwin::before,.bigwin::after{content:"";position:absolute;background:rgba(255,255,255,.3);transition:background .9s}
+.bigwin::before{left:50%;top:0;height:44%;width:3px;transform:translateX(-50%)}
+.bigwin::after{left:0;right:0;top:44%;height:3px}
+.bigwin .d{position:relative;font-size:14px;font-weight:500;opacity:.9}
+.bigwin .tm{position:relative;font:600 34px/1.05 var(--display);letter-spacing:-.02em;font-variant-numeric:tabular-nums;text-wrap:balance}
+.bigwin.on{background:radial-gradient(110% 80% at 50% 75%,#FFF1CC 0,var(--glow) 45%,var(--glow-2) 100%);color:var(--glow-ink);box-shadow:0 26px 50px -18px rgba(255,159,67,.85),0 0 0 9px color-mix(in srgb,var(--glow) 18%,transparent)}
+.bigwin.half.on{background:radial-gradient(90% 60% at 50% 85%,#FFE2A6 0,var(--glow) 35%,var(--night) 100%);color:#fff;box-shadow:0 20px 40px -20px rgba(255,159,67,.6)}
+.bigwin.on::before,.bigwin.on::after{background:rgba(255,255,255,.75)}
+.done h2{font-size:24px;margin-top:6px}
+.wtiles .art,.wgrid .art{border-radius:50% 50% 14px 14px / 40% 40% 14px 14px}
+.modal .pop-works .art{aspect-ratio:4/5;border-radius:50% 50% 14px 14px / 40% 40% 14px 14px}
+.modal .art.pop-pic{border-radius:50% 50% 12px 12px / 40% 40% 12px 12px}
+@media (prefers-reduced-motion:reduce){.bigwin,.bigwin::before,.bigwin::after,.slot,.day.dw .win{transition:none}}
 .rate{border:0;background:none;padding:0;text-align:left;cursor:pointer}
 .share.big{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;padding:14px;background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-size:16px;font-weight:600}
 .share.big span{font-size:12.5px;font-weight:400;opacity:.85}
@@ -418,7 +482,7 @@ button:active{opacity:.85}
 
 <div class="wrap">
   <header class="intro">
-    <h1>Очкошко <span class="demo">демо</span></h1>
+    <h1>Окошко <span class="demo">демо</span></h1>
     <p>Запись к частному мастеру прямо в Telegram. Клиент сам заполняет анкету и выбирает время, мастер получает готовую заявку.</p>
     <p class="m-hint">Нажимайте, как будто вы клиент. «Я мастер» — кабинет мастера.</p>
   </header>
@@ -884,6 +948,29 @@ const blankSel=()=>({svc:null,ans:{},files:{},day:null,start:null});
 S.sel=blankSel();
 function priceOf(m,svc,ans){const s=m.services.find(x=>x.id===svc);if(!s)return 0;let p=s.price;for(const q of s.qs){const Q=m.q[q];if(Q&&Q.add&&ans[q]!=null)p+=Q.add[ans[q]]}return p}
 function whenOf(m,b){if(m.mode==='slot')return fmtT(b.start);const w=m.wins[b.start];return /\d:\d/.test(w)?w:m.winLabel.toLowerCase()+': '+w.toLowerCase()}
+const relDay=k=>{const d=Math.round((parseKey(k)-today)/864e5);return d===0?'сегодня':d===1?'завтра':fmtDay(k)};
+const dayWin=(k,n,sel,lab)=>{const d=parseKey(k);return`<button class="day dw" ${n?'':'disabled'} aria-pressed="${k===sel}" data-act="day:${k}" aria-label="${fmtDay(k)}: ${n?lab(n):'всё занято'}"><span class="win ${n?'on':''}"><span class="n">${d.getDate()}</span></span><small>${WD[d.getDay()].toLowerCase()}</small></button>`};
+const lWin=n=>pl(n,'окошко','окошка','окошек'),lPlace=n=>pl(n,'место','места','мест');
+function slotGroups(list,sel){
+  return[['Утро',t=>t<720],['День',t=>t>=720&&t<1020],['Вечер',t=>t>=1020]].map(([nm,f])=>{const a=list.filter(f);
+    return a.length?`<div class="part"><h4>${nm}</h4><div class="slots">${a.map(t=>`<button class="slot" aria-pressed="${t===sel}" data-act="slot:${t}">${fmtT(t)}</button>`).join('')}</div></div>`:''}).join('');
+}
+function facadeHtml(m){
+  const w=m.works,cv=`cover cv-${coverOf(m)}`;
+  if(!w.length)return`<div class="facade one"><div class="arch big ${cv}" ${m.coverImg?`style="background-image:url('${m.coverImg}');background-size:cover"`:''}><span class="ini">${m.avatar?`<img src="${m.avatar}" alt="">`:esc(m.ini)}</span></div></div>`;
+  const pick=w.length===1?[[0,'big']]:w.length===2?[[0,''],[1,'big']]:[[1,''],[0,'big'],[2,'']];
+  return`<div class="facade ${w.length===1?'one':''}" aria-label="Работы мастера">${pick.map(([i,c])=>`<button class="fwork ${c}" data-act="work:${i}" aria-label="Работа: ${esc(w[i].t)}">${artHtml(m,w[i],'arch')}</button>`).join('')}</div>${w.length>3?`<button class="back small allworks" data-act="worksheet">Все работы · ${w.length}</button>`:''}`;
+}
+function litHtml(m,st){
+  const order=m.mode==='order',minDur=Math.min(...m.services.map(x=>x.dur||60));
+  let first=null,cnt=0;
+  for(let i=0;i<st.horizon;i++){const k=keyOf(addDays(today,i));
+    if(order){const n=orderLeft(k);if(n){if(!first)first=[k,null];if(i<30)cnt++}}
+    else{const sl=slotsFor(k,minDur);if(sl.length){if(!first)first=[k,sl[0]];if(i<7)cnt+=sl.length}}}
+  if(!first)return`<button class="lit" data-act="wl"><span class="win" aria-hidden="true"></span><span><b>Свободного времени пока нет</b><span>Встаньте в лист ожидания, бот напишет, когда освободится</span></span></button>`;
+  const [k,t]=first,more=cnt-1;
+  return`<button class="lit" data-act="gobook"><span class="win on" aria-hidden="true"></span><span><b>${order?`Можно заказать на ${relDay(k)}`:`Свободно ${relDay(k)} в ${fmtT(t)}`}</b><span>${more>0?(order?`и ещё ${pl(more,'свободная дата','свободные даты','свободных дат')} в этом месяце`:`и ещё ${lWin(more)} на этой неделе`):'Успейте записаться'}</span></span></button>`;
+}
 const phoneOk=p=>(p||'').replace(/\D/g,'').length>=11;
 function refundBy(m,day,start){const ts=parseKey(day).getTime()+(m.mode==='slot'?start:600)*60e3-864e5;if(ts<Date.now())return null;const d=new Date(ts);return d.toLocaleDateString('ru-RU',{day:'numeric',month:'long'})+', '+fmtT(d.getHours()*60+d.getMinutes())}
 function ansShort(m,svcId,ans){const s=m.services.find(x=>x.id===svcId);if(!s)return'';return s.qs.filter(q=>m.q[q]&&m.q[q].opts&&ans[q]!=null).map(q=>ansText(m.q[q],ans[q])).join(' · ')}
@@ -896,7 +983,7 @@ const HORIZONS=[[7,'неделю'],[14,'2 недели'],[30,'месяц'],[60,'
 const CONFIRMS=[['auto','Сразу, без меня'],['urgent','Срочные подтверждаю сам'],['manual','Все подтверждаю сам']];
 
 const DEP={nails:500,brows:300,mua:1000,hair:500,cakes:'30',photo:1000};
-const BOT='ochkoshko_bot';
+const BOT='okoshko_bot';
 const SLUG={nails:'anya_nails',brows:'liza_brows',mua:'karina_mua',epil:'renata_sugar',hair:'elvira_hair',cakes:'katya_cakes',auto:'sergey_garage',weld:'dima_weld',cnc:'oleg_tokar',photo:'artem_photo',tutor:'nail_math',custom:'my_page'};
 const linkOf=id=>'t.me/'+BOT+'?start='+(SLUG[id]||'my_page');
 const HIST={nails:{svc:'man',ans:{shape:2,base:1,design:1,removal:1},date:'12 октября',rep:['3 недели','Пора обновить покрытие?']},brows:{svc:'le',ans:{effect:1,volume:1,allergy:0},date:'20 октября',rep:['3 недели','Пора на коррекцию ресниц?']},hair:{svc:'col',ans:{hlen:1,hist:1,tone:0},date:'15 сентября',rep:['7 недель','Корни уже отросли, подкрасим?']},auto:{svc:'to',ans:{car:'Kia Rio 2017',parts:0},date:'в мае',rep:['полгода','Пора на следующее ТО?']},epil:{svc:'legs',ans:{method:0,hair:0,first:1,skin:0},date:'25 октября',rep:['4 недели','Волоски уже отросли до нужной длины.']}};
@@ -913,7 +1000,7 @@ function initMaster(id){
   const work=[];for(let i=m.mode==='order'?m.leadDays:1;work.length<3&&i<40;i++){const d=addDays(today,i);if(st.sched[d.getDay()].on)work.push(keyOf(d))}
   (m.seed||[]).forEach((b,i)=>st.bookings.push({id:id+i,date:work[b.d],start:b.start,svc:b.svc,svcName:(m.services.find(x=>x.id===b.svc)||{}).name,dur:(m.services.find(x=>x.id===b.svc)||{}).dur||60,client:b.client,phone:b.phone,comment:b.comment||'',ans:b.ans,photo:!!b.photo,price:priceOf(m,b.svc,b.ans),status:'ok'}));
   if(work[2]&&id!=='custom')st.daysOff.push(work[2]);
-  st.feed.push({to:'Клиенту',when:'когда клиент нажал «Старт»',text:`Привет! Здесь запись к мастеру: ${m.name}. Записаться, посмотреть свободное время и памятки можно в приложении.`,btn:['Открыть Очкошко','role:client']});
+  st.feed.push({to:'Клиенту',when:'когда клиент нажал «Старт»',text:`Привет! Здесь запись к мастеру: ${m.name}. Записаться, посмотреть свободное время и памятки можно в приложении.`,btn:['Открыть Окошко','role:client']});
   if(st.hist){const h=st.hist,hs=m.services.find(x=>x.id===h.svc);st.feed.push({to:'Клиенту',when:`через ${h.rep[0]} после визита`,text:`Мария, прошло ${h.rep[0]} после «${hs.name}». ${h.rep[1]} Анкета уже заполнена, осталось выбрать время.`,btn:['Записаться так же','repeat']})}
   const first=st.bookings.slice().sort((a,b)=>a.date.localeCompare(b.date))[0];
   if(first)st.feed.push({to:'Мастеру',when:'сегодня, 08:00',text:`Доброе утро! Ближайшая запись: ${fmtDay(first.date)}, ${whenOf(m,first)}, ${first.client}.`,btn:['Открыть записи','openrec']});
@@ -992,16 +1079,14 @@ function clientScreen(){
   const m=M(),st=St(),sel=S.sel,step=S.step,order=m.mode==='order';
   if(step===0){
     const hasHints=Object.keys(m.hints).some(k=>st.hintsOn[k]);
-    return{body:`<div class="cover cv-${coverOf(m)}" ${m.coverImg?`style="background-image:url('${m.coverImg}')"`:''}></div>
-    <div class="prof"><div class="ava big">${m.avatar?`<img src="${m.avatar}" alt="">`:m.ini}</div><div class="prof-txt"><b>${esc(m.name)}</b>${m.rating?`<button class="rate" data-act="toreviews"><em>★ ${String(m.rating[0]).replace('.',',')}</em> · ${pl(m.rating[1],'отзыв','отзыва','отзывов')}</button>`:'<span class="rate">Новый мастер</span>'}</div></div>
-    <p class="about">${esc(m.about)}</p>
+    return{body:`${facadeHtml(m)}
+    <div class="who"><h1>${esc(m.name)}</h1><p>${esc(m.about)}</p>${m.rating?`<button class="rate" data-act="toreviews"><em>★ ${String(m.rating[0]).replace('.',',')}</em> · ${pl(m.rating[1],'отзыв','отзыва','отзывов')}</button>`:'<span class="rate">Новый мастер</span>'}</div>
+    ${litHtml(m,st)}
     ${st.hist&&svcOf(st.hist.svc)?`<div class="rev" style="background:var(--accent-soft)"><b style="font-size:15px">С возвращением, ${esc(S.contact.name)}!</b><span>В прошлый раз, ${st.hist.date}: ${esc(svcOf(st.hist.svc).name)}</span><button class="main-btn" data-act="repeat">Записаться так же</button></div>`:''}
     ${m.links.length?`<div class="links">${m.links.map(l=>`<button class="tag" data-act="toast:Откроет: ${esc(l)}">${esc(l)}</button>`).join('')}</div>`:''}
-    ${m.works.length?`<div class="sec-h"><h3>Работы</h3><span class="small muted">нажмите, чтобы записаться так же</span></div>
-    <div class="works">${m.works.map((w,i)=>`<button class="work" data-act="work:${i}">${artHtml(m,w)}<b>${esc(w.t)}</b>${w.p!=null?`<span>${rub(w.p)}</span>`:''}</button>`).join('')}</div>`:''}
     ${hasHints?`<button class="memo" data-act="memos"><span class="q">?</span><span><b>Не знаете, что выбрать?</b><br><span class="small muted">${esc(m.memo)}</span></span></button>`:''}
     <h3 id="svc-list">${order?'Что можно заказать':'Услуги'}</h3>
-    <div class="list">${m.services.map(s=>{const n=nearest(s);return`<button class="svc2" data-act="svc:${s.id}"><span class="nm">${esc(s.name)}</span><span class="pr">${listPrice(m,s)}</span>
+    <div class="list svcs">${m.services.map(s=>{const n=nearest(s);return`<button class="svc2" data-act="svc:${s.id}"><span class="nm">${esc(s.name)}</span><span class="pr">${listPrice(m,s)}</span>
       <span class="meta">${s.dur&&!order?`<span>${durTxt(s.dur)}</span>`:''}${s.note?`<span>${esc(s.note)}</span>`:''}<span class="${n?'near':''}">${n?(order?'Ближайшая дата: ':'Ближайшее время: ')+n:'Свободного времени пока нет'}</span></span></button>`}).join('')}</div>
     ${m.reviews.length?`<h3 id="reviews">Отзывы</h3><div class="list">${m.reviews.map(([n,t])=>`<div class="rev"><span class="st">★★★★★</span><span>${esc(t)}</span><b>${esc(n)}</b></div>`).join('')}</div>`:''}`,foot:`<button class="main-btn" data-act="gobook">${order?'Оформить заказ':st.flow==='date'?'Выбрать дату и время':'Записаться'}</button>`};
   }
@@ -1033,8 +1118,8 @@ function clientScreen(){
     if(!sel.day){const f=days.find(d=>d[1]);sel.day=f?f[0]:null}
     let pickHtml='';
     if(sel.day){
-      if(!order)pickHtml=`<h3>${fmtDay(sel.day)}</h3><div class="slots">${slotsFor(sel.day,s.dur).map(t=>`<button class="slot" aria-pressed="${t===sel.start}" data-act="slot:${t}">${fmtT(t)}</button>`).join('')}</div>`;
-      else pickHtml=`<h3>${fmtDay(sel.day)} · ${m.winLabel.toLowerCase()}</h3><div class="chips">${m.wins.map((w,i)=>`<button class="chip" aria-pressed="${i===sel.start}" data-act="slot:${i}">${w}</button>`).join('')}</div>`;
+      if(!order)pickHtml=`<h3>${fmtDay(sel.day)}</h3>${slotGroups(slotsFor(sel.day,s.dur),sel.start)}`;
+      else pickHtml=`<h3>${fmtDay(sel.day)} · ${m.winLabel.toLowerCase()}</h3><div class="slots wins">${m.wins.map((w,i)=>`<button class="slot" aria-pressed="${i===sel.start}" data-act="slot:${i}">${w}</button>`).join('')}</div>`;
     }
     const leadTxt=(LEADS.find(l=>l[0]===st.lead)||[0,st.lead+' ч'])[1];
     const horTxt=(HORIZONS.find(h=>h[0]===st.horizon)||[0,pl(st.horizon,'день','дня','дней')])[1];
@@ -1042,7 +1127,7 @@ function clientScreen(){
       `Расписание открыто на ${horTxt} вперёд.`,!order&&st.noGaps?'Показано время вплотную к другим записям, так мастеру удобнее.':'',
       st.confirm==='manual'?(order?'Мастер подтверждает каждый заказ сам, до этого дата за вами.':'Мастер подтверждает каждую запись сам, до этого время за вами забронировано.'):st.confirm==='urgent'&&!(order&&st.leadDays*24>=st.urgentH)?`Если до ${order?'получения':'визита'} меньше ${st.urgentH} ч, мастер подтвердит ${order?'заказ':'запись'} сам.`:''].filter(Boolean).join(' ');
     const body=prog(s.qs.length+1,total,`Шаг ${s.qs.length+1} из ${total} · ${order?'дата':'время'}`)+`<div class="qhead"><h2>${order?'К какому дню?':'Когда удобно?'}</h2>${memoIcons()}</div>
-      <div class="days">${days.map(([k,n])=>{const d=parseKey(k);return`<button class="day" ${n?'':'disabled'} aria-pressed="${k===sel.day}" data-act="day:${k}"><span>${WD[d.getDay()]}</span><b>${d.getDate()}</b><span>${n?(order?pl(n,'место','места','мест'):pl(n,'окно','окна','окон')):'—'}</span></button>`}).join('')}</div>
+      <div class="days">${days.map(([k,n])=>dayWin(k,n,sel.day,order?lPlace:lWin)).join('')}</div>
       ${sel.day?pickHtml:'<p class="muted">Свободных дат пока нет.</p>'}
       <button class="btn2" data-act="wl">${order?'Нет подходящей даты':'Нет подходящего времени'}? Встать в лист ожидания</button>
       <div class="note">${rules}</div>
@@ -1068,7 +1153,7 @@ function clientScreen(){
   const b=st.bookings.find(x=>x.id===st.lastNew);if(!b){S.step=0;return clientScreen()}
   const bs=svcOf(b.svc)||{name:b.svcName,est:false},hold=b.status==='hold';
   const bopts=ansShort(m,b.svc,b.ans||{});
-  return{body:`<div class="done"><div class="check ${hold?'wait':''}">${hold?'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>':'✓'}</div><h2>${hold?'Бронь отправлена':order?'Заказ принят':'Вы записаны'}</h2>
+  return{body:`<div class="done"><div class="bigwin ${hold?'half':''}" data-light="${b.id}${hold?'h':''}"><span class="d">${fmtDay(b.date)}</span><span class="tm">${order?esc(m.wins[b.start]):fmtT(b.start)}</span></div><h2>${hold?'Бронь отправлена':order?'Заказ принят':'Вы записаны'}</h2>
     ${hold?`<p class="muted small" style="margin:0">${esc(m.who)} обычно отвечает в течение часа. Ответ придёт в Telegram. Если мастер не сможет, ${b.paid?'предоплата вернётся автоматически, а ':''}бот предложит другое время.</p>`:''}
     ${b.paid?`<p class="small" style="margin:0">Предоплата <b>${rub(b.paid)}</b> внесена. На месте останется ${rub(Math.max(0,b.price-b.paid))}.</p>`:''}
     <div class="sum"><div class="kv"><span>Когда</span><span>${fmtDay(b.date)}, ${whenOf(m,b)}</span></div><div class="kv"><span>${order?'Заказ':'Услуга'}</span><span>${esc(bs.name)}</span></div>${bopts?`<div class="kv"><span>Выбор</span><span>${esc(bopts)}</span></div>`:''}<div class="kv"><span>Адрес</span><span>${esc(m.addr)}</span></div><div class="kv"><span>Итого</span><span>${priceTxt(bs,b.price)}</span></div></div>
@@ -1129,8 +1214,8 @@ function dfScreen(){
     if(!sel.day){const f=days.find(d=>d[1]);sel.day=f?f[0]:null}
     const sl=sel.day?slotsFor(sel.day,minDur):[];
     return{body:prog(1,4,'Шаг 1 из 4 · дата и время')+`<div class="qhead"><h2>Когда удобно?</h2>${memoIcons()}</div><p class="small muted" style="margin:0">Сначала время, потом процедура: покажем только те, что помещаются в это окно.</p>
-      <div class="days">${days.map(([k,n])=>{const d=parseKey(k);return`<button class="day" ${n?'':'disabled'} aria-pressed="${k===sel.day}" data-act="day:${k}"><span>${WD[d.getDay()]}</span><b>${d.getDate()}</b><span>${n?pl(n,'окно','окна','окон'):'—'}</span></button>`}).join('')}</div>
-      ${sel.day?`<h3>${fmtDay(sel.day)}</h3><div class="slots">${sl.map(t=>`<button class="slot" aria-pressed="${t===sel.start}" data-act="slot:${t}">${fmtT(t)}</button>`).join('')}</div>`:'<p class="muted">Свободных дат пока нет.</p>'}<button class="btn2" data-act="wl">Нет подходящего времени? Встать в лист ожидания</button>`,
+      <div class="days">${days.map(([k,n])=>dayWin(k,n,sel.day,lWin)).join('')}</div>
+      ${sel.day?`<h3>${fmtDay(sel.day)}</h3>${slotGroups(sl,sel.start)}`:'<p class="muted">Свободных дат пока нет.</p>'}<button class="btn2" data-act="wl">Нет подходящего времени? Встать в лист ожидания</button>`,
       foot:`<button class="main-btn" data-act="dfnext" ${sel.start!=null?'':'disabled'}>${sel.start!=null?'Дальше: выбрать процедуру':'Выберите время'}</button>`};
   }
   return{body:prog(2,4,'Шаг 2 из 4 · процедура')+`<h2>${fmtDay(sel.day)}, ${fmtT(sel.start)}</h2><p class="small muted" style="margin:0">Что делаем?</p>
@@ -1347,7 +1432,10 @@ function render(){
   document.getElementById('overlay').innerHTML=ov;
   if(ovKey&&ovKey!==lastOv)document.querySelector('#overlay .sheet,#overlay .modal')?.focus({preventScroll:true});
   lastOv=ovKey;
+  const bw=document.querySelector('#screen .bigwin[data-light]');
+  if(bw){if(lastLit!==bw.dataset.light&&!matchMedia('(prefers-reduced-motion: reduce)').matches){lastLit=bw.dataset.light;setTimeout(()=>bw.classList.add('on'),300)}else{lastLit=bw.dataset.light;bw.classList.add('on')}}
 }
+let lastLit='';
 let lastOv='';
 let toastT;
 function toast(t){
@@ -1460,7 +1548,7 @@ document.addEventListener('click',e=>{
     case'pop-ok':{if(el.dataset.busy)return;el.dataset.busy=1;flyAway(x,()=>{st.pop=x==='memo'?1:2;render();landOn(x)});return}
     case'pop-open':st.pop=x==='memo'?1:2;S.sheet=x==='memo'?'memos':'works';break;
     case'paid':{const s=svcOf(S.sel.svc);S.payNow=depOf(priceOf(m,s.id,S.sel.ans));S.sheet=null;book();S.payNow=0;toast('Оплата прошла (демо)');break}
-    case'startbot':st.feed.push({me:true,when:'клиент',text:'/start'});st.feed.push({to:'Бот Очкошка',when:'сразу',text:`Привет! Это запись к мастеру: ${m.name}. Здесь можно записаться в пару касаний, без переписки. Сюда же придут подтверждение и напоминание.`,btn:['Открыть запись','home']});renderFeed();break;
+    case'startbot':st.feed.push({me:true,when:'клиент',text:'/start'});st.feed.push({to:'Бот Окошка',when:'сразу',text:`Привет! Это запись к мастеру: ${m.name}. Здесь можно записаться в пару касаний, без переписки. Сюда же придут подтверждение и напоминание.`,btn:['Открыть запись','home']});renderFeed();break;
     case'calday':S.calDay=x;break;
     case'calm':S.calMonth=new Date(S.calMonth.getFullYear(),S.calMonth.getMonth()+(+x),1);break;
     case'block':(st.blocks[x]||(st.blocks[x]=[])).push([+y,+parts[3]]);toast('Окно закрыто. Клиенты его больше не видят');break;
