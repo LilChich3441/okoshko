@@ -652,6 +652,40 @@ body.tgapp .foot.tg-hide:not(:has(.foot-note,.back-btn,.skip)){display:none}
 .legend span:nth-child(2)::before{background:var(--sunk);box-shadow:inset 0 0 0 1.5px var(--muted)}
 body.tgapp .foot.has-back{grid-template-columns:1fr}
 body.tgapp .foot .back-btn{display:none}
+
+/* ошибки, подтверждения, «Вернуть», записи мастера */
+.toast{display:flex;align-items:center;gap:12px}
+.toast span{flex:1;min-width:0}
+.toast-undo{border:0;background:none;color:var(--light);font-weight:700;font-size:14px;padding:8px 4px;min-height:40px;flex:none}
+.t-dark .toast-undo{color:#B5661A}
+.main-btn.danger{background:var(--danger);color:#fff}
+.errhead{display:flex;align-items:center;gap:12px}
+.err-ico{width:28px;height:28px;border-radius:50%;background:var(--sunk);color:var(--ink);display:grid;place-items:center;font-weight:800;font-size:15px;flex:none}
+.errhead .err-ico{background:var(--danger);color:#fff}
+.demo-links{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:12.5px;color:var(--muted)}
+.demo-links button{border:0;background:none;padding:6px 0;min-height:36px;color:var(--ink);text-decoration:underline;text-underline-offset:3px;font-size:12.5px}
+.warnline{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border-radius:var(--r-ctl);padding:12px 14px;font-size:13px;box-shadow:var(--shadow)}
+.t-dark .warnline{box-shadow:inset 0 0 0 1px var(--line)}
+.decl{display:flex;flex-direction:column;gap:10px;background:var(--surface);border-radius:var(--r-card);padding:14px;box-shadow:inset 0 0 0 2px var(--danger),var(--shadow);position:relative;z-index:3}
+.hero+.decl{margin-top:-30px}
+.decl-h{display:flex;align-items:center;gap:10px}
+.decl-h b{flex:1;font-size:15px}
+.decl-h .err-ico{background:var(--danger);color:#fff}
+.decl .sh-x{position:static;width:32px;height:32px}
+.mtitle{font-size:22px}
+.mweek .mday{width:48px;padding:8px 0}
+.mday.off b{color:var(--muted)}
+.mday-n{font-size:11.5px;font-weight:700;min-height:14px;display:flex;align-items:center;justify-content:center}
+.mday .fdot{width:6px;height:6px;border-radius:50%;background:var(--light);display:block}
+.day[aria-pressed="true"] .mday-n{color:inherit}
+.monthcal{background:var(--surface);border-radius:var(--r-ctl);padding:0 12px;box-shadow:var(--shadow)}
+.t-dark .monthcal{box-shadow:inset 0 0 0 1px var(--line)}
+.monthcal summary{min-height:46px;display:flex;align-items:center;font-size:14px;font-weight:600;cursor:pointer;list-style:none}
+.monthcal summary::-webkit-details-marker{display:none}
+.monthcal summary::after{content:"›";margin-left:auto;color:var(--muted);transition:transform .2s}
+.monthcal[open] summary::after{transform:rotate(90deg)}
+.monthcal[open]{padding-bottom:12px}
+.monthcal .cal{margin-top:8px}
 </style>
 
 
@@ -1200,7 +1234,7 @@ function initMaster(id){
   MASTERS[id].id=id;
   const m=MASTERS[id];
   const st=ST[id]={sched:m.sched.map(x=>({...x})),lead:m.lead||12,leadDays:m.leadDays||2,cap:m.cap||3,horizon:m.mode==='order'?30:14,
-    confirm:'urgent',urgentH:24,noGaps:true,flow:id==='nails'?'date':'service',deposit:DEP[id]||0,refund:'day',blocks:{},overrides:{},hist:HIST[id]||null,waitlist:(WAIT[id]||[]).map((w,i)=>({...w,id:id+'w'+i})),moved:{},setup:{svc:id!=='custom',hours:id!=='custom',prof:id!=='custom',link:id!=='custom'},daysOff:[],hintsOn:Object.fromEntries(Object.keys(m.hints).map(k=>[k,true])),bookings:[],feed:[],lastNew:null};
+    confirm:'urgent',urgentH:24,noGaps:true,flow:'service',deposit:DEP[id]||0,refund:'day',blocks:{},overrides:{},hist:HIST[id]||null,waitlist:(WAIT[id]||[]).map((w,i)=>({...w,id:id+'w'+i})),moved:{},setup:{svc:id!=='custom',hours:id!=='custom',prof:id!=='custom',link:id!=='custom'},daysOff:[],hintsOn:Object.fromEntries(Object.keys(m.hints).map(k=>[k,true])),bookings:[],feed:[],lastNew:null};
   const work=[];for(let i=m.mode==='order'?m.leadDays:1;work.length<3&&i<40;i++){const d=addDays(today,i);if(st.sched[d.getDay()].on)work.push(keyOf(d))}
   (m.seed||[]).forEach((b,i)=>st.bookings.push({id:id+i,date:work[b.d],start:b.start,svc:b.svc,svcName:(m.services.find(x=>x.id===b.svc)||{}).name,dur:(m.services.find(x=>x.id===b.svc)||{}).dur||60,client:b.client,phone:b.phone,comment:b.comment||'',ans:b.ans,photo:!!b.photo,price:priceOf(m,b.svc,b.ans),status:'ok'}));
   st.clients={};(m.seed||[]).forEach((b,i)=>{const h=[...b.client].reduce((a,c)=>a+c.charCodeAt(0),0),nt=(NOTES[id]||[])[i]||'',n=h%4===0&&!nt?0:2+h%6,pr=priceOf(m,b.svc,b.ans);
@@ -1287,7 +1321,9 @@ function clientScreen(){
   const m=M(),st=St(),sel=S.sel,step=S.step,order=m.mode==='order';
   if(step===0){
     const hasHints=Object.keys(m.hints).some(k=>st.hintsOn[k]);
+    const dc=st.declined;
     return{body:`${heroHtml(m)}
+    ${dc?`<div class="decl"><div class="decl-h"><span class="err-ico" aria-hidden="true">!</span><b>Мастер не сможет ${relDay(dc.date)}${m.mode==='slot'?' в '+fmtT(dc.start):''}</b><button class="sh-x" data-act="decldone" aria-label="Скрыть"><svg viewBox="0 0 14 14" width="12" height="12" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div><span class="small muted">${esc(dc.name)}.${dc.paid?` Предоплата ${rub(dc.paid)} вернётся на карту в течение дня.`:''} Анкету сохранили — осталось выбрать другое время.</span><button class="main-btn" data-act="redecl">Выбрать другое время</button></div>`:''}
     ${litHtml(m,st)}
     ${(()=>{const nb=st.hist&&st.hist.bid&&st.bookings.find(z=>z.id===st.hist.bid&&visitTs(m,z)>Date.now());return nb?`<div class="rev" style="background:var(--accent-soft)"><b style="font-size:15px">${nb.status==='hold'?'Бронь ждёт ответа мастера':order?'Ваш заказ':'Ваша запись'}: ${relDay(nb.date)}, ${whenOf(m,nb)}</b><span>${esc(sName(nb))}${ansShort(m,nb.svc,nb.ans)?' · '+esc(ansShort(m,nb.svc,nb.ans)):''}</span><div class="row-btns"><button class="btn2" data-act="resched:${nb.id}">Перенести</button><button class="btn2" data-act="cancelask:${nb.id}">Отменить</button></div></div>`:''})()}
     ${st.hist&&svcOf(st.hist.svc)&&!(st.hist.bid&&st.bookings.some(z=>z.id===st.hist.bid&&visitTs(m,z)>Date.now()))?`<div class="rev" style="background:var(--accent-soft)"><b style="font-size:15px">С возвращением, ${esc(S.contact.name)}!</b><span>В прошлый раз, ${st.hist.date}: ${esc(svcOf(st.hist.svc).name)}</span>${ansShort(m,st.hist.svc,st.hist.ans)?`<span class="small muted">${esc(ansShort(m,st.hist.svc,st.hist.ans))}</span>`:''}<button class="btn2 acc" data-act="repeat">Записаться так же</button></div>`:''}
@@ -1341,6 +1377,7 @@ function clientScreen(){
     const body=prog(s.qs.length+1,total,`Шаг ${s.qs.length+1} из ${total} · ${order?'дата':'время'}`)+`<div class="qhead"><h2>${order?'К какому дню?':'Когда удобно?'}</h2>${memoIcons()}</div>${addBlock}
       <div class="days">${days.map(([k,n])=>dayWin(k,n,sel.day,order?lPlace:lWin)).join('')}</div>
       ${sel.day?pickHtml:'<p class="muted">Свободных дат пока нет.</p>'}
+      ${sel.start!=null&&depOf(priceOf(m,s.id,sel.ans))&&st.refund==='day'&&!refundBy(m,sel.day,sel.start)?`<div class="warnline"><span class="err-ico" aria-hidden="true">!</span><span>До ${order?'получения':'визита'} меньше суток: если отмените, предоплату ${rub(depOf(priceOf(m,s.id,sel.ans)))} не вернём. Если мастер откажет — вернём.</span></div>`:''}
       <button class="btn2" data-act="wl">${order?'Нет подходящей даты':'Нет подходящего времени'}? Встать в лист ожидания</button>
       <div class="note">${rules}</div>
       <div class="total"><span>${esc(s.name)}</span><span>${price}</span></div>`;
@@ -1516,9 +1553,12 @@ function calScreen(tabs){
     ${steps.map(([k,t,a])=>`<button class="opt" style="border:0;background:none;padding:6px 0;text-align:left;width:100%" data-act="${a}"><span>${st.setup[k]?'<span style="color:var(--ok)">✓</span>':'○'} ${t}</span><span class="muted">›</span></button>`).join('')}</div>`:'';
   const wl=st.waitlist.length?`<h3>Лист ожидания</h3>${st.waitlist.map(w=>`<div class="rec"><div><b>${esc(w.client)}</b> · ${esc(svcOf(w.svc)?.name||'любая услуга')}</div><span class="small muted">Удобно: ${esc(w.pref)}</span><div class="row-btns"><button class="btn2 acc" data-act="wloffer:${w.id}">Предложить время</button><button class="btn2" data-act="wldel:${w.id}">Убрать</button></div></div>`).join('')}`:'';
   if(hrs&&!dayB.length)day+=st.bookings.length?'<p class="muted small" style="margin:0">Записей на этот день пока нет.</p>':`<p class="muted small" style="margin:0">Записей пока нет. Отправьте ссылку ${linkOf(S.cur)} паре постоянных клиентов: первая запись появится здесь.</p>`;
-  return{body:tabs+fin+setup+(holds.length?`<h3>Ждут вашего ответа</h3>${holds.map(b=>recCard(m,b)).join('')}`:'')+wl
-    +`<div class="cal-h"><button data-act="calm:-1" aria-label="Прошлый месяц">‹</button><b>${mo.toLocaleDateString('ru-RU',{month:'long',year:'numeric'}).replace(' г.','')}</b><button data-act="calm:1" aria-label="Следующий месяц">›</button></div><div class="cal">${cells}</div>`
-    +day+dayB.filter(b=>b.status!=='hold').map(b=>recCard(m,b)).join(''),foot:''};
+  const wk=[];for(let i=0;i<14;i++){const dk=keyOf(addDays(today,i)),dd=parseKey(dk),cnt=st.bookings.filter(b=>b.date===dk).length,op=!!dayHours(dk),fr=op&&(order?orderLeft(dk):slotsFor(dk,minDur).length)>0;
+    wk.push(`<button class="day mday ${op?'':'off'}" aria-pressed="${dk===S.calDay}" data-act="calday:${dk}" aria-label="${fmtDay(dk)}: ${cnt?pl(cnt,'запись','записи','записей'):op?'записей нет':'выходной'}"><small>${i===0?'сег':WD[dd.getDay()].toLowerCase()}</small><b>${dd.getDate()}</b><span class="mday-n">${cnt?cnt:op?(fr?'<i class="fdot"></i>':''):'вых'}</span></button>`)}
+  return{body:tabs+fin+setup+`<h2 class="mtitle">Записи</h2>`+(holds.length?`<h3>Ждут вашего ответа · ${holds.length}</h3>${holds.map(b=>recCard(m,b)).join('')}`:'')
+    +`<div class="days mweek">${wk.join('')}</div>`
+    +`<details class="monthcal"><summary>Весь месяц</summary><div class="cal-h"><button data-act="calm:-1" aria-label="Прошлый месяц">‹</button><b>${mo.toLocaleDateString('ru-RU',{month:'long',year:'numeric'}).replace(' г.','')}</b><button data-act="calm:1" aria-label="Следующий месяц">›</button></div><div class="cal">${cells}</div></details>`
+    +day+dayB.filter(b=>b.status!=='hold').map(b=>recCard(m,b)).join('')+wl,foot:''};
 }
 function pickScreen(){
   if(S.mview==='mode')return{body:`<h2>Как к вам записываются?</h2><p class="muted small">Потом можно поменять.</p><div class="opts">
@@ -1660,14 +1700,25 @@ function sheetHtml(){
       ${needsConfirm(S.sel.day,S.sel.start)?`<div class="okline"><span class="win on" aria-hidden="true"></span><span><b>Если мастер не подтвердит — ${rub(dep)} вернутся сами</b><span class="small muted">Деньги придут обратно на карту, ничего делать не нужно.</span></span></div>`:''}
       <p class="small" style="margin:0">${St().refund!=='day'?'Если отмените вы, предоплата не вернётся.':rb?`Передумаете — вернём ${rub(dep)}, если отмените до ${rb}.`:`Если отмените вы, предоплата не вернётся: до ${order?'получения':'визита'} меньше суток.`}</p>
       <button class="main-btn" data-act="paid">Оплатить через СБП</button><button class="btn2" data-act="paid">Оплатить картой</button><button class="btn2" data-act="close">Не сейчас</button>
-      <p class="small muted" style="margin:0">Демо: деньги не списываются. В рабочей версии здесь откроется окно ЮKassa, и деньги сразу уйдут мастеру за вычетом комиссии сервиса.</p>`)}
+      <p class="small muted" style="margin:0">Демо: деньги не списываются. В рабочей версии здесь откроется окно ЮKassa, и деньги сразу уйдут мастеру за вычетом комиссии сервиса.</p>
+      <div class="demo-links"><span>Показать в демо:</span><button data-act="payfail">оплата не прошла</button><button data-act="slottaken">время заняли</button></div>`)}
+  if(S.sheet==='payfail'){const order=m.mode==='order';return wrap(`<div class="errhead"><span class="err-ico" aria-hidden="true">!</span><h2>Оплата не прошла</h2></div>
+      <p class="small" style="margin:0">Банк отклонил платёж, деньги не списаны. ${order?'Дату':'Время'} ${fmtDay(S.sel.day)}, ${whenOf(m,S.sel)} держим за вами ещё 10 минут.</p>
+      <p class="small muted" style="margin:0">Чаще всего помогает другая карта или оплата через СБП из приложения банка.</p>
+      <button class="main-btn" data-act="paysheet">Попробовать ещё раз</button><button class="btn2" data-act="close">Не сейчас</button>`)}
+  if(S.sheet==='taken'){const c=selSvc(),alts=[];for(let i=0;i<st.horizon&&alts.length<3;i++){const k=keyOf(addDays(today,i));slotsFor(k,c.dur).forEach(t=>{if(alts.length<3&&!(k===S.sel.day&&t===S.sel.start))alts.push([k,t])})}
+    return wrap(`<div class="errhead"><span class="err-ico" aria-hidden="true">!</span><h2>Это время только что заняли</h2></div>
+      <p class="small" style="margin:0">Пока вы записывались, ${fmtDay(S.sel.day)}, ${whenOf(m,S.sel)} забрал другой клиент. Деньги не списаны, анкета сохранена.</p>
+      ${alts.length?`<h3>Ближайшие свободные окошки</h3><div class="qt">${alts.map(([k,t])=>`<button class="qbtn" data-act="takealt:${k}:${t}"><small>${relDay(k).replace(/^(\S+), (\d+) .*/,'$1, $2')}</small><b>${fmtT(t)}</b></button>`).join('')}</div>`:'<p class="small muted" style="margin:0">Свободного времени пока нет.</p>'}
+      <button class="btn2" data-act="wl">Встать в лист ожидания</button>`)}
+  if(S.sheet==='ask'&&S.ask)return wrap(`<h2>${esc(S.ask.t)}</h2><p class="small muted" style="margin:0">${esc(S.ask.d)}</p><button class="main-btn danger" data-act="askyes">${esc(S.ask.yl)}</button><button class="btn2" data-act="close">Отмена</button>`);
   const h=m.hints[S.sheet];if(!h)return'';
   const qs=S.role==='client'&&S.step===1?selSvc().qs:[];
   const pickBtn=it=>!it.pick||!qs.includes(it.pick[0])?'':S.sel.ans[it.pick[0]]===it.pick[1]?`<span class="near pick">Выбрано</span>`:`<button class="btn2 acc pick" data-act="pick:${it.pick[0]}:${it.pick[1]}">Выбрать</button>`;
   const inner=h.items.some(it=>it.svg)
     ?`<div class="shapes">${h.items.map(it=>`<div class="shape"><svg viewBox="0 0 40 66" aria-hidden="true"><path d="${it.svg}"/></svg><div><b>${esc(it.n)}</b><span>${esc(it.t)}</span><br>${pickBtn(it)}</div></div>`).join('')}</div>`
     :`<div>${h.items.map(it=>`<div class="hitem"><b>${esc(it.n)}</b><span>${esc(it.t)}</span>${pickBtn(it)?`<div>${pickBtn(it)}</div>`:''}</div>`).join('')}</div>`;
-  return wrap(`<h2>${esc(h.title)}</h2>${inner}<button class="main-btn" data-act="close">Понятно</button>`);
+  return wrap(`${S.memoBack?'<button class="back" data-act="memos">‹ Все памятки</button>':''}<h2>${esc(h.title)}</h2>${inner}<button class="main-btn" data-act="close">Понятно</button>`);
 }
 
 // ===== отрисовка =====
@@ -1721,10 +1772,13 @@ let lastLit='',lastKey='';
 try{new ResizeObserver(()=>{const f=document.getElementById('foot');document.getElementById('stage').style.setProperty('--fh',(f.offsetHeight?f.offsetHeight+10:0)+'px')}).observe(document.getElementById('foot'))}catch(e){}
 let lastOv='';
 let toastT;
-function toast(t){
+function toast(t,undo){
   const p=document.getElementById('phone');p.querySelector('.toast')?.remove();
-  const el=document.createElement('div');el.className='toast';el.setAttribute('role','status');el.setAttribute('aria-live','polite');el.textContent=t;p.appendChild(el);
-  clearTimeout(toastT);toastT=setTimeout(()=>el.remove(),2400);
+  const el=document.createElement('div');el.className='toast';el.setAttribute('role','status');el.setAttribute('aria-live','polite');
+  const sp=document.createElement('span');sp.textContent=t;el.appendChild(sp);
+  if(undo){const b=document.createElement('button');b.className='toast-undo';b.dataset.act=undo;b.textContent='Вернуть';b.addEventListener('click',()=>setTimeout(()=>el.remove(),0));el.appendChild(b)}
+  p.appendChild(el);
+  clearTimeout(toastT);toastT=setTimeout(()=>el.remove(),undo?5000:2400);
 }
 const scrollTop=()=>{document.getElementById('screen').scrollTop=0};
 
@@ -1787,7 +1841,7 @@ document.addEventListener('click',e=>{
     case'likework':{const w=m.works[+x];S.sheet=null;resetFlow();if(w&&w.svc)startFlow(w.svc,w.ans);break}
     case'ans':{const p0=priceOf(m,S.sel.svc,S.sel.ans);S.sel.ans[x]=+y;const dp=priceOf(m,S.sel.svc,S.sel.ans)-p0;render();S.pDelta=dp;const qi=S.qi;setTimeout(()=>{if(S.step===1&&S.qi===qi&&selSvc().qs[qi]===x){advanceQ();render();scrollTop()}S.pDelta=0},matchMedia('(prefers-reduced-motion: reduce)').matches?0:240);return}
     case'pick':{if(el.closest('.story')&&S.sel.ans[x]===+y){delete S.sel.ans[x];break}S.sel.ans[x]=+y;if(el.closest('.story')){toast('Отметили в анкете: '+ansText(m.q[x],+y));break}S.sheet=null;if(selSvc().qs[S.qi]===x)advanceQ();break}
-    case'hint':S.sheet=x;break;
+    case'hint':S.memoBack=S.sheet==='memos';S.sheet=x;break;
     case'memos':S.sheet='memos';break;
     case'close':S.sheet=null;break;
     case'masters':S.sheet='masters';break;
@@ -1820,7 +1874,14 @@ document.addEventListener('click',e=>{
     case'dfgo':{const pk=S.dfPick||[];if(!pk.length)break;const d=S.sel.day,t=S.sel.start;startFlow(pk[0]);S.sel.extra=pk.slice(1);S.sel.day=d;S.sel.start=t;S.step=3;gotoQs();S.dfPick=[];break}
     case'extra':{const ex=S.sel.extra||(S.sel.extra=[]);const i=ex.indexOf(x);i>=0?ex.splice(i,1):ex.push(x);const c=selSvc();
       if(S.sel.day!=null&&S.sel.start!=null&&m.mode==='slot'&&!slotsFor(S.sel.day,c.dur).includes(S.sel.start))S.sel.start=null;
-      const wasAdd=i<0;gotoQs();if(wasAdd&&S.step===1)toast('Пара вопросов про «'+svcOf(x).name+'», и вернёмся к времени');else if(wasAdd)toast('Добавили «'+svcOf(x).name+'». Время пересчитали');break}
+      let moved=false;if(S.sel.day!=null&&m.mode==='slot'&&!slotsFor(S.sel.day,c.dur).length){S.sel.day=null;S.sel.start=null;moved=true}
+      const wasAdd=i<0;gotoQs();if(wasAdd&&S.step===1)toast('Пара вопросов про «'+svcOf(x).name+'», и вернёмся к времени');else if(wasAdd)toast(moved?'Вместе в этот день не помещается — показали ближайший подходящий':'Добавили «'+svcOf(x).name+'». Время пересчитали');break}
+    case'payfail':S.sheet='payfail';break;
+    case'slottaken':S.sheet='taken';break;
+    case'takealt':S.sel.day=x;S.sel.start=+y;S.sheet=null;S.step=3;toast('Время поменяли, анкета и контакты сохранены');break;
+    case'askyes':{const a2=S.ask&&S.ask.yes;S.sheet=null;S.askOk=true;render();if(a2){const b=document.createElement('button');b.dataset.act=a2;document.getElementById('screen').appendChild(b);b.click();b.remove()}S.askOk=false;return}
+    case'redecl':{const d=st.declined;st.declined=null;if(!d||!svcOf(d.svc))break;resetFlow();startFlow(d.svc,d.ans);S.sel.extra=(d.extra||[]).filter(id=>svcOf(id));gotoQs(2);if(S.step!==1)S.step=2;break}
+    case'decldone':st.declined=null;break;
     case'paysheet':S.sheet='pay';document.querySelector('#phone .toast')?.remove();break;
     case'mcancel':S.reason=0;S.sheet='mcancel-'+x;break;
     case'mmove':S.reason=0;S.sheet='mmove-'+x;break;
@@ -1841,7 +1902,8 @@ document.addEventListener('click',e=>{
       st.feed.push({to:'Клиенту',when:'сразу',text:`Вы в листе ожидания (${pref}). Как только у мастера освободится время, напишу сюда.`});S.sheet=null;renderFeed();toast('Готово. Бот напишет, когда освободится время');break}
     case'wloffer':{const w=st.waitlist.find(z=>z.id===x);if(!w)break;const s=svcOf(w.svc)||m.services.reduce((p,q)=>(p.dur||60)<=(q.dur||60)?p:q),n=nearest(s);if(!n){toast('Свободного времени пока нет');return}
       st.feed.push({to:'Клиенту из листа ожидания',when:'сразу',text:`${w.client}, у мастера есть время: ${n}. Записаться?`,btn:['Записаться','wlbook:'+w.id]});renderFeed();toast(`Отправили ${w.client} ближайшее время`);break}
-    case'wldel':st.waitlist=st.waitlist.filter(z=>z.id!==x);break;
+    case'wldel':{const w=st.waitlist.find(z=>z.id===x);st.waitlist=st.waitlist.filter(z=>z.id!==x);S.wlUndo=w;render();toast('Убрали из листа ожидания','wlundo');return}
+    case'wlundo':if(S.wlUndo&&!st.waitlist.includes(S.wlUndo))st.waitlist.push(S.wlUndo);S.wlUndo=null;break;
     case'wlbook':{const w=st.waitlist.find(z=>z.id===x);if(!w){toast('Это предложение уже неактуально');return}st.waitlist=st.waitlist.filter(z=>z!==w);resetFlow();S.role='client';S.mview=null;S.sheet=null;
       S.nameBack=S.contact.name;S.contact.name=w.client;if(svcOf(w.svc))startFlow(w.svc);else{S.step=0;toast('Выберите услугу, и покажем свободное время')}break}
     case'copylink':st.setup.link=true;try{navigator.clipboard.writeText('https://'+linkOf(S.cur)).catch(()=>{})}catch(e){}toast('Ссылка '+linkOf(S.cur)+' скопирована. Вставьте её в описание канала');break;
@@ -1856,15 +1918,15 @@ document.addEventListener('click',e=>{
     case'st-noop':return;
     case'nopops':S.noPops=true;saveNoPops();S.slide=0;toast('Подсказки больше не всплывают. Памятка и работы остаются в кнопках сверху');break;
     case'togglepops':S.noPops=!S.noPops;saveNoPops();if(!S.noPops){for(const k in ST){ST[k].pop=0;ST[k].memoSeen=false}}toast(S.noPops?'Всплывающие подсказки выключены':'Подсказки снова будут всплывать перед записью');break;
-    case'paid':{const s=selSvc();S.payNow=depOf(priceOf(m,s.id,S.sel.ans));S.sheet=null;book();S.payNow=0;toast('Оплата прошла (демо)');break}
+    case'paid':{const s=selSvc();if(m.mode==='slot'&&!slotsFor(S.sel.day,s.dur).includes(S.sel.start)){S.sheet='taken';break}S.payNow=depOf(priceOf(m,s.id,S.sel.ans));S.sheet=null;book();S.payNow=0;toast('Оплата прошла (демо)');break}
     case'startbot':st.feed.push({me:true,when:'клиент',text:'/start'});st.feed.push({to:'Бот Окошка',when:'сразу',text:`Привет! Это запись к мастеру: ${m.name}. Здесь можно записаться в пару касаний, без переписки. Сюда же придут подтверждение и напоминание.`,btn:['Открыть запись','home']});renderFeed();break;
     case'calday':S.calDay=x;break;
     case'calm':S.calMonth=new Date(S.calMonth.getFullYear(),S.calMonth.getMonth()+(+x),1);break;
-    case'block':(st.blocks[x]||(st.blocks[x]=[])).push([+y,+parts[3]]);toast('Окно закрыто. Клиенты его больше не видят');break;
-    case'unblock':st.blocks[x].splice(+y,1);break;
+    case'block':{const arr=st.blocks[x]||(st.blocks[x]=[]);arr.push([+y,+parts[3]]);const i=arr.length-1;render();toast(`Закрыли ${fmtT(+y)}–${fmtT(+parts[3])}. Клиенты это время не видят`,'unblock:'+x+':'+i);return}
+    case'unblock':if(st.blocks[x]&&st.blocks[x][+y])st.blocks[x].splice(+y,1);break;
     case'dayoffT':{const wd=parseKey(x).getDay();
       if(dayHours(x)){const n=st.bookings.filter(b=>b.date===x).length;if(n){toast(`На этот день ${pl(n,'запись','записи','записей')}. Сначала перенесите или отмените их`);return}
-        if(st.overrides[x]&&!st.sched[wd].on)delete st.overrides[x];else st.daysOff.push(x)}
+        if(st.overrides[x]&&!st.sched[wd].on)delete st.overrides[x];else st.daysOff.push(x);render();toast(`${fmtDay(x)} — выходной. Клиенты этот день не видят`,'dayoffT:'+x);return}
       else{st.daysOff=st.daysOff.filter(k=>k!==x);if(!dayHours(x)){const w=st.sched.find(z=>z.on)||{from:'10:00',to:'18:00'};st.overrides[x]={from:w.from,to:w.to}}}
       break}
     case'mtab':S.mtab=x;break;
@@ -1872,6 +1934,7 @@ document.addEventListener('click',e=>{
     case'confirm':{const b=st.bookings.find(z=>z.id===x);if(!b)break;b.status='ok';b.isNew=true;
       st.feed.push({to:'Клиенту',when:'сразу после ответа мастера',text:`Мастер подтвердил бронь: ${fmtDay(b.date)}, ${whenOf(m,b)}. Ждём вас!`});remind(m,st,b);renderFeed();toast('Подтверждено. Клиент получил сообщение');break}
     case'decline':{const b=st.bookings.find(z=>z.id===x);if(!b)break;st.bookings=st.bookings.filter(z=>z!==b);
+      if(b.client===S.contact.name)st.declined={date:b.date,start:b.start,svc:b.svc,extra:b.extra||[],ans:{...b.ans},paid:b.paid||0,name:sName(b)};
       st.feed.push({to:'Клиенту',when:'сразу после ответа мастера',text:`К сожалению, мастер не сможет принять вас ${fmtDay(b.date)}.${b.paid?' Предоплата вернётся на карту.':''} Выберите другое время в приложении.`,btn:['Выбрать другое время','role:client']});renderFeed();toast('Отклонено. Клиенту предложено другое время');break}
     case'cancelask':S.sheet='cancelask-'+x;break;
     case'cancelmine':case'resched':{
@@ -1890,7 +1953,8 @@ document.addEventListener('click',e=>{
     case'hon':st.hintsOn[x]=!st.hintsOn[x];break;
     case'sq':{const s=svcOf(x);const on=s.qs.includes(y);const keep=new Set(s.qs);on?keep.delete(y):keep.add(y);s.qs=Object.keys(m.q).filter(k=>keep.has(k));break}
     case'sdel':{if(m.services.length<2){toast('Нужна хотя бы одна услуга');return}
-      const n=st.bookings.filter(b=>b.svc===x).length;if(n){toast(`На эту услугу ${pl(n,'запись','записи','записей')}. Сначала перенесите или отмените их`);return}
+      const n=st.bookings.filter(b=>b.svc===x||(b.extra||[]).includes(x)).length;if(n){toast(`На эту услугу ${pl(n,'запись','записи','записей')}. Сначала перенесите или отмените их`);return}
+      if(!S.askOk){const sv=svcOf(x);S.ask={t:`Удалить услугу «${sv?sv.name:''}»?`,d:'Клиенты больше не смогут на неё записаться. Вопросы анкеты останутся, их можно добавить в другие услуги.',yes:'sdel:'+x,yl:'Удалить услугу'};S.sheet='ask';break}
       m.services=m.services.filter(s=>s.id!==x);if(st.hist&&st.hist.svc===x)st.hist=null;
       st.waitlist.forEach(w=>{if(w.svc===x)w.svc=null});m.works.forEach(w=>{if(w.svc===x)w.svc=null});break}
     case'sadd':{const id='s'+Date.now();m.services.push({id,name:'Новая услуга',dur:60,price:1000,note:'',qs:[]});S.svcOpen=id;toast('Услуга добавлена, заполните её');break}
