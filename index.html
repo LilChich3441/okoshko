@@ -578,6 +578,46 @@ body.tgapp .foot.tg-hide:not(:has(.foot-note,.back-btn,.skip)){display:none}
   .pdelta{display:none}.st-bars i.now{background:var(--ink)}
   .switch::after,.prog .bar i,.bigwin::before,.bigwin::after,.btn2,.svc2,.optc,.slot,.qbtn,.day,.main-btn{transition:none}
 }
+
+/* ===== правки по проверке 08.11 ===== */
+/* янтарь — только свободное и выбранное время */
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.hint-btn{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.t-dark .hint-btn{background:var(--sunk);color:var(--ink);box-shadow:none}
+.rev .st{color:var(--ink)}
+.pill{background:var(--sunk);color:var(--ink)}
+.rec.new{box-shadow:inset 0 0 0 2px var(--ink),var(--shadow)}
+.cmeta .vis.first{background:var(--sunk);color:var(--ink)}
+.ed.fin{box-shadow:inset 0 0 0 2px var(--ink),var(--shadow)}
+.pdelta{background:var(--surface);box-shadow:var(--shadow)}
+.blk.hold{background:var(--sunk);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--muted)}
+.slot{background:var(--light-soft);box-shadow:none}
+.t-dark .slot{background:var(--light-soft);color:#FFDCA6;box-shadow:none}
+.slot[aria-pressed="true"]{color:var(--light-ink)}
+.drop:focus-within,.addph:focus-within,label.btn2:focus-within{outline-color:var(--ink)}
+/* возврат до оплаты */
+.master>div{display:flex;flex-direction:column;min-width:0}
+.okline{display:flex;gap:12px;align-items:center;background:var(--surface);border-radius:var(--r-ctl);padding:12px 14px;box-shadow:var(--shadow)}
+.t-dark .okline{box-shadow:inset 0 0 0 1px var(--line)}
+.okline>span:last-child{display:flex;flex-direction:column;gap:2px;min-width:0}
+.okline b{font-size:14px}
+/* крестик у шторок */
+.sh-top{position:sticky;top:-10px;margin:-10px -16px 0;padding:10px 12px 0;display:flex;justify-content:center;align-items:center;min-height:30px;background:var(--bg);z-index:2}
+.sh-x{position:absolute;right:12px;top:8px;width:36px;height:36px;border-radius:50%;border:0;background:var(--sunk);display:grid;place-items:center;color:var(--ink)}
+.sh-x::before{content:"";position:absolute;inset:-4px}
+/* кабинет мастера: переключатель ролей уезжает со скроллом, вкладки — нижняя панель */
+.stage.mstr .roles{position:relative;top:auto;left:auto;right:auto;margin:10px 16px 0;flex:none}
+.stage.mstr .screen{--pt:12px}
+.tabbar{position:relative;grid-template-columns:repeat(4,minmax(0,1fr));padding:5px;border-radius:20px;background:var(--glass);-webkit-backdrop-filter:blur(20px) saturate(1.6);backdrop-filter:blur(20px) saturate(1.6);box-shadow:var(--shadow),inset 0 0 0 .5px rgba(255,255,255,.35)}
+.t-dark .tabbar{box-shadow:inset 0 0 0 1px var(--line)}
+.tabbar button{min-height:46px;font-size:14px}
+.dayset{background:var(--surface);border-radius:var(--r-ctl);padding:0 14px;box-shadow:var(--shadow)}
+.t-dark .dayset{box-shadow:inset 0 0 0 1px var(--line)}
+.dayset summary{min-height:46px;display:flex;align-items:center;font-size:14px;font-weight:600;cursor:pointer;list-style:none}
+.dayset summary::-webkit-details-marker{display:none}
+.dayset summary::after{content:"›";margin-left:auto;color:var(--muted);transition:transform .2s}
+.dayset[open] summary::after{transform:rotate(90deg)}
+.dayset .ovr{padding-bottom:12px}
 </style>
 
 
@@ -1265,7 +1305,7 @@ function clientScreen(){
   if(step===3){
     const c=S.contact,hold=needsConfirm(sel.day,sel.start),dep=S.carryPaid?0:depOf(priceOf(m,s.id,sel.ans)),ok=c.name.trim()&&phoneOk(c.phone);
     const rb=refundBy(m,sel.day,sel.start),opts=ansShort(m,s.id,sel.ans),what=order?'заказ':'запись';
-    const refundTxt=dep?(st.refund!=='day'?'При отмене предоплата не возвращается.':rb?`Вернём ${rub(dep)}, если отмените до ${rb}.`:`До ${order?'получения':'визита'} меньше суток, поэтому предоплата не вернётся при отмене.`):'';
+    const refundTxt=dep?((hold?`Если мастер не подтвердит, ${rub(dep)} вернутся сами. `:'')+(st.refund!=='day'?'Если отмените вы, предоплата не вернётся.':rb?`Передумаете — вернём, если отмените до ${rb}.`:`Если отмените вы, предоплата не вернётся: до ${order?'получения':'визита'} меньше суток.`)):'';
     const body=prog(1,1,S.df?'Шаг 4 из 4 · контакты':'Последний шаг · контакты')+`<h2>Как с вами связаться</h2>
       <div class="field"><label for="c-name">Имя</label><input id="c-name" autocomplete="name" value="${esc(c.name)}"></div>
       ${phoneOk(c.phone)?`<div class="field"><label for="c-phone">Телефон</label><input id="c-phone" inputmode="tel" autocomplete="tel" value="${esc(c.phone)}"></div>`
@@ -1295,7 +1335,7 @@ const hasMemos=()=>Object.keys(M().hints).some(k=>St().hintsOn[k]);
 function memoIcons(){const m=M(),p=popStage();return`<div class="mini">${hasMemos()?`<button class="hint-btn" data-pop="memo" data-act="memos"><span class="cw ${p>=1?'on':''}" aria-hidden="true"></span>Памятка</button>`:''}${m.works.length?`<button class="hint-btn" data-pop="works" data-act="worksheet"><span class="cw ${p>=2?'on':''}" aria-hidden="true"></span>Работы мастера</button>`:''}</div>`}
 // всплывашки на экране выбора времени: сначала памятка, потом работы; «Спасибо, понятно» — карточка улетает в кнопку сверху
 function popStage(){
-  const m=M(),st=St();if(st.memoSeen||S.noPops)return 2;
+  const m=M(),st=St();return 2;
   let p=st.pop||0;if(p===0&&!hasMemos())p=1;if(p===1&&!m.works.length)p=2;return p;
 }
 function memoModal(){
@@ -1415,8 +1455,8 @@ function calScreen(tabs){
     if(to-cur>=30)tl+=gapBtn(k,cur,to,from,px);
     (st.blocks[k]||[]).forEach((x,i)=>{tl+=`<button class="blk closed" style="${pos(x[0],x[1])}" data-act="unblock:${k}:${i}">Закрыто ${fmtT(x[0])}–${fmtT(x[1])} · открыть</button>`});
     for(const b of dayB){const dur=b.dur||svcOf(b.svc)?.dur||60;tl+=`<div class="blk ${b.status==='hold'?'hold':'bk'}" style="${pos(b.start,b.start+dur)}"><b>${fmtT(b.start)}</b> ${esc(b.client)} · ${esc(sName(b))}</div>`}
-    day+=`<div class="ovr small muted"><span>Часы работы в этот день</span><input type="time" step="1800" id="ov-from" value="${hrs.from}" aria-label="Начало дня"> – <input type="time" step="1800" id="ov-to" value="${hrs.to}" aria-label="Конец дня"></div>
-      <div class="legend"><span style="--c:var(--action)">запись</span><span style="--c:var(--light-soft)">бронь, ждёт ответа</span><span style="--c:var(--light)">свободно, нажмите, чтобы закрыть</span><span style="--c:var(--line)">закрыто</span></div>
+    day+=`<details class="dayset"><summary>Часы работы: ${hrs.from}–${hrs.to} · изменить</summary><div class="ovr small muted"><span>Часы работы в этот день</span><input type="time" step="1800" id="ov-from" value="${hrs.from}" aria-label="Начало дня"> – <input type="time" step="1800" id="ov-to" value="${hrs.to}" aria-label="Конец дня"></div></details>
+      <div class="legend"><span style="--c:var(--action)">запись</span><span style="--c:var(--sunk);box-shadow:none">бронь, ждёт ответа</span><span style="--c:var(--light)">свободно, нажмите, чтобы закрыть</span><span style="--c:var(--line)">закрыто</span></div>
       <div class="tl" style="height:${(to-from)/30*px}px">${tl}</div>`;
   }
   const steps=[['svc','Услуги и цены','mtab:svc'],['hours','Рабочие часы и правила брони','mtab:sched'],['prof','Фото, имя и описание','mtab:prof'],['link','Ссылка на запись в шапку канала','copylink']];
@@ -1454,6 +1494,12 @@ function nightExample(st,order){
   return`Пример: клиент пишет в 3 ночи и хочет прийти в 10 утра. С этими настройками ${hold?'придёт бронь без звука, а вы утром подтвердите или откажете':'он запишется сразу'}${st.deposit?', предоплату клиент внесёт при записи':''}.`;
 }
 function masterScreen(){
+  const r=masterScreen0();if(S.mview)return r;
+  const t=r.body.match(/^<div class="tabs">[\s\S]*?<\/div>/);
+  if(t){r.body=r.body.slice(t[0].length);r.foot=(r.foot||'')+t[0].replace('class="tabs"','class="tabs tabbar"')}
+  return r;
+}
+function masterScreen0(){
   if(S.mview)return pickScreen();
   const m=M(),st=St(),order=m.mode==='order';
   const tabs=`<div class="tabs">${[['rec','Записи'],['sched','Правила'],['svc','Услуги'],['prof','Профиль']].map(([k,t])=>`<button aria-pressed="${S.mtab===k}" data-act="mtab:${k}">${t}</button>`).join('')}</div>`;
@@ -1506,9 +1552,7 @@ function masterScreen(){
     <label>О себе<textarea id="pf-about" rows="2">${esc(m.about)}</textarea></label>
     <label>Адрес или формат<textarea id="pf-addr" rows="2">${esc(m.addr)}</textarea></label>
     <label>Тема<select id="pf-dark"><option value="" ${m.dark?'':'selected'}>Светлая</option><option value="1" ${m.dark?'selected':''}>Тёмная</option></select></label>
-    <label>Обложка<select id="pf-cover">${COVERS.map(([v,t])=>`<option value="${v}" ${!m.coverImg&&coverOf(m)===v?'selected':''}>${t}</option>`).join('')}${m.coverImg?'<option selected>Своё фото</option>':''}</select></label>
     <label class="btn2 acc" style="cursor:pointer;align-self:flex-start;flex-direction:row">Загрузить фото на обложку<input type="file" accept="image/*" id="cover-in" style="position:absolute;opacity:0;width:1px;height:1px"></label>
-    <h3>Цвет оформления</h3><div class="swatches">${PALETTE.map(c=>`<button class="sw" style="background:${c}" aria-label="Цвет: ${PALETTE_N[PALETTE.indexOf(c)]||c}" aria-pressed="${c===m.color}" data-act="color:${c}"></button>`).join('')}</div>
     <h3>Работы</h3><p class="small muted" style="margin:0">Клиент видит их на главной и может записаться «так же».</p>
     <div class="wgrid">${m.works.map((w,i)=>`<div class="wcell">${artHtml(m,w)}<button aria-label="Убрать работу" data-act="wdel:${i}">✕</button></div>`).join('')}<label class="addph">+ Фото<br>работы<input type="file" accept="image/*" multiple id="work-add"></label></div>
     <h3>Памятки для клиентов</h3>
@@ -1519,7 +1563,7 @@ function masterScreen(){
 function sheetHtml(){
   if(!S.sheet)return'';
   const m=M(),st=St();
-  const wrap=inner=>`<div class="sheet-back" data-act="close"><div class="sheet" data-stop role="dialog" aria-modal="true" tabindex="-1"><div class="grab"></div>${inner}</div></div>`;
+  const wrap=inner=>`<div class="sheet-back" data-act="close"><div class="sheet" data-stop role="dialog" aria-modal="true" tabindex="-1"><div class="sh-top"><div class="grab"></div><button class="sh-x" data-act="close" aria-label="Закрыть"><svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>${inner}</div></div>`;
   if(S.sheet.startsWith('cancelask-')){const b=st.bookings.find(z=>z.id===S.sheet.slice(10));if(!b)return'';
     const back=b.paid&&st.refund==='day'&&visitTs(m,b)-Date.now()>864e5,ord=m.mode==='order';
     return wrap(`<h2>Отменить ${ord?'заказ':'запись'}?</h2><div class="sum"><div class="kv"><span>Когда</span><span>${fmtDay(b.date)}, ${whenOf(m,b)}</span></div><div class="kv"><span>${ord?'Заказ':'Услуга'}</span><span>${esc(sName(b))}</span></div></div>
@@ -1536,7 +1580,7 @@ function sheetHtml(){
   if(S.sheet==='masters'){const ids=[...ORDER,...(MASTERS.custom?['custom']:[])];
     return wrap(`<h2>Мастера в демо</h2><p class="small muted" style="margin:0">В настоящем приложении у каждого мастера своя ссылка. Здесь можно посмотреть, как Окошко выглядит у разных профессий.</p>
       <div class="mlist">${ids.map(id=>{const x=MASTERS[id];return`<button class="mrow" data-act="master:${id}" aria-current="${id===S.cur}"><span class="mava">${esc((x.name||'?').slice(0,1))}</span><span><b>${esc(x.tab)}</b><small>${esc(x.name)} · ${x.mode==='slot'?'запись на время':'заказ к дате'}</small></span></button>`}).join('')}</div>`)}
-  if(S.sheet==='memos')return wrap(`<h2>Памятки мастера</h2><div class="opt"><div><b>Всплывающие подсказки</b><br><span class="small muted">Показывать перед выбором времени</span></div><button class="switch" aria-label="Всплывающие подсказки перед записью" aria-pressed="${!S.noPops}" data-act="togglepops"></button></div><div class="list">${Object.entries(m.hints).filter(([k])=>st.hintsOn[k]).map(([k,h])=>`<button class="svc" data-act="hint:${k}"><span class="nm">${esc(h.name)}</span><span class="muted">›</span></button>`).join('')}</div>`);
+  if(S.sheet==='memos')return wrap(`<h2>Памятки мастера</h2><div class="list">${Object.entries(m.hints).filter(([k])=>st.hintsOn[k]).map(([k,h])=>`<button class="svc" data-act="hint:${k}"><span class="nm">${esc(h.name)}</span><span class="muted">›</span></button>`).join('')}</div>`);
   if(S.sheet.startsWith('work-')){const w=m.works[+S.sheet.slice(5)];const s=w.svc&&svcOf(w.svc);
     return wrap(`${artHtml(m,w,'lg')}<h2>${esc(w.t)}</h2>${s?`<div class="answers">${answersHtml(m,{svc:w.svc,ans:w.ans})}</div><div class="total"><span>${esc(s.name)}</span><span>${priceTxt(s,priceOf(m,s.id,w.ans))}</span></div><button class="main-btn" data-act="likework:${S.sheet.slice(5)}">Хочу так же</button><p class="small muted" style="margin:0">Анкета заполнится сама, останется выбрать время.</p>`:'<button class="main-btn" data-act="close">Закрыть</button>'}`);}
   if(S.sheet==='plans'){const pro=m.plan==='pro',li=a=>a.map(([t,ok])=>`<li class="${ok?'':'no'}"><span aria-hidden="true">${ok?'✓':'—'}</span>${t}</li>`).join('');
@@ -1565,7 +1609,8 @@ function sheetHtml(){
   if(S.sheet==='pay'){const s=svcOf(S.sel.svc),p=priceOf(m,s.id,S.sel.ans),dep=depOf(p),rb=refundBy(m,S.sel.day,S.sel.start),opts=ansShort(m,s.id,S.sel.ans),order=m.mode==='order';
     return wrap(`<div class="master"><div class="ava" style="width:44px;height:44px;font-size:16px;overflow:hidden">${m.avatar?`<img src="${m.avatar}" alt="">`:m.ini}</div><div><b style="font-size:15px">${esc(m.name)}</b><span class="small muted">${fmtDay(S.sel.day)}, ${whenOf(m,S.sel)}</span></div></div>
       <h2>Предоплата ${rub(dep)}</h2><div class="sum"><div class="kv"><span>${esc(s.name)}</span><span>${priceTxt(s,p)}</span></div>${opts?`<div class="kv"><span>Выбор</span><span>${esc(opts)}</span></div>`:''}<div class="kv"><span>Сейчас</span><span>${rub(dep)}</span></div><div class="kv"><span>${order?'При получении':'На месте'}</span><span>${rub(Math.max(0,p-dep))}</span></div></div>
-      <p class="small" style="margin:0">${St().refund!=='day'?'При отмене предоплата не возвращается.':rb?`Передумаете — вернём ${rub(dep)}, если отмените до ${rb}.`:`До ${order?'получения':'визита'} меньше суток: при отмене предоплата не вернётся.`}</p>
+      ${needsConfirm(S.sel.day,S.sel.start)?`<div class="okline"><span class="win on" aria-hidden="true"></span><span><b>Если мастер не подтвердит — ${rub(dep)} вернутся сами</b><span class="small muted">Деньги придут обратно на карту, ничего делать не нужно.</span></span></div>`:''}
+      <p class="small" style="margin:0">${St().refund!=='day'?'Если отмените вы, предоплата не вернётся.':rb?`Передумаете — вернём ${rub(dep)}, если отмените до ${rb}.`:`Если отмените вы, предоплата не вернётся: до ${order?'получения':'визита'} меньше суток.`}</p>
       <button class="main-btn" data-act="paid">Оплатить через СБП</button><button class="btn2" data-act="paid">Оплатить картой</button><button class="btn2" data-act="close">Не сейчас</button>
       <p class="small muted" style="margin:0">Демо: деньги не списываются. В рабочей версии здесь откроется окно ЮKassa, и деньги сразу уйдут мастеру за вычетом комиссии сервиса.</p>`)}
   const h=m.hints[S.sheet];if(!h)return'';
@@ -1607,7 +1652,7 @@ function render(){
   document.getElementById('r-master').setAttribute('aria-pressed',S.role==='master');
   const tl=document.getElementById('tg-left'),inFlow=(S.role==='client'&&(S.step>=1&&S.step<=3||S.step>=10))||(S.role==='master'&&S.mview);
   tl.textContent=inFlow?'‹ Назад':'Закрыть';
-  document.querySelector('.roles').hidden=S.role==='client'&&inFlow;document.getElementById('stage').classList.toggle('noroles',S.role==='client'&&inFlow);
+  document.querySelector('.roles').hidden=S.role==='client'&&inFlow;document.getElementById('stage').classList.toggle('noroles',S.role==='client'&&inFlow);document.getElementById('stage').classList.toggle('mstr',S.role==='master'&&!S.mview);
   tl.dataset.act=inFlow?'back':(inTG?'tgclose':'toast:Закроет мини-приложение и вернёт в чат');
   S._inFlow=inFlow;
   const v=S.role==='client'?clientScreen():masterScreen();
@@ -1723,7 +1768,7 @@ document.addEventListener('click',e=>{
     case'dfstart':resetFlow();S.df=true;S.sel=blankSel();S.step=10;break;
     case'dfnext':S.step=11;break;
     case'dfsvc':{const d=S.sel.day,t=S.sel.start;startFlow(x);S.sel.day=d;S.sel.start=t;break}
-    case'paysheet':S.sheet='pay';break;
+    case'paysheet':S.sheet='pay';document.querySelector('#phone .toast')?.remove();break;
     case'mcancel':S.reason=0;S.sheet='mcancel-'+x;break;
     case'mmove':S.reason=0;S.sheet='mmove-'+x;break;
     case'reason':S.reason=+x;break;
