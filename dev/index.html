@@ -689,18 +689,6 @@ body.tgapp .foot .back-btn{display:none}
 
 /* услуги по профессиям, товары и сертификаты */
 .sgrp{margin:6px 2px 0;font-size:13px;font-weight:600;color:var(--muted)}
-.goods{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.good{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;border:0;background:var(--surface);border-radius:var(--r-card);padding:14px;box-shadow:var(--shadow);min-height:120px}
-.t-dark .good{box-shadow:inset 0 0 0 1px var(--line)}
-.good b{font-size:14.5px;font-weight:600;line-height:1.25}
-.good .small{line-height:1.3}
-.good .gp{margin-top:auto;font-weight:700;font-variant-numeric:tabular-nums;padding-top:4px}
-.gk{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--muted)}
-.qty{display:flex;justify-content:space-between;align-items:center;background:var(--surface);border-radius:var(--r-ctl);padding:6px 6px 6px 14px;box-shadow:var(--shadow)}
-.qty-c{display:flex;align-items:center;gap:6px}
-.qty-c button{width:44px;height:44px;border:0;border-radius:12px;background:var(--sunk);font-size:20px;font-weight:600}
-.qty-c button:disabled{opacity:.4}
-.qty-c b{min-width:28px;text-align:center;font-size:17px;font-variant-numeric:tabular-nums}
 .chip.static{cursor:default;display:inline-flex;align-items:center}
 </style>
 
@@ -1251,7 +1239,7 @@ function initMaster(id){
   MASTERS[id].id=id;
   const m=MASTERS[id];
   const st=ST[id]={sched:m.sched.map(x=>({...x})),lead:m.lead||12,leadDays:m.leadDays||2,cap:m.cap||3,horizon:m.mode==='order'?30:14,
-    confirm:'urgent',urgentH:24,noGaps:true,flow:'service',deposit:DEP[id]||0,refund:'day',blocks:{},overrides:{},hist:HIST[id]||null,waitlist:(WAIT[id]||[]).map((w,i)=>({...w,id:id+'w'+i})),moved:{},setup:{svc:id!=='custom',hours:id!=='custom',prof:id!=='custom',link:id!=='custom'},daysOff:[],orders:[],hintsOn:Object.fromEntries(Object.keys(m.hints).map(k=>[k,true])),bookings:[],feed:[],lastNew:null};
+    confirm:'urgent',urgentH:24,noGaps:true,flow:'service',deposit:DEP[id]||0,refund:'day',blocks:{},overrides:{},hist:HIST[id]||null,waitlist:(WAIT[id]||[]).map((w,i)=>({...w,id:id+'w'+i})),moved:{},setup:{svc:id!=='custom',hours:id!=='custom',prof:id!=='custom',link:id!=='custom'},daysOff:[],hintsOn:Object.fromEntries(Object.keys(m.hints).map(k=>[k,true])),bookings:[],feed:[],lastNew:null};
   const work=[];for(let i=m.mode==='order'?m.leadDays:1;work.length<3&&i<40;i++){const d=addDays(today,i);if(st.sched[d.getDay()].on)work.push(keyOf(d))}
   (m.seed||[]).forEach((b,i)=>st.bookings.push({id:id+i,date:work[b.d],start:b.start,svc:b.svc,svcName:(m.services.find(x=>x.id===b.svc)||{}).name,dur:(m.services.find(x=>x.id===b.svc)||{}).dur||60,client:b.client,phone:b.phone,comment:b.comment||'',ans:b.ans,photo:!!b.photo,price:priceOf(m,b.svc,b.ans),status:'ok'}));
   st.clients={};(m.seed||[]).forEach((b,i)=>{const h=[...b.client].reduce((a,c)=>a+c.charCodeAt(0),0),nt=(NOTES[id]||[])[i]||'',n=h%4===0&&!nt?0:2+h%6,pr=priceOf(m,b.svc,b.ans);
@@ -1262,20 +1250,6 @@ function initMaster(id){
   const first=st.bookings.slice().sort((a,b)=>a.date.localeCompare(b.date))[0];
   if(first)st.feed.push({to:'Мастеру',when:'сегодня, 08:00',text:`Доброе утро! Ближайшая запись: ${fmtDay(first.date)}, ${whenOf(m,first)}, ${first.client}.`,btn:['Открыть записи','openrec']});
 }
-// товары и сертификаты мастера (продаются без записи)
-const GOODS={
-  nails:[{name:'Масло для кутикулы',price:450,note:'10 мл, миндаль и витамин E',kind:'goods'},{name:'Крем для рук',price:600,note:'Плотный, на зиму',kind:'goods'}],
-  brows:[{name:'Сыворотка для бровей и ресниц',price:1200,note:'Курс на 2 месяца',kind:'goods'}],
-  mua:[{name:'Урок «Макияж на каждый день»',price:3000,note:'1,5 часа, вашей косметикой',kind:'course'}],
-  hair:[{name:'Шампунь для окрашенных волос',price:900,note:'Профессиональная линия',kind:'goods'}],
-  cakes:[{name:'Свечи и топпер «С днём рождения»',price:350,note:'К любому торту',kind:'goods'},{name:'Капкейки, 6 штук',price:1500,note:'Без записи, к выходным',kind:'goods'}],
-  auto:[{name:'Щётки стеклоочистителя',price:1400,note:'Пара, подберём под машину',kind:'goods'}],
-  tutor:[{name:'Сборник задач ОГЭ с разбором',price:700,note:'PDF, придёт в Telegram',kind:'goods'}],
-  photo:[{name:'Печать 10 фото 15×20',price:900,note:'Плотная матовая бумага',kind:'goods'}]};
-const KIND={goods:'Товар',cert:'Сертификат',course:'Урок'};
-const certFor=m=>({name:'Подарочный сертификат',price:3000,note:'На любую услугу, действует полгода',kind:'cert',amounts:[2000,3000,5000]});
-function initGoods(id){const m=MASTERS[id];if(m.goods)return;m.goods=[...(GOODS[id]||[]),certFor(m)].map((g,i)=>({...g,id:id+'g'+i}))}
-for(const id of ORDER)initGoods(id);
 for(const id of ORDER)initMaster(id);
 
 // ===== свободное время и правила брони =====
@@ -1363,7 +1337,6 @@ function clientScreen(){
     <h3 id="svc-list">${order?'Что можно заказать':'Услуги'}</h3>
     ${svcGroups(m).map(([g,list])=>`${g?`<p class="sgrp">${esc(g)}</p>`:''}<div class="list svcs">${list.map(s=>{const n=nearest(s),wk=m.works.find(w=>w.svc===s.id);return`<button class="svc2" data-act="svc:${s.id}"><span class="sth" aria-hidden="true">${wk?artHtml(m,wk):`<span class="sth-ph">${esc(s.name.slice(0,1))}</span>`}</span><span class="nm">${esc(s.name)}</span><span class="pr">${listPrice(m,s)}</span>
       <span class="meta">${s.dur&&!order?`<span>${durTxt(s.dur)}</span>`:''}${s.note?`<span>${esc(s.note)}</span>`:''}<span class="${n?'nchip':'nnone'}">${n?'Ближайшее: '+n:'Свободного времени пока нет'}</span></span></button>`}).join('')}</div>`).join('')}
-    ${(m.goods||[]).length?`<h3 id="goods">Можно купить</h3><div class="goods">${m.goods.map(g=>`<button class="good" data-act="buy:${g.id}"><span class="gk">${KIND[g.kind]||'Товар'}</span><b>${esc(g.name)}</b><span class="small muted">${esc(g.note||'')}</span><span class="gp">${g.amounts?'от '+rub(g.amounts[0]):rub(g.price)}</span></button>`).join('')}</div>`:''}
     ${m.reviews.length?`<h3 id="reviews">Отзывы</h3><div class="list">${m.reviews.map(([n,t])=>`<div class="rev"><span class="st">★★★★★</span><span>${esc(t)}</span><b>${esc(n)}</b></div>`).join('')}</div>`:''}${m.plan==='pro'?'':'<p class="made">Запись через Окошко</p>'}`,foot:`<button class="main-btn" data-act="gobook">${order?'Оформить заказ':st.flow==='date'?'Выбрать дату и время':'Записаться'}</button>`};
   }
   if(step===10||step===11)return dfScreen();
@@ -1588,7 +1561,6 @@ function calScreen(tabs){
   const wk=[];for(let i=0;i<14;i++){const dk=keyOf(addDays(today,i)),dd=parseKey(dk),cnt=st.bookings.filter(b=>b.date===dk).length,op=!!dayHours(dk),fr=op&&(order?orderLeft(dk):slotsFor(dk,minDur).length)>0;
     wk.push(`<button class="day mday ${op?'':'off'}" aria-pressed="${dk===S.calDay}" data-act="calday:${dk}" aria-label="${fmtDay(dk)}: ${cnt?pl(cnt,'запись','записи','записей'):op?'записей нет':'выходной'}"><small>${i===0?'сег':WD[dd.getDay()].toLowerCase()}</small><b>${dd.getDate()}</b><span class="mday-n">${cnt?cnt:op?(fr?'<i class="fdot"></i>':''):'вых'}</span></button>`)}
   return{body:tabs+fin+setup+`<h2 class="mtitle">Записи</h2>`+(holds.length?`<h3>Ждут вашего ответа · ${holds.length}</h3>${holds.map(b=>recCard(m,b)).join('')}`:'')
-    +(st.orders.filter(o=>!o.done).length?`<h3>Покупки · ${st.orders.filter(o=>!o.done).length}</h3>${st.orders.filter(o=>!o.done).map(o=>`<div class="rec"><div class="rec-top"><b>${esc(o.name)}${o.q>1?' × '+o.q:''}</b><span class="pill">оплачено</span></div><div>${esc(o.client)} · ${rub(o.sum)} · ${{tg:'в Telegram',visit:'заберёт у вас',ship:'доставка'}[o.how]}</div>${o.to?`<div class="small muted">Подпись: ${esc(o.to)}</div>`:''}<div class="row-btns"><button class="btn2 fill" data-act="odone:${o.id}">${o.how==='ship'?'Отправил':'Выдал'}</button><button class="btn2" data-act="toast:Откроется чат с клиентом в Telegram">Написать</button></div></div>`).join('')}`:'')
     +`<div class="days mweek">${wk.join('')}</div>`
     +`<details class="monthcal"><summary>Весь месяц</summary><div class="cal-h"><button data-act="calm:-1" aria-label="Прошлый месяц">‹</button><b>${mo.toLocaleDateString('ru-RU',{month:'long',year:'numeric'}).replace(' г.','')}</b><button data-act="calm:1" aria-label="Следующий месяц">›</button></div><div class="cal">${cells}</div></details>`
     +day+dayB.filter(b=>b.status!=='hold').map(b=>recCard(m,b)).join('')+wl,foot:''};
@@ -1656,13 +1628,7 @@ function masterScreen0(){
       <span class="small muted">Вопросы анкеты для этой услуги:</span>
       <div class="chips">${Object.entries(m.q).map(([k,Q])=>`<button class="qchip" aria-pressed="${s.qs.includes(k)}" data-act="sq:${s.id}:${k}">${esc(Q.t)}</button>`).join('')||'<span class="small muted">Пока нет вопросов. Добавьте свой ниже.</span>'}</div>
       <div class="row-btns"><button class="btn2" data-act="sdel:${s.id}">Удалить услугу</button></div>`}</div>`).join('');
-    const geds=(m.goods||[]).map(g=>`<div class="ed"><button class="svc-row" data-act="gopen:${g.id}" aria-expanded="${S.gOpen===g.id}"><span><b>${esc(g.name)}</b><span class="small muted">${KIND[g.kind]} · ${g.amounts?g.amounts.map(rub).join(' / '):rub(g.price)}</span></span><span class="small">${S.gOpen===g.id?'Свернуть':'Изменить'}</span></button>${S.gOpen!==g.id?'':`
-      <div class="ed-row"><label>Название<input id="gd-name-${g.id}" value="${esc(g.name)}"></label>${g.amounts?'':`<label>Цена, ₽<input id="gd-price-${g.id}" inputmode="numeric" value="${g.price}"></label>`}</div>
-      <label>Описание<input id="gd-note-${g.id}" value="${esc(g.note||'')}" placeholder="Объём, состав, срок"></label>
-      <div class="chips">${Object.entries(KIND).map(([k,t])=>`<button class="qchip" aria-pressed="${g.kind===k}" data-act="gkind:${g.id}:${k}">${t}</button>`).join('')}</div>
-      <div class="row-btns"><button class="btn2" data-act="gdel:${g.id}">Убрать из продажи</button></div>`}</div>`).join('');
     return{body:tabs+`<h2>Услуги и цены</h2>${eds}<button class="btn2 acc" data-act="sadd">+ Добавить услугу</button>
-      <h2>Товары и сертификаты</h2><p class="small muted" style="margin:0">Продаются без записи: клиент оплачивает в приложении, вы получаете заказ в Telegram.</p>${geds}<button class="btn2 acc" data-act="gadd">+ Добавить товар или сертификат</button>
       <h2>Свой вопрос в анкету</h2>
       <div class="ed"><label>Вопрос<input id="cq-t" placeholder="Например: Какой краситель?"></label>
         <label>Как отвечать<select id="cq-type"><option value="opts">Выбрать вариант</option><option value="text">Написать текстом</option><option value="photo">Прикрепить фото или файл</option></select></label>
@@ -1743,18 +1709,6 @@ function sheetHtml(){
       <button class="main-btn" data-act="paid">Оплатить через СБП</button><button class="btn2" data-act="paid">Оплатить картой</button><button class="btn2" data-act="close">Не сейчас</button>
       <p class="small muted" style="margin:0">Демо: деньги не списываются. В рабочей версии здесь откроется окно ЮKassa, и деньги сразу уйдут мастеру за вычетом комиссии сервиса.</p>
       <div class="demo-links"><span>Показать в демо:</span><button data-act="payfail">оплата не прошла</button><button data-act="slottaken">время заняли</button></div>`)}
-  if(S.sheet&&S.sheet.startsWith('buy-')){const g=(m.goods||[]).find(z=>z.id===S.sheet.slice(4));if(!g)return'';const b=S.buy||(S.buy={q:1,amt:g.amounts?g.amounts[1]||g.amounts[0]:g.price,how:g.kind==='cert'?'tg':'visit',to:''});
-    const price=g.amounts?b.amt:g.price*b.q,hasVisit=st.bookings.some(z=>z.client===S.contact.name&&visitTs(m,z)>Date.now());
-    const hows=g.kind==='cert'?[['tg','Пришлём в Telegram, можно переслать']]:g.kind==='course'?[['tg','Мастер напишет и договоритесь о дате']]:/PDF/.test(g.note||'')?[['tg','Придёт файлом в Telegram']]:[['visit',hasVisit?'Заберу на ближайшем визите':'Заберу у мастера'],['ship','Доставка по городу · +300 ₽']];
-    if(!hows.some(h=>h[0]===b.how))b.how=hows[0][0];const ship=b.how==='ship'?300:0;
-    return wrap(`<span class="gk">${KIND[g.kind]||'Товар'}</span><h2>${esc(g.name)}</h2>${g.note?`<p class="small muted" style="margin:0">${esc(g.note)}</p>`:''}
-      ${g.amounts?`<div class="field"><label>Номинал</label><div class="chips">${g.amounts.map(a=>`<button class="chip" aria-pressed="${b.amt===a}" data-act="buyamt:${a}">${rub(a)}</button>`).join('')}</div></div>
-        <div class="field"><label for="buy-to">Кому подарок (необязательно)</label><input id="buy-to" placeholder="Например: Маме, с днём рождения!" value="${esc(b.to)}"></div>`
-        :g.kind==='goods'&&!/PDF/.test(g.note||'')?`<div class="qty"><span>Количество</span><div class="qty-c"><button data-act="buyq:-1" aria-label="Меньше" ${b.q<2?'disabled':''}>−</button><b>${b.q}</b><button data-act="buyq:1" aria-label="Больше">+</button></div></div>`:''}
-      <div class="field"><label>Как получить</label><div class="opts">${hows.map(([k,t])=>`<button class="optc" aria-pressed="${b.how===k}" data-act="buyhow:${k}"><span><b>${t}</b></span></button>`).join('')}</div></div>
-      <div class="sum"><div class="kv"><span>${esc(g.name)}${b.q>1?' × '+b.q:''}</span><span>${rub(price)}</span></div>${ship?`<div class="kv"><span>Доставка</span><span>${rub(ship)}</span></div>`:''}<div class="kv"><span>Итого</span><span>${rub(price+ship)}</span></div></div>
-      <button class="main-btn" data-act="buypay:${g.id}">Оплатить ${rub(price+ship)}</button>
-      <p class="small muted" style="margin:0">Демо: деньги не списываются. Мастер получит заказ в Telegram.</p>`)}
   if(S.sheet==='addprof'){const have=new Set(M().profs||[M().id]);const ids=ORDER.filter(id=>!have.has(id)&&id!==S.cur);
     return wrap(`<h2>Ещё профессия</h2><p class="small muted" style="margin:0">Услуги, анкета и памятки этой профессии добавятся к вашим. На странице клиент увидит их отдельным разделом.</p><div class="mlist">${ids.map(id=>`<button class="mrow" data-act="addprof:${id}"><span class="mava">${esc(MASTERS[id].tab.slice(0,1))}</span><span><b>${esc(MASTERS[id].tab)}</b><small>${MASTERS[id].services.map(x=>x.name).slice(0,3).join(', ')}</small></span></button>`).join('')}</div>`)}
   if(S.sheet==='payfail'){const order=m.mode==='order';return wrap(`<div class="errhead"><span class="err-ico" aria-hidden="true">!</span><h2>Оплата не прошла</h2></div>
@@ -1872,7 +1826,7 @@ function makeCustom(mode){
   MASTERS.custom={tab:'Своя профессия',who:'Вы',name:'Ваше имя',ini:'В',bar:'Ваше дело',about:'Расскажите, чем занимаетесь и где',addr:'Укажите адрес',
     links:[],mode,lead:12,leadDays:2,cap:3,wins:['Заберу сам','Доставка'],winLabel:'Получение',sched:week('10:00','18:00'),memo:'Ответы на частые вопросы',after:null,
     services:[{id:'s1',name:'Моя услуга',dur:60,price:1000,note:'',qs:[]}],q:{},hints:{},seed:[],color:'#5B5FC7',rating:null,reviews:[],works:[]};
-  initGoods('custom');initMaster('custom');
+  initMaster('custom');
 }
 
 document.addEventListener('click',e=>{
@@ -1931,22 +1885,6 @@ document.addEventListener('click',e=>{
       if(S.sel.day!=null&&S.sel.start!=null&&m.mode==='slot'&&!slotsFor(S.sel.day,c.dur).includes(S.sel.start))S.sel.start=null;
       let moved=false;if(S.sel.day!=null&&m.mode==='slot'&&!slotsFor(S.sel.day,c.dur).length){S.sel.day=null;S.sel.start=null;moved=true}
       const wasAdd=i<0;gotoQs();if(wasAdd&&S.step===1)toast('Пара вопросов про «'+svcOf(x).name+'», и вернёмся к времени');else if(wasAdd)toast(moved?'Вместе в этот день не помещается — показали ближайший подходящий':'Добавили «'+svcOf(x).name+'». Время пересчитали');break}
-    case'buy':S.buy=null;S.sheet='buy-'+x;break;
-    case'buyq':{const te=document.getElementById('buy-to');if(te&&S.buy)S.buy.to=te.value}S.buy.q=Math.max(1,S.buy.q+(+x));break;
-    case'buyamt':{const te=document.getElementById('buy-to');if(te&&S.buy)S.buy.to=te.value}S.buy.amt=+x;break;
-    case'buyhow':{const te=document.getElementById('buy-to');if(te&&S.buy)S.buy.to=te.value}S.buy.how=x;break;
-    case'buypay':{const g=m.goods.find(z=>z.id===x);if(!g)break;const b=S.buy||{q:1,how:'tg'};const toEl=document.getElementById('buy-to');if(toEl)b.to=toEl.value.trim();
-      const sum=(g.amounts?b.amt:g.price*b.q)+(b.how==='ship'?300:0),howTxt={tg:'в Telegram',visit:'заберёт у мастера',ship:'доставка'}[b.how];
-      const o={id:'o'+Date.now(),gid:g.id,name:g.name+(g.amounts?' на '+rub(b.amt):''),q:b.q,sum,how:b.how,to:b.to,client:S.contact.name,ts:Date.now(),done:false};st.orders.unshift(o);
-      st.feed.push({to:'Мастеру',when:'сразу',text:`Покупка: ${o.name}${o.q>1?' × '+o.q:''}\n${o.client} · ${rub(sum)} оплачено · ${howTxt}${o.to?'\nПодпись: '+o.to:''}`,btn:['Открыть заказы','openrec']});
-      st.feed.push({to:'Клиенту',when:'сразу',text:g.kind==='cert'?`Сертификат ${rub(b.amt)} на услуги мастера ${m.name}. Код: OK-${String(o.id).slice(-5)}. Действует полгода — перешлите его тому, кому дарите.`:`Оплачено: ${o.name}${o.q>1?' × '+o.q:''}, ${rub(sum)}. ${b.how==='ship'?'Мастер напишет, когда передаст курьеру.':b.how==='visit'?'Заберёте у мастера.':'Мастер свяжется с вами.'}`});
-      S.sheet=null;S.buy=null;renderFeed();toast(g.kind==='cert'?'Сертификат оплачен и отправлен вам в Telegram':'Оплачено. Мастер получил заказ');break}
-    case'odone':{const o=st.orders.find(z=>z.id===x);if(o)o.done=!o.done;break}
-    case'gadd':{const id='g'+Date.now();(m.goods||(m.goods=[])).push({id,name:'Новый товар',price:500,note:'',kind:'goods'});S.gOpen=id;toast('Товар добавлен, заполните его');break}
-    case'gopen':S.gOpen=S.gOpen===x?null:x;break;
-    case'gkind':{const g=m.goods.find(z=>z.id===x);if(g){g.kind=y;if(y==='cert'&&!g.amounts)g.amounts=[2000,3000,5000];if(y!=='cert')delete g.amounts}break}
-    case'gdel':{const i=m.goods.findIndex(z=>z.id===x);if(i<0)break;const g=m.goods.splice(i,1)[0];S.gUndo=[i,g];render();toast(`«${g.name}» убрали из продажи`,'gundo');return}
-    case'gundo':if(S.gUndo){m.goods.splice(S.gUndo[0],0,S.gUndo[1]);S.gUndo=null}break;
     case'addprofsheet':S.sheet='addprof';break;
     case'addprof':{const t=MASTERS[x];if(!t)break;if((m.profs||[]).includes(x)){toast('Эта профессия уже добавлена');S.sheet=null;break}const pf=x+'_';
       if(!m.profs)m.profs=[m.id==='custom'&&m.fromTpl?m.fromTpl:m.id];m.services.forEach(z=>{if(!z.grp)z.grp=m.tab});
@@ -2052,7 +1990,7 @@ document.addEventListener('click',e=>{
     case'pickprof':S.role='master';S.mview='pick';S.sheet=null;break;
     case'tpl':{const t=JSON.parse(JSON.stringify(MASTERS[x]));delete ST.custom;
       MASTERS.custom=Object.assign(t,{fromTpl:x,tab:'Моя страница',bar:'Ваше имя · '+(MASTERS[x].bar.split(' · ')[1]||MASTERS[x].tab.toLowerCase()),who:'Вы',name:'Ваше имя',ini:'В',about:'Расскажите, чем занимаетесь и где',addr:'Укажите адрес',links:[],seed:[],rating:null,reviews:[],works:[],avatar:null,coverImg:null,cover:COVER_OF[x],plan:'free'});
-      MASTERS.custom.goods=null;initGoods('custom');initMaster('custom');ST.custom.setup.svc=false;
+      initMaster('custom');ST.custom.setup.svc=false;
       resetFlow();S.calDay=null;S.calMonth=null;S.cur='custom';S.role='master';S.mview=null;S.mtab='rec';S.step=0;S.sel=blankSel();renderNiches();renderFeed();toast(`Услуги, анкета и памятки «${MASTERS[x].tab}» уже на месте. Осталось 4 шага`);break}
     case'custom':S.mview='mode';break;
     case'mkcustom':{if(MASTERS.custom&&MASTERS.custom.fromTpl){delete MASTERS.custom;delete ST.custom}const had=MASTERS.custom;if(had){if(had.mode!==x){had.mode=x;ST.custom.horizon=x==='order'?30:14;ST.custom.bookings=[]}}else makeCustom(x);resetFlow();S.calDay=null;S.calMonth=null;S.cur='custom';S.mview=null;S.mtab='rec';S.step=0;S.sel=blankSel();renderNiches();renderFeed();toast(had?'Ваши настройки сохранены, поменялся только способ записи':'Готово. Пройдите настройку из 4 шагов');break}
@@ -2081,8 +2019,6 @@ document.addEventListener('change',e=>{
   if(id==='ava-in'&&t.files[0]){m.avatar=URL.createObjectURL(t.files[0]);render();return}
   if(id==='work-add'&&t.files.length){for(const f of t.files)m.works.push({t:'Новая работа',img:URL.createObjectURL(f)});render();toast('Работы добавлены на главную');return}
   if((r=id.match(/^(from|to)-(\d)$/))&&t.value){const w=st.sched[r[2]],nw={...w,[r[1]]:t.value};if(toMin(nw.from)>=toMin(nw.to)){toast('Конец рабочего дня должен быть позже начала');render();return}w[r[1]]=t.value;render();return}
-  if((r=id.match(/^gd-(name|price|note)-(.+)$/))){const g=(m.goods||[]).find(z=>z.id===r[2]);if(!g)return;
-    if(r[1]==='name')g.name=t.value.trim()||g.name;else if(r[1]==='note')g.note=t.value.trim();else{const n=parseInt(t.value.replace(/\D/g,''),10);if(!isNaN(n))g.price=n}render();return}
   if((r=id.match(/^sv-(name|price|dur|note)-(.+)$/))){const s=svcOf(r[2]);if(!s)return;
     if(r[1]==='name')s.name=t.value.trim()||s.name;else if(r[1]==='note')s.note=t.value.trim();else{const n=parseInt(t.value.replace(/\D/g,''),10);if(!isNaN(n))s[r[1]==='price'?'price':'dur']=n}
     render();return}
