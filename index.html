@@ -690,10 +690,36 @@ body.tgapp .foot .back-btn{display:none}
 /* услуги по профессиям, товары и сертификаты */
 .sgrp{margin:6px 2px 0;font-size:13px;font-weight:600;color:var(--muted)}
 .chip.static{cursor:default;display:inline-flex;align-items:center}
+
+/* иконки */
+.ic{display:inline-block;flex:none;vertical-align:-.22em}
+.t-light{--ic-bg:var(--surface)}.t-dark{--ic-bg:var(--surface)}
+.tg-bar .ghost{display:inline-flex;align-items:center;gap:6px}
+.btn2,.hint-btn,.back,.toast-undo,.qchip{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.svc-row>.small{display:inline-flex;align-items:center;gap:4px}
+.err-ico{background:none!important;color:var(--danger)!important;width:auto;height:auto}
+.errhead .err-ico .ic,.decl-h .err-ico .ic{width:24px;height:24px}
+.warnline .err-ico{color:var(--ink)!important}
+.tabs button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1.1}
+.tabbar button{min-height:54px;font-size:12px}
+.tabbar button[aria-pressed="false"] .ic{opacity:.75}
+.share.big .sh-row{display:inline-flex;align-items:center;gap:8px;font-weight:600}
+.addv-plus{background:var(--sunk)}
+.addph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.kv-i{display:inline-flex;align-items:center;gap:6px}
+.cal-h button{display:grid;place-items:center}
+.wcell button{display:grid;place-items:center}
+
+/* двухцветные иконки: одна деталь горит светом окошка */
+.ic{--ic-acc:var(--light);--ic-on-acc:#3A2306}
+.main-btn .ic,.btn2.fill .ic,.day[aria-pressed="true"] .ic,.msg.me .ic{--ic-acc:var(--light-2)}
+.err-ico .ic,.btn2 .ic[data-plain]{--ic-acc:currentColor}
+.tabbar button[aria-pressed="false"] .ic{opacity:1;--ic-acc:var(--muted)}
+.tabbar button[aria-pressed="true"] .ic{--ic-acc:var(--light)}
 </style>
 
 
-<div class="wrap">
+<div class="wrap"><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></symbol><symbol id="i-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol><symbol id="i-more" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.9" style="fill:var(--ic-acc);stroke:none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/></symbol><symbol id="i-switch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="8" r="2.6"/><path d="M1.5 19.5c.4-3 2-4.8 4-4.8s3.6 1.8 4 4.8"/><circle cx="18.5" cy="8" r="2.6"/><path d="M14.5 19.5c.4-3 2-4.8 4-4.8s3.6 1.8 4 4.8"/><path d="M10 5.5h4l-1.4-1.4M14 9.5h-4l1.4 1.4" style="stroke:var(--ic-acc)"/></symbol><symbol id="i-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></symbol><symbol id="i-chevl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></symbol><symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5" style="stroke:var(--ic-acc)"/></symbol><symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" style="stroke:var(--ic-acc)"/></symbol><symbol id="i-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5.5" r="2.8"/><circle cx="6" cy="12" r="2.8" style="fill:var(--ic-acc);stroke:var(--ic-acc)"/><circle cx="18" cy="18.5" r="2.8"/><path d="M8.5 10.7l7-3.9M8.5 13.3l7 3.9"/></symbol><symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 4.5h15a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H10l-5 4v-4h-.5a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2z"/><circle cx="8.5" cy="11" r="1" style="fill:var(--ic-acc);stroke:none"/><circle cx="12" cy="11" r="1" style="fill:var(--ic-acc);stroke:none"/><circle cx="15.5" cy="11" r="1" style="fill:var(--ic-acc);stroke:none"/></symbol><symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.5s-7-6.3-7-11.5a7 7 0 0 1 14 0c0 5.2-7 11.5-7 11.5z"/><circle cx="12" cy="10" r="2.6" style="fill:var(--ic-acc);stroke:var(--ic-acc)"/></symbol><symbol id="i-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.8 5.8 6.2.9-4.5 4.4 1.1 6.3L12 17.4l-5.6 3 1.1-6.3L3 9.7l6.2-.9z" style="fill:var(--ic-acc)"/></symbol><symbol id="i-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/><rect x="6.5" y="12.5" width="4" height="3.5" rx="1" style="fill:var(--ic-acc);stroke:none"/><path d="M15 14.2h.01M15 17.5h.01M8.5 18.3h.01" stroke-width="2.6"/></symbol><symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.5l3.5 2" style="stroke:var(--ic-acc)"/></symbol><symbol id="i-addphoto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="15" height="13" rx="2"/><circle cx="8" cy="8.5" r="1.4"/><path d="M3.5 15l4-4 3.5 3.5 2-2 3 3"/><circle cx="18" cy="17.5" r="4.3" style="fill:var(--ic-acc);stroke:none"/><path d="M18 15.5v4M16 17.5h4" style="stroke:var(--ic-on-acc)"/></symbol><symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5h16M9.5 6.5V4h5v2.5M6 6.5l1 13.5h10l1-13.5M10 10.5v6M14 10.5v6"/></symbol><symbol id="i-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 4.5l4 4L9 19l-5 1 1-5z"/><path d="M13.5 6.5l4 4"/><path d="M12 20h8" style="stroke:var(--ic-acc)"/></symbol><symbol id="i-undo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14l-5-5 5-5" style="stroke:var(--ic-acc)"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></symbol><symbol id="i-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.6 2.2c-.7.4-1.1 1-1.1 1.8v.5" style="stroke:var(--ic-acc)"/><path d="M12 17h.01" stroke-width="2.8" style="stroke:var(--ic-acc)"/></symbol><symbol id="i-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5L2.5 20h19z"/><path d="M12 10v4.5"/><path d="M12 17.3h.01" stroke-width="2.6"/></symbol><symbol id="i-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V5.5a1.5 1.5 0 0 0-1.5-1.5H5a2 2 0 0 0 0 4"/><path d="M3 6v12a2 2 0 0 0 2 2h14a1 1 0 0 0 1-1v-3"/><path d="M20 8H5a2 2 0 0 1-2-2"/><path d="M21 11.5h-4a2 2 0 0 0 0 4h4z" style="fill:var(--ic-acc);stroke:var(--ic-acc)"/></symbol><symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16.5v3a1.8 1.8 0 0 1-2 1.8A17.8 17.8 0 0 1 2.7 5 1.8 1.8 0 0 1 4.5 3h3a1.8 1.8 0 0 1 1.8 1.5c.1.9.4 1.8.7 2.6a1.8 1.8 0 0 1-.4 1.9L8.3 10.3a14.4 14.4 0 0 0 5.4 5.4l1.3-1.3a1.8 1.8 0 0 1 1.9-.4c.8.3 1.7.6 2.6.7a1.8 1.8 0 0 1 1.5 1.8z"/><path d="M15 3.5a6 6 0 0 1 5.5 5.5M15 7a2.6 2.6 0 0 1 2 2" style="stroke:var(--ic-acc)"/></symbol><symbol id="i-person" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4" style="fill:var(--ic-acc);stroke:var(--ic-acc)"/><path d="M4.5 21c.3-4.2 3.5-7 7.5-7s7.2 2.8 7.5 7z"/></symbol><symbol id="i-sliders" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/><circle cx="8" cy="6" r="2.3" style="fill:var(--ic-acc);stroke:var(--ic-acc)"/><circle cx="16" cy="12" r="2.3" style="fill:var(--ic-bg,#fff)"/><circle cx="10" cy="18" r="2.3" style="fill:var(--ic-bg,#fff)"/></symbol><symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4.5" width="14" height="17" rx="2"/><path d="M9.5 3h5v3h-5z"/><path d="M8 10.5l1.2 1.2L11 9.8M8 15.5l1.2 1.2 1.8-1.9" style="stroke:var(--ic-acc)"/><path d="M13 11h3M13 16h3"/></symbol></defs></svg>
   <header class="intro">
     <h1>Окошко <span class="demo">демо</span></h1>
     <p>Запись к частному мастеру прямо в Telegram. Клиент сам заполняет анкету и выбирает время, мастер получает готовую заявку.</p>
@@ -708,13 +734,13 @@ body.tgapp .foot .back-btn{display:none}
       <div class="tg-bar">
         <button class="ghost" id="tg-left">Закрыть</button>
         <div class="ttl"><b id="tg-title"></b><small>мини-приложение</small></div>
-        <button class="ghost" aria-label="Меню" data-act="toast:Меню Telegram">⋯</button>
+        <button class="ghost" aria-label="Меню" data-act="toast:Меню Telegram"><svg class="ic" width="20" height="20" aria-hidden="true"><use href="#i-more"/></svg></button>
       </div>
       <div class="stage" id="stage">
       <div class="roles">
         <button data-act="role:client" id="r-client">Я клиент</button>
         <button data-act="role:master" id="r-master">Я мастер</button>
-        <button class="who-btn" data-act="masters" aria-label="Выбрать другого мастера"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h10l-3-3M13 10H3l3 3"/></svg>Мастер</button>
+        <button class="who-btn" data-act="masters" aria-label="Выбрать другого мастера"><svg class="ic" width="18" height="18" aria-hidden="true"><use href="#i-switch"/></svg>Мастер</button>
       </div>
       <div class="screen" id="screen"></div>
       <div class="foot" id="foot"></div>
@@ -743,6 +769,7 @@ body.tgapp .foot .back-btn{display:none}
 <script>
 const TG=window.Telegram&&window.Telegram.WebApp,inTG=!!(TG&&TG.initData);
 const pad=n=>String(n).padStart(2,'0');
+const ic=(n,z=18)=>`<svg class="ic" width="${z}" height="${z}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
 const fmtT=m=>pad(Math.floor(m/60))+':'+pad(m%60);
 const toMin=s=>{const[h,m]=s.split(':').map(Number);return h*60+m};
 const keyOf=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
@@ -1328,7 +1355,7 @@ function clientScreen(){
     const hasHints=Object.keys(m.hints).some(k=>st.hintsOn[k]);
     const dc=st.declined;
     return{body:`${heroHtml(m)}
-    ${dc?`<div class="decl"><div class="decl-h"><span class="err-ico" aria-hidden="true">!</span><b>Мастер не сможет ${relDay(dc.date)}${m.mode==='slot'?' в '+fmtT(dc.start):''}</b><button class="sh-x" data-act="decldone" aria-label="Скрыть"><svg viewBox="0 0 14 14" width="12" height="12" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div><span class="small muted">${esc(dc.name)}.${dc.paid?` Предоплата ${rub(dc.paid)} вернётся на карту в течение дня.`:''} Анкету сохранили — осталось выбрать другое время.</span><button class="main-btn" data-act="redecl">Выбрать другое время</button></div>`:''}
+    ${dc?`<div class="decl"><div class="decl-h"><span class="err-ico" aria-hidden="true">${ic('warn',18)}</span><b>Мастер не сможет ${relDay(dc.date)}${m.mode==='slot'?' в '+fmtT(dc.start):''}</b><button class="sh-x" data-act="decldone" aria-label="Скрыть">${ic('close',14)}</button></div><span class="small muted">${esc(dc.name)}.${dc.paid?` Предоплата ${rub(dc.paid)} вернётся на карту в течение дня.`:''} Анкету сохранили — осталось выбрать другое время.</span><button class="main-btn" data-act="redecl">Выбрать другое время</button></div>`:''}
     ${litHtml(m,st)}
     ${(()=>{const nb=st.hist&&st.hist.bid&&st.bookings.find(z=>z.id===st.hist.bid&&visitTs(m,z)>Date.now());return nb?`<div class="rev" style="background:var(--accent-soft)"><b style="font-size:15px">${nb.status==='hold'?'Бронь ждёт ответа мастера':order?'Ваш заказ':'Ваша запись'}: ${relDay(nb.date)}, ${whenOf(m,nb)}</b><span>${esc(sName(nb))}${ansShort(m,nb.svc,nb.ans)?' · '+esc(ansShort(m,nb.svc,nb.ans)):''}</span><div class="row-btns"><button class="btn2" data-act="resched:${nb.id}">Перенести</button><button class="btn2" data-act="cancelask:${nb.id}">Отменить</button></div></div>`:''})()}
     ${st.hist&&svcOf(st.hist.svc)&&!(st.hist.bid&&st.bookings.some(z=>z.id===st.hist.bid&&visitTs(m,z)>Date.now()))?`<div class="rev" style="background:var(--accent-soft)"><b style="font-size:15px">С возвращением, ${esc(S.contact.name)}!</b><span>В прошлый раз, ${st.hist.date}: ${esc(svcOf(st.hist.svc).name)}</span>${ansShort(m,st.hist.svc,st.hist.ans)?`<span class="small muted">${esc(ansShort(m,st.hist.svc,st.hist.ans))}</span>`:''}<button class="btn2 acc" data-act="repeat">Записаться так же</button></div>`:''}
@@ -1344,7 +1371,7 @@ function clientScreen(){
   if(step===1){
     const q=s.qs[S.qi],Q=m.q[q];
     const done=s.qs.slice(0,S.qi).filter(k=>!m.q[k].photo&&answered(m.q[k],sel.ans[k])).map(k=>ansText(m.q[k],sel.ans[k]));
-    let body=(S.df?prog(2+(S.qi+1)/s.qs.length,4,`Шаг 3 из 4 · вопрос ${S.qi+1} из ${s.qs.length}`):prog(S.qi+1,total,`Вопрос ${S.qi+1} из ${s.qs.length} · ${esc(s.name)}`))+`${order&&S.qi===0?memoIcons():''}<div class="qtitle"><div class="qhead"><h2>${esc(Q.t)}</h2>${Q.hint&&st.hintsOn[Q.hint]?`<button class="hint-btn" data-act="hint:${Q.hint}">? подсказка</button>`:''}</div>${done.length?`<span class="picked">Ваш выбор: ${esc(done.join(' · '))}</span>`:''}</div>`;
+    let body=(S.df?prog(2+(S.qi+1)/s.qs.length,4,`Шаг 3 из 4 · вопрос ${S.qi+1} из ${s.qs.length}`):prog(S.qi+1,total,`Вопрос ${S.qi+1} из ${s.qs.length} · ${esc(s.name)}`))+`${order&&S.qi===0?memoIcons():''}<div class="qtitle"><div class="qhead"><h2>${esc(Q.t)}</h2>${Q.hint&&st.hintsOn[Q.hint]?`<button class="hint-btn" data-act="hint:${Q.hint}">${ic('help',16)}подсказка</button>`:''}</div>${done.length?`<span class="picked">Ваш выбор: ${esc(done.join(' · '))}</span>`:''}</div>`;
     let foot;
     if(Q.photo){
       const f=sel.files[q];
@@ -1378,11 +1405,11 @@ function clientScreen(){
       `Расписание открыто на ${horTxt} вперёд.`,!order&&st.noGaps?'Показано время вплотную к другим записям, так мастеру удобнее.':'',
       st.confirm==='manual'?(order?'Мастер подтверждает каждый заказ сам, до этого дата за вами.':'Мастер подтверждает каждую запись сам, до этого время за вами забронировано.'):st.confirm==='urgent'&&!(order&&st.leadDays*24>=st.urgentH)?`Если до ${order?'получения':'визита'} меньше ${st.urgentH} ч, мастер подтвердит ${order?'заказ':'запись'} сам.`:''].filter(Boolean).join(' ');
     const others=m.services.filter(x=>x.id!==sel.svc);
-    const addBlock=others.length?`<details class="addv" ${(sel.extra||[]).length?'open':''}><summary><span class="addv-plus" aria-hidden="true">+</span>${(sel.extra||[]).length?`К визиту добавлено: ${pl(sel.extra.length,'услуга','услуги','услуг')}`:'Добавить ещё услугу к этому визиту'}</summary><div class="addv-list">${others.map(x=>{const on=(sel.extra||[]).includes(x.id);return`<button class="addv-row" aria-pressed="${on}" data-act="extra:${x.id}"><span class="addv-ck" aria-hidden="true"></span><span><b>${esc(x.name)}</b><small>${order?'':durTxt(x.dur)+' · '}${listPrice(m,x)}</small></span></button>`}).join('')}</div></details>`:'';
+    const addBlock=others.length?`<details class="addv" ${(sel.extra||[]).length?'open':''}><summary><span class="addv-plus" aria-hidden="true">${ic('plus',14)}</span>${(sel.extra||[]).length?`К визиту добавлено: ${pl(sel.extra.length,'услуга','услуги','услуг')}`:'Добавить ещё услугу к этому визиту'}</summary><div class="addv-list">${others.map(x=>{const on=(sel.extra||[]).includes(x.id);return`<button class="addv-row" aria-pressed="${on}" data-act="extra:${x.id}"><span class="addv-ck" aria-hidden="true"></span><span><b>${esc(x.name)}</b><small>${order?'':durTxt(x.dur)+' · '}${listPrice(m,x)}</small></span></button>`}).join('')}</div></details>`:'';
     const body=prog(s.qs.length+1,total,`Шаг ${s.qs.length+1} из ${total} · ${order?'дата':'время'}`)+`<div class="qhead"><h2>${order?'К какому дню?':'Когда удобно?'}</h2>${memoIcons()}</div>${addBlock}
       <div class="days">${days.map(([k,n])=>dayWin(k,n,sel.day,order?lPlace:lWin)).join('')}</div>
       ${sel.day?pickHtml:'<p class="muted">Свободных дат пока нет.</p>'}
-      ${sel.start!=null&&depOf(priceOf(m,s.id,sel.ans))&&st.refund==='day'&&!refundBy(m,sel.day,sel.start)?`<div class="warnline"><span class="err-ico" aria-hidden="true">!</span><span>До ${order?'получения':'визита'} меньше суток: если отмените, предоплату ${rub(depOf(priceOf(m,s.id,sel.ans)))} не вернём. Если мастер откажет — вернём.</span></div>`:''}
+      ${sel.start!=null&&depOf(priceOf(m,s.id,sel.ans))&&st.refund==='day'&&!refundBy(m,sel.day,sel.start)?`<div class="warnline"><span class="err-ico" aria-hidden="true">${ic('warn',18)}</span><span>До ${order?'получения':'визита'} меньше суток: если отмените, предоплату ${rub(depOf(priceOf(m,s.id,sel.ans)))} не вернём. Если мастер откажет — вернём.</span></div>`:''}
       <button class="btn2" data-act="wl">${order?'Нет подходящей даты':'Нет подходящего времени'}? Встать в лист ожидания</button>
       <div class="note">${rules}</div>
       <div class="total"><span>${esc(s.name)}</span><span>${price}</span></div>`;
@@ -1395,7 +1422,7 @@ function clientScreen(){
     const body=prog(1,1,S.df?'Шаг 4 из 4 · контакты':'Последний шаг · контакты')+`<h2>Как с вами связаться</h2>
       <div class="field"><label for="c-name">Имя</label><input id="c-name" autocomplete="name" value="${esc(c.name)}"></div>
       ${phoneOk(c.phone)?`<div class="field"><label for="c-phone">Телефон</label><input id="c-phone" inputmode="tel" autocomplete="tel" value="${esc(c.phone)}"></div>`
-        :`<button class="share big" data-act="share">Взять номер из Telegram<span>в одно касание</span></button>
+        :`<button class="share big" data-act="share"><b class="sh-row">${ic('phone',18)}Взять номер из Telegram</b><span>в одно касание</span></button>
       <div class="field"><label for="c-phone">или введите вручную</label><input id="c-phone" inputmode="tel" autocomplete="tel" placeholder="+7 900 000-00-00" value="${esc(c.phone)}" aria-describedby="c-phone-err"><span class="ferr" id="c-phone-err" ${c.phone&&!phoneOk(c.phone)?'':'hidden'}>Проверьте номер: нужно 11 цифр, чтобы мастер смог позвонить</span></div>`}
       <div class="field"><label for="c-comment">Комментарий мастеру</label><textarea id="c-comment" rows="2" placeholder="Всё, что не вошло в анкету">${esc(c.comment)}</textarea></div>
       <div class="sum"><div class="kv"><span>Когда</span><span>${fmtDay(sel.day)}, ${whenOf(m,sel)}</span></div><div class="kv"><span>${order?'Заказ':'Услуга'}</span><span>${esc(s.name)}</span></div>${opts?`<div class="kv"><span>Выбор</span><span>${esc(opts)}</span></div>`:''}<div class="kv"><span>Итого</span><span>${price}</span></div>${dep?`<div class="kv"><span>Предоплата сейчас</span><span>${rub(dep)}</span></div>`:''}</div>
@@ -1411,7 +1438,7 @@ function clientScreen(){
   return{body:`<div class="done"><div class="bigwin ${hold?'half':''}" data-light="${b.id}${hold?'h':''}"><span class="d">${fmtDay(b.date)}</span><span class="tm">${order?esc(m.wins[b.start]):fmtT(b.start)}</span></div><h2>${hold?'Бронь отправлена':order?'Заказ принят':'Вы записаны'}</h2>
     ${hold?`<p class="muted small" style="margin:0">${esc(m.who)} обычно отвечает в течение часа. Ответ придёт в Telegram. Если мастер не сможет, ${b.paid?'предоплата вернётся автоматически, а ':''}бот предложит другое время.</p>`:''}
     ${b.paid?`<p class="small" style="margin:0">Предоплата <b>${rub(b.paid)}</b> внесена. На месте останется ${rub(Math.max(0,b.price-b.paid))}.</p>`:''}
-    <div class="sum"><div class="kv"><span>Когда</span><span>${fmtDay(b.date)}, ${whenOf(m,b)}</span></div><div class="kv"><span>${order?'Заказ':'Услуга'}</span><span>${esc(bs.name)}</span></div>${bopts?`<div class="kv"><span>Выбор</span><span>${esc(bopts)}</span></div>`:''}<div class="kv"><span>Адрес</span><span>${esc(m.addr)}</span></div><div class="kv"><span>Итого</span><span>${priceTxt(bs,b.price)}</span></div></div>
+    <div class="sum"><div class="kv"><span>Когда</span><span>${fmtDay(b.date)}, ${whenOf(m,b)}</span></div><div class="kv"><span>${order?'Заказ':'Услуга'}</span><span>${esc(bs.name)}</span></div>${bopts?`<div class="kv"><span>Выбор</span><span>${esc(bopts)}</span></div>`:''}<div class="kv"><span class="kv-i">${ic('pin',16)}Адрес</span><span>${esc(m.addr)}</span></div><div class="kv"><span>Итого</span><span>${priceTxt(bs,b.price)}</span></div></div>
     <p class="muted small">${bs.est?'Точную цену мастер назовёт после осмотра. ':''}Бот напомнит за день${order?'':' и за 2 часа'}. В напоминании будут кнопки «Всё в силе» и «Перенести».</p>
     <div class="row-btns"><button class="btn2" data-act="resched:${b.id}">Перенести</button><button class="btn2" data-act="cancelask:${b.id}">Отменить</button></div>
     ${m.after&&m.hints[m.after]?`<button class="btn2 acc" data-act="hint:${m.after}">Памятка: ${m.hints[m.after].name.toLowerCase()}</button>`:''}</div>`,
@@ -1515,7 +1542,7 @@ function recCard(m,b){
   return`<div class="rec ${b.isNew||hold?'new':''}"><div class="rec-top"><b>${hold?fmtDay(b.date)+', ':''}${rangeOf(m,b)}</b>${hold?'<span class="pill">бронь</span>':b.isNew?'<span class="pill">новая</span>':''}</div>
     <div><button class="cname" data-act="client:${b.id}" aria-label="Карточка клиента: ${esc(b.client)}">${esc(b.client)}</button> · ${esc(s.name)} · ${priceTxt(s,b.price)}</div>${(()=>{const c=cli(St(),b.client);return`<div class="cmeta"><span class="vis ${c.past?'':'first'}">${c.past?(c.past+1)+'-й визит':'Новый клиент'}</span>${c.note?`<span class="cnote">${esc(c.note)}</span>`:''}</div>`})()}<div class="answers">${answersHtml(m,b)}${b.comment?`<span>Комментарий: <b>${esc(b.comment)}</b></span>`:''}${b.paid?`<span>Предоплата: <b>${rub(b.paid)} получена</b></span>`:''}</div>
     <div class="small muted">${esc(b.phone||'телефон не указан')}</div>
-    <div class="row-btns">${hold?`<button class="btn2 fill" data-act="confirm:${b.id}">Подтвердить</button><button class="btn2" data-act="decline:${b.id}">Отклонить</button>`:`<button class="btn2 acc" data-act="toast:Откроется чат с клиентом в Telegram">Написать</button><button class="btn2" data-act="mmove:${b.id}">Перенести</button><button class="btn2" data-act="mcancel:${b.id}">Отменить</button>`}</div></div>`;
+    <div class="row-btns">${hold?`<button class="btn2 fill" data-act="confirm:${b.id}">Подтвердить</button><button class="btn2" data-act="decline:${b.id}">Отклонить</button>`:`<button class="btn2 acc" data-act="toast:Откроется чат с клиентом в Telegram">${ic('chat',16)}Написать</button><button class="btn2" data-act="mmove:${b.id}">Перенести</button><button class="btn2" data-act="mcancel:${b.id}">Отменить</button>`}</div></div>`;
 }
 const gapBtn=(k,s,e,from,px)=>`<button class="blk gap" style="top:${(s-from)/30*px+1}px;height:${(e-s)/30*px-2}px" data-act="block:${k}:${s}:${e}">Свободно ${fmtT(s)}–${fmtT(e)} · закрыть</button>`;
 function calScreen(tabs){
@@ -1562,7 +1589,7 @@ function calScreen(tabs){
     wk.push(`<button class="day mday ${op?'':'off'}" aria-pressed="${dk===S.calDay}" data-act="calday:${dk}" aria-label="${fmtDay(dk)}: ${cnt?pl(cnt,'запись','записи','записей'):op?'записей нет':'выходной'}"><small>${i===0?'сег':WD[dd.getDay()].toLowerCase()}</small><b>${dd.getDate()}</b><span class="mday-n">${cnt?cnt:op?(fr?'<i class="fdot"></i>':''):'вых'}</span></button>`)}
   return{body:tabs+fin+setup+`<h2 class="mtitle">Записи</h2>`+(holds.length?`<h3>Ждут вашего ответа · ${holds.length}</h3>${holds.map(b=>recCard(m,b)).join('')}`:'')
     +`<div class="days mweek">${wk.join('')}</div>`
-    +`<details class="monthcal"><summary>Весь месяц</summary><div class="cal-h"><button data-act="calm:-1" aria-label="Прошлый месяц">‹</button><b>${mo.toLocaleDateString('ru-RU',{month:'long',year:'numeric'}).replace(' г.','')}</b><button data-act="calm:1" aria-label="Следующий месяц">›</button></div><div class="cal">${cells}</div></details>`
+    +`<details class="monthcal"><summary>Весь месяц</summary><div class="cal-h"><button data-act="calm:-1" aria-label="Прошлый месяц">${ic('chevl',18)}</button><b>${mo.toLocaleDateString('ru-RU',{month:'long',year:'numeric'}).replace(' г.','')}</b><button data-act="calm:1" aria-label="Следующий месяц">${ic('chev',18)}</button></div><div class="cal">${cells}</div></details>`
     +day+dayB.filter(b=>b.status!=='hold').map(b=>recCard(m,b)).join('')+wl,foot:''};
 }
 function pickScreen(){
@@ -1595,7 +1622,7 @@ function masterScreen(){
 function masterScreen0(){
   if(S.mview)return pickScreen();
   const m=M(),st=St(),order=m.mode==='order';
-  const tabs=`<div class="tabs">${[['rec','Записи'],['sched','Правила'],['svc','Услуги'],['prof','Профиль']].map(([k,t])=>`<button aria-pressed="${S.mtab===k}" data-act="mtab:${k}">${t}</button>`).join('')}</div>`;
+  const tabs=`<div class="tabs">${[['rec','Записи','cal'],['sched','Правила','sliders'],['svc','Услуги','list'],['prof','Профиль','person']].map(([k,t,i])=>`<button aria-pressed="${S.mtab===k}" data-act="mtab:${k}">${ic(i,20)}<span>${t}</span></button>`).join('')}</div>`;
   if(S.mtab==='rec')return calScreen(tabs);
   if(S.mtab==='sched'){
     const rows=[1,2,3,4,5,6,0].map(i=>{const w=st.sched[i];return`<div class="srow"><b>${WD[i]}</b><button class="switch" aria-label="${WD[i]}: рабочий день" aria-pressed="${w.on}" data-act="wd:${i}"></button>
@@ -1620,15 +1647,15 @@ function masterScreen0(){
   }
   if(S.mtab==='svc'){
     const durs=[30,45,60,90,120,150,180,240,300];
-    const eds=m.services.map(s=>`<div class="ed"><button class="svc-row" data-act="svcopen:${s.id}" aria-expanded="${S.svcOpen===s.id}"><span><b>${esc(s.name)}</b><span class="small muted">${s.price===0?'бесплатно':rub(s.price)}${order?'':' · '+durTxt(s.dur)} · ${pl(s.qs.length,'вопрос','вопроса','вопросов')}</span></span><span class="small" style="color:var(--accent-text)">${S.svcOpen===s.id?'Свернуть':'Изменить'}</span></button>${S.svcOpen!==s.id?'':`<div class="ed-row">
+    const eds=m.services.map(s=>`<div class="ed"><button class="svc-row" data-act="svcopen:${s.id}" aria-expanded="${S.svcOpen===s.id}"><span><b>${esc(s.name)}</b><span class="small muted">${s.price===0?'бесплатно':rub(s.price)}${order?'':' · '+durTxt(s.dur)} · ${pl(s.qs.length,'вопрос','вопроса','вопросов')}</span></span><span class="small" style="color:var(--accent-text)">${S.svcOpen===s.id?'Свернуть':ic('edit',16)+'Изменить'}</span></button>${S.svcOpen!==s.id?'':`<div class="ed-row">
         <label>Название<input id="sv-name-${s.id}" value="${esc(s.name)}"></label>
         <label>Цена, ₽<input id="sv-price-${s.id}" inputmode="numeric" value="${s.price}"></label>
         ${order?'':`<label>Длится<select id="sv-dur-${s.id}">${durs.map(d=>`<option value="${d}" ${d===s.dur?'selected':''}>${durTxt(d)}</option>`).join('')}</select></label>`}</div>
       <label>Описание<input id="sv-note-${s.id}" value="${esc(s.note||'')}" placeholder="Что входит"></label>
       <span class="small muted">Вопросы анкеты для этой услуги:</span>
       <div class="chips">${Object.entries(m.q).map(([k,Q])=>`<button class="qchip" aria-pressed="${s.qs.includes(k)}" data-act="sq:${s.id}:${k}">${esc(Q.t)}</button>`).join('')||'<span class="small muted">Пока нет вопросов. Добавьте свой ниже.</span>'}</div>
-      <div class="row-btns"><button class="btn2" data-act="sdel:${s.id}">Удалить услугу</button></div>`}</div>`).join('');
-    return{body:tabs+`<h2>Услуги и цены</h2>${eds}<button class="btn2 acc" data-act="sadd">+ Добавить услугу</button>
+      <div class="row-btns"><button class="btn2" data-act="sdel:${s.id}">${ic('trash',16)}Удалить услугу</button></div>`}</div>`).join('');
+    return{body:tabs+`<h2>Услуги и цены</h2>${eds}<button class="btn2 acc" data-act="sadd">${ic('plus',16)}Добавить услугу</button>
       <h2>Свой вопрос в анкету</h2>
       <div class="ed"><label>Вопрос<input id="cq-t" placeholder="Например: Какой краситель?"></label>
         <label>Как отвечать<select id="cq-type"><option value="opts">Выбрать вариант</option><option value="text">Написать текстом</option><option value="photo">Прикрепить фото или файл</option></select></label>
@@ -1647,18 +1674,18 @@ function masterScreen0(){
     <label>Тема<select id="pf-dark"><option value="" ${m.dark?'':'selected'}>Светлая</option><option value="1" ${m.dark?'selected':''}>Тёмная</option></select></label>
     <label class="btn2 acc" style="cursor:pointer;align-self:flex-start;flex-direction:row">Загрузить фото на обложку<input type="file" accept="image/*" id="cover-in" style="position:absolute;opacity:0;width:1px;height:1px"></label>
     <h3>Работы</h3><p class="small muted" style="margin:0">Клиент видит их на главной и может записаться «так же».</p>
-    <div class="wgrid">${m.works.map((w,i)=>`<div class="wcell">${artHtml(m,w)}<button aria-label="Убрать работу" data-act="wdel:${i}">✕</button></div>`).join('')}<label class="addph">+ Фото<br>работы<input type="file" accept="image/*" multiple id="work-add"></label></div>
+    <div class="wgrid">${m.works.map((w,i)=>`<div class="wcell">${artHtml(m,w)}<button aria-label="Убрать работу" data-act="wdel:${i}">${ic('trash',14)}</button></div>`).join('')}<label class="addph">${ic('addphoto',26)}<span>Фото<br>работы</span><input type="file" accept="image/*" multiple id="work-add"></label></div>
     <h3>Памятки для клиентов</h3>
     <div class="list">${Object.entries(m.hints).map(([k,h])=>`<div class="opt"><div><b>${esc(h.name)}</b><br><button class="back small" data-act="hint:${k}">Посмотреть</button></div><button class="switch" aria-label="Показывать: ${esc(h.name)}" aria-pressed="${st.hintsOn[k]}" data-act="hon:${k}"></button></div>`).join('')||'<span class="small muted">Памятки появятся, когда вы добавите подсказки к вопросам.</span>'}</div>
     <h3>Профессии</h3><div class="chips">${(m.profs||[m.fromTpl||m.id]).map(id=>`<span class="chip static">${esc((MASTERS[id]||m).tab)}</span>`).join('')}</div>
-    <button class="btn2 acc" data-act="addprofsheet">+ Добавить ещё профессию</button>
+    <button class="btn2 acc" data-act="addprofsheet">${ic('plus',16)}Добавить ещё профессию</button>
     <button class="btn2" data-act="pickprof">Сменить профессию</button></div>`,foot:''};
 }
 
 function sheetHtml(){
   if(!S.sheet)return'';
   const m=M(),st=St();
-  const wrap=inner=>`<div class="sheet-back" data-act="close"><div class="sheet" data-stop role="dialog" aria-modal="true" tabindex="-1"><div class="sh-top"><div class="grab"></div><button class="sh-x" data-act="close" aria-label="Закрыть"><svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>${inner}</div></div>`;
+  const wrap=inner=>`<div class="sheet-back" data-act="close"><div class="sheet" data-stop role="dialog" aria-modal="true" tabindex="-1"><div class="sh-top"><div class="grab"></div><button class="sh-x" data-act="close" aria-label="Закрыть">${ic('close',16)}</button></div>${inner}</div></div>`;
   if(S.sheet.startsWith('cancelask-')){const b=st.bookings.find(z=>z.id===S.sheet.slice(10));if(!b)return'';
     const back=b.paid&&st.refund==='day'&&visitTs(m,b)-Date.now()>864e5,ord=m.mode==='order';
     return wrap(`<h2>Отменить ${ord?'заказ':'запись'}?</h2><div class="sum"><div class="kv"><span>Когда</span><span>${fmtDay(b.date)}, ${whenOf(m,b)}</span></div><div class="kv"><span>${ord?'Заказ':'Услуга'}</span><span>${esc(sName(b))}</span></div></div>
@@ -1671,7 +1698,7 @@ function sheetHtml(){
       <div class="cstats"><div><b>${c.past||'—'}</b><span>${c.past?plural(c.past,'визит','визита','визитов')+' раньше':'первый раз'}</span></div><div><b>${rub(sum)}</b><span>${c.past?'вместе с этой':'эта запись'}</span></div><div><b>${c.last?esc(c.last):'—'}</b><span>${c.last?'с прошлого визита':'визитов не было'}</span></div></div>
       <div class="field"><label for="cl-note">Заметка, клиент её не видит</label><textarea id="cl-note" rows="2" placeholder="Например: аллергия на клей, любит кофе без сахара">${esc(c.note)}</textarea></div>
       <h3>${ord?'Ближайшие заказы':'Ближайшие записи'}</h3><div class="list">${mine.map(z=>`<div class="rec"><b>${fmtDay(z.date)}, ${whenOf(m,z)}</b><span>${esc(sName(z))} · ${priceTxt(svcOf(z.svc),z.price)}</span><div class="answers">${answersHtml(m,z)}</div></div>`).join('')}</div>
-      <div class="row-btns"><button class="btn2 acc" data-act="toast:Откроется чат с клиентом в Telegram">Написать</button><button class="btn2" data-act="close">Закрыть</button></div>`)}
+      <div class="row-btns"><button class="btn2 acc" data-act="toast:Откроется чат с клиентом в Telegram">${ic('chat',16)}Написать</button><button class="btn2" data-act="close">Закрыть</button></div>`)}
   if(S.sheet==='masters'){const ids=[...ORDER,...(MASTERS.custom?['custom']:[])];
     return wrap(`<h2>Мастера в демо</h2><p class="small muted" style="margin:0">В настоящем приложении у каждого мастера своя ссылка. Здесь можно посмотреть, как Окошко выглядит у разных профессий.</p>
       <div class="mlist">${ids.map(id=>{const x=MASTERS[id];return`<button class="mrow" data-act="master:${id}" aria-current="${id===S.cur}"><span class="mava">${esc((x.name||'?').slice(0,1))}</span><span><b>${esc(x.tab)}</b><small>${esc(x.name)} · ${x.mode==='slot'?'запись на время':'заказ к дате'}</small></span></button>`}).join('')}</div>`)}
@@ -1711,12 +1738,12 @@ function sheetHtml(){
       <div class="demo-links"><span>Показать в демо:</span><button data-act="payfail">оплата не прошла</button><button data-act="slottaken">время заняли</button></div>`)}
   if(S.sheet==='addprof'){const have=new Set(M().profs||[M().id]);const ids=ORDER.filter(id=>!have.has(id)&&id!==S.cur);
     return wrap(`<h2>Ещё профессия</h2><p class="small muted" style="margin:0">Услуги, анкета и памятки этой профессии добавятся к вашим. На странице клиент увидит их отдельным разделом.</p><div class="mlist">${ids.map(id=>`<button class="mrow" data-act="addprof:${id}"><span class="mava">${esc(MASTERS[id].tab.slice(0,1))}</span><span><b>${esc(MASTERS[id].tab)}</b><small>${MASTERS[id].services.map(x=>x.name).slice(0,3).join(', ')}</small></span></button>`).join('')}</div>`)}
-  if(S.sheet==='payfail'){const order=m.mode==='order';return wrap(`<div class="errhead"><span class="err-ico" aria-hidden="true">!</span><h2>Оплата не прошла</h2></div>
+  if(S.sheet==='payfail'){const order=m.mode==='order';return wrap(`<div class="errhead"><span class="err-ico" aria-hidden="true">${ic('warn',18)}</span><h2>Оплата не прошла</h2></div>
       <p class="small" style="margin:0">Банк отклонил платёж, деньги не списаны. ${order?'Дату':'Время'} ${fmtDay(S.sel.day)}, ${whenOf(m,S.sel)} держим за вами ещё 10 минут.</p>
       <p class="small muted" style="margin:0">Чаще всего помогает другая карта или оплата через СБП из приложения банка.</p>
       <button class="main-btn" data-act="paysheet">Попробовать ещё раз</button><button class="btn2" data-act="close">Не сейчас</button>`)}
   if(S.sheet==='taken'){const c=selSvc(),alts=[];for(let i=0;i<st.horizon&&alts.length<3;i++){const k=keyOf(addDays(today,i));slotsFor(k,c.dur).forEach(t=>{if(alts.length<3&&!(k===S.sel.day&&t===S.sel.start))alts.push([k,t])})}
-    return wrap(`<div class="errhead"><span class="err-ico" aria-hidden="true">!</span><h2>Это время только что заняли</h2></div>
+    return wrap(`<div class="errhead"><span class="err-ico" aria-hidden="true">${ic('warn',18)}</span><h2>Это время только что заняли</h2></div>
       <p class="small" style="margin:0">Пока вы записывались, ${fmtDay(S.sel.day)}, ${whenOf(m,S.sel)} забрал другой клиент. Деньги не списаны, анкета сохранена.</p>
       ${alts.length?`<h3>Ближайшие свободные окошки</h3><div class="qt">${alts.map(([k,t])=>`<button class="qbtn" data-act="takealt:${k}:${t}"><small>${relDay(k).replace(/^(\S+), (\d+) .*/,'$1, $2')}</small><b>${fmtT(t)}</b></button>`).join('')}</div>`:'<p class="small muted" style="margin:0">Свободного времени пока нет.</p>'}
       <button class="btn2" data-act="wl">Встать в лист ожидания</button>`)}
@@ -1751,7 +1778,7 @@ function renderFeed(){
   f.innerHTML=St().feed.map(x=>`<div class="msg ${x.me?'me':''}">${x.me?'':`<span class="who">${x.to}</span>`}<span>${esc(x.text).replace(/\n/g,'<br>')}</span>${(x.btns||(x.btn?[x.btn]:[])).map(q=>`<button class="msg-btn" data-act="${q[1]}">${esc(q[0])}</button>`).join('')}<span class="when">${x.when}</span></div>`).join('');
   f.scrollTop=f.scrollHeight;
 }
-const withBack=f=>`<button class="back-btn" data-act="back" aria-label="Назад"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span>Назад</span></button>${f}`;
+const withBack=f=>`<button class="back-btn" data-act="back" aria-label="Назад">${ic('back',20)}<span>Назад</span></button>${f}`;
 function render(){
   const m=M(),w=document.querySelector('.wrap');
   for(const el of [w,document.body]){el.classList.remove('t-light','t-dark');el.classList.add('t-'+themeOf(m))}
@@ -1759,7 +1786,7 @@ function render(){
   document.getElementById('r-client').setAttribute('aria-pressed',S.role==='client');
   document.getElementById('r-master').setAttribute('aria-pressed',S.role==='master');
   const tl=document.getElementById('tg-left'),inFlow=(S.role==='client'&&(S.step>=1&&S.step<=3||S.step>=10))||(S.role==='master'&&S.mview);
-  tl.textContent=inFlow?'‹ Назад':'Закрыть';
+  tl.innerHTML=inFlow?ic('back',16)+'Назад':ic('close',14)+'Закрыть';
   document.querySelector('.roles').hidden=S.role==='client'&&inFlow;document.getElementById('stage').classList.toggle('noroles',S.role==='client'&&inFlow);document.getElementById('stage').classList.toggle('mstr',S.role==='master'&&!S.mview);
   tl.dataset.act=inFlow?'back':(inTG?'tgclose':'toast:Закроет мини-приложение и вернёт в чат');
   S._inFlow=inFlow;
@@ -1785,7 +1812,7 @@ function toast(t,undo){
   const p=document.getElementById('phone');p.querySelector('.toast')?.remove();
   const el=document.createElement('div');el.className='toast';el.setAttribute('role','status');el.setAttribute('aria-live','polite');
   const sp=document.createElement('span');sp.textContent=t;el.appendChild(sp);
-  if(undo){const b=document.createElement('button');b.className='toast-undo';b.dataset.act=undo;b.textContent='Вернуть';b.addEventListener('click',()=>setTimeout(()=>el.remove(),0));el.appendChild(b)}
+  if(undo){const b=document.createElement('button');b.className='toast-undo';b.dataset.act=undo;b.innerHTML=ic('undo',16)+'Вернуть';b.addEventListener('click',()=>setTimeout(()=>el.remove(),0));el.appendChild(b)}
   p.appendChild(el);
   clearTimeout(toastT);toastT=setTimeout(()=>el.remove(),undo?5000:2400);
 }
