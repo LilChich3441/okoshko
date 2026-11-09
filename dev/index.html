@@ -618,6 +618,40 @@ body.tgapp .foot.tg-hide:not(:has(.foot-note,.back-btn,.skip)){display:none}
 .dayset summary::after{content:"›";margin-left:auto;color:var(--muted);transition:transform .2s}
 .dayset[open] summary::after{transform:rotate(90deg)}
 .dayset .ovr{padding-bottom:12px}
+
+/* несколько услуг за визит */
+.addv{background:var(--surface);border-radius:var(--r-ctl);box-shadow:var(--shadow)}
+.t-dark .addv{box-shadow:inset 0 0 0 1px var(--line)}
+.addv summary{display:flex;align-items:center;gap:10px;min-height:48px;padding:0 14px;font-weight:600;font-size:14px;cursor:pointer;list-style:none}
+.addv summary::-webkit-details-marker{display:none}
+.addv-plus{width:24px;height:24px;border-radius:50%;background:var(--sunk);display:grid;place-items:center;font-weight:700;flex:none}
+.addv[open] .addv-plus{transform:rotate(45deg)}
+.addv-list{display:flex;flex-direction:column;padding:0 6px 6px}
+.addv-row{display:flex;align-items:center;gap:12px;border:0;background:none;text-align:left;padding:10px 8px;border-radius:12px;min-height:48px;width:100%}
+.addv-row b{display:block;font-size:14.5px;font-weight:600}.addv-row small{display:block;font-size:13px;color:var(--muted)}
+.addv-ck{width:22px;height:22px;border-radius:7px;flex:none;box-shadow:inset 0 0 0 2px var(--line);display:grid;place-items:center}
+.addv-row[aria-pressed="true"] .addv-ck{background:var(--ink);box-shadow:none}
+.addv-row[aria-pressed="true"] .addv-ck::after{content:"";width:10px;height:6px;border-left:2px solid var(--surface);border-bottom:2px solid var(--surface);transform:rotate(-45deg) translate(1px,-1px)}
+.svc2.pickable{position:relative;padding-left:46px}
+.svc2.pickable::before{content:"";position:absolute;left:14px;top:16px;width:22px;height:22px;border-radius:7px;box-shadow:inset 0 0 0 2px var(--line)}
+.svc2.pickable[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--ink),var(--shadow)}
+.svc2.pickable[aria-pressed="true"]::before{background:var(--ink);box-shadow:none}
+.svc2.pickable[aria-pressed="true"]::after{content:"";position:absolute;left:20px;top:22px;width:10px;height:6px;border-left:2px solid var(--surface);border-bottom:2px solid var(--surface);transform:rotate(-45deg)}
+
+/* правки по проверке 09.11 */
+.t-dark .slot[aria-pressed="true"],.slot[aria-pressed="true"]{background:radial-gradient(120% 120% at 50% 80%,#FFE7B5 0,var(--light-2) 55%,var(--light) 100%);color:var(--light-ink);box-shadow:inset 0 0 0 2px var(--ink),0 8px 20px -10px rgba(245,169,62,.95)}
+.t-dark .slot[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink),0 8px 20px -10px rgba(245,169,62,.6)}
+.t-dark .qbtn{background:#3A2A14;color:#FFE0AE}
+.master .ava,.chead .ava{display:grid;place-items:center}
+.hrate{min-height:44px}
+.hall{bottom:auto;top:calc(var(--pt,16px) + 6px);min-height:40px}
+.tag,.hint-btn{min-height:44px}
+.tg-bar .ghost{min-height:44px;min-width:44px}
+.svc2 .nm,.svc2 .pr{min-width:0;overflow-wrap:anywhere}
+.legend span:nth-child(4)::before{background:repeating-linear-gradient(135deg,var(--sunk) 0 3px,var(--muted) 3px 4px)}
+.legend span:nth-child(2)::before{background:var(--sunk);box-shadow:inset 0 0 0 1.5px var(--muted)}
+body.tgapp .foot.has-back{grid-template-columns:1fr}
+body.tgapp .foot .back-btn{display:none}
 </style>
 
 
@@ -1088,12 +1122,18 @@ try{S.noPops=localStorage.getItem('okoshko-nopops')==='1'}catch(e){S.noPops=fals
 const saveNoPops=()=>{try{S.noPops?localStorage.setItem('okoshko-nopops','1'):localStorage.removeItem('okoshko-nopops')}catch(e){}};
 const M=()=>MASTERS[S.cur], St=()=>ST[S.cur];
 const svcOf=id=>M().services.find(s=>s.id===id);
-const sName=b=>svcOf(b.svc)?.name||b.svcName||'Услуга';
+const sName=b=>(b.extra&&b.extra.length?b.svcName:svcOf(b.svc)?.name)||b.svcName||'Услуга';
+// несколько услуг за один визит: основная + S.sel.extra
+const selIds=()=>S.sel&&S.sel.svc?[S.sel.svc,...(S.sel.extra||[])]:[];
+function comboOf(m,ids){const ss=ids.map(id=>m.services.find(x=>x.id===id)).filter(Boolean);if(!ss.length)return null;if(ss.length===1)return ss[0];
+  return{id:ss[0].id,name:ss.map(x=>x.name).join(' + '),qs:[...new Set(ss.flatMap(x=>x.qs))],dur:ss.reduce((a,x)=>a+(x.dur||60),0),price:ss.reduce((a,x)=>a+x.price,0),est:ss.some(x=>x.est),note:'',combo:ss.map(x=>x.id)}}
+const selSvc=()=>comboOf(M(),selIds());
 const visitTs=(m,b)=>parseKey(b.date).getTime()+(m.mode==='slot'?b.start:600)*60e3;
-function resetFlow(){S.slide=0;S.quick=null;S.carryPaid=0;S.reschedOf=null;S.rebookOf=null;S.df=false;if(S.nameBack){S.contact.name=S.nameBack;S.nameBack=null}}
-const blankSel=()=>({svc:null,ans:{},files:{},day:null,start:null});
+function resetFlow(){S.dfPick=[];S.slide=0;S.quick=null;S.carryPaid=0;S.reschedOf=null;S.rebookOf=null;S.df=false;if(S.nameBack){S.contact.name=S.nameBack;S.nameBack=null}}
+const blankSel=()=>({svc:null,extra:[],ans:{},files:{},day:null,start:null});
 S.sel=blankSel();
-function priceOf(m,svc,ans){const s=m.services.find(x=>x.id===svc);if(!s)return 0;let p=s.price;for(const q of s.qs){const Q=m.q[q];if(Q&&Q.add&&ans[q]!=null)p+=Q.add[ans[q]]}return p}
+function priceOf(m,svc,ans,ids){ids=ids||(S.sel&&svc===S.sel.svc&&ans===S.sel.ans?selIds():[svc]);let p=0;const seen=new Set();
+  for(const id of ids){const s=m.services.find(x=>x.id===id);if(!s)continue;p+=s.price;for(const q of s.qs){if(seen.has(q))continue;seen.add(q);const Q=m.q[q];if(Q&&Q.add&&ans[q]!=null)p+=Q.add[ans[q]]}}return p}
 function whenOf(m,b){if(m.mode==='slot')return fmtT(b.start);const w=m.wins[b.start];return /\d:\d/.test(w)?w:m.winLabel.toLowerCase()+': '+w.toLowerCase()}
 const relDay=k=>{const d=Math.round((parseKey(k)-today)/864e5);return d===0?'сегодня':d===1?'завтра':fmtDay(k)};
 const dayWin=(k,n,sel,lab)=>{const d=parseKey(k);return`<button class="day dw" ${n?'':'disabled'} aria-pressed="${k===sel}" data-act="day:${k}" aria-label="${fmtDay(k)}: ${n?lab(n):'всё занято'}"><small>${WD[d.getDay()].toLowerCase()}</small><span class="win ${n?'on':''}" aria-hidden="true"></span><b>${d.getDate()}</b></button>`};
@@ -1135,7 +1175,7 @@ function litHtml(m,st){
 }
 const phoneOk=p=>(p||'').replace(/\D/g,'').length>=11;
 function refundBy(m,day,start){const ts=parseKey(day).getTime()+(m.mode==='slot'?start:600)*60e3-864e5;if(ts<Date.now())return null;const d=new Date(ts);return d.toLocaleDateString('ru-RU',{day:'numeric',month:'long'})+', '+fmtT(d.getHours()*60+d.getMinutes())}
-function ansShort(m,svcId,ans){const s=m.services.find(x=>x.id===svcId);if(!s)return'';return s.qs.filter(q=>m.q[q]&&m.q[q].opts&&ans[q]!=null).map(q=>ansText(m.q[q],ans[q])).join(' · ')}
+function ansShort(m,svcId,ans,ids){const s=comboOf(m,ids||(S.sel&&svcId===S.sel.svc&&ans===S.sel.ans?selIds():[svcId]));if(!s)return'';return s.qs.filter(q=>m.q[q]&&m.q[q].opts&&ans[q]!=null).map(q=>ansText(m.q[q],ans[q])).join(' · ')}
 function rangeOf(m,b){const s=m.services.find(x=>x.id===b.svc);return m.mode==='slot'?fmtT(b.start)+'–'+fmtT(b.start+(b.dur||(s?s.dur:60))):m.wins[b.start]}
 const priceTxt=(s,p)=>p===0?'бесплатно':(s&&s.est?'от ':'')+rub(p);
 const listPrice=(m,s)=>s.price===0?'бесплатно':((s.est||s.qs.some(q=>m.q[q]&&m.q[q].add&&m.q[q].add.some(a=>a>0)))?'от ':'')+rub(s.price);
@@ -1238,7 +1278,9 @@ function startFlow(svcId,ans){
   if(!s.qs.length){S.step=S.df?3:2;return}
   S.step=1;const i=s.qs.findIndex(q=>need(M().q[q])&&!answered(M().q[q],S.sel.ans[q]));S.qi=i<0?s.qs.length-1:i;
 }
-function advanceQ(){const s=svcOf(S.sel.svc);if(S.qi<s.qs.length-1)S.qi++;else S.step=S.df?3:2}
+function gotoQs(after){const c=selSvc();if(!c)return;const i=c.qs.findIndex(q=>need(M().q[q])&&!answered(M().q[q],S.sel.ans[q]));
+  if(i>=0){S.step=1;S.qi=i}else if(after!=null)S.step=after}
+function advanceQ(){const s=selSvc();if(S.qi<s.qs.length-1)S.qi++;else S.step=S.df?3:2}
 
 // ===== клиент =====
 function clientScreen(){
@@ -1257,7 +1299,7 @@ function clientScreen(){
     ${m.reviews.length?`<h3 id="reviews">Отзывы</h3><div class="list">${m.reviews.map(([n,t])=>`<div class="rev"><span class="st">★★★★★</span><span>${esc(t)}</span><b>${esc(n)}</b></div>`).join('')}</div>`:''}${m.plan==='pro'?'':'<p class="made">Запись через Окошко</p>'}`,foot:`<button class="main-btn" data-act="gobook">${order?'Оформить заказ':st.flow==='date'?'Выбрать дату и время':'Записаться'}</button>`};
   }
   if(step===10||step===11)return dfScreen();
-  const s=svcOf(sel.svc)||{qs:[],price:0,name:''},total=s.qs.length+2,price=priceTxt(s,priceOf(m,s.id,sel.ans));
+  const s=selSvc()||{qs:[],price:0,name:''},total=s.qs.length+2,price=priceTxt(s,priceOf(m,s.id,sel.ans));
   if(step===1){
     const q=s.qs[S.qi],Q=m.q[q];
     const done=s.qs.slice(0,S.qi).filter(k=>!m.q[k].photo&&answered(m.q[k],sel.ans[k])).map(k=>ansText(m.q[k],sel.ans[k]));
@@ -1294,7 +1336,9 @@ function clientScreen(){
     const rules=[order?`Заказы принимаются минимум за ${pl(st.leadDays,'день','дня','дней')} и не больше ${st.cap} в день.`:`Записаться можно минимум за ${leadTxt}.`,
       `Расписание открыто на ${horTxt} вперёд.`,!order&&st.noGaps?'Показано время вплотную к другим записям, так мастеру удобнее.':'',
       st.confirm==='manual'?(order?'Мастер подтверждает каждый заказ сам, до этого дата за вами.':'Мастер подтверждает каждую запись сам, до этого время за вами забронировано.'):st.confirm==='urgent'&&!(order&&st.leadDays*24>=st.urgentH)?`Если до ${order?'получения':'визита'} меньше ${st.urgentH} ч, мастер подтвердит ${order?'заказ':'запись'} сам.`:''].filter(Boolean).join(' ');
-    const body=prog(s.qs.length+1,total,`Шаг ${s.qs.length+1} из ${total} · ${order?'дата':'время'}`)+`<div class="qhead"><h2>${order?'К какому дню?':'Когда удобно?'}</h2>${memoIcons()}</div>
+    const others=m.services.filter(x=>x.id!==sel.svc);
+    const addBlock=others.length?`<details class="addv" ${(sel.extra||[]).length?'open':''}><summary><span class="addv-plus" aria-hidden="true">+</span>${(sel.extra||[]).length?`К визиту добавлено: ${pl(sel.extra.length,'услуга','услуги','услуг')}`:'Добавить ещё услугу к этому визиту'}</summary><div class="addv-list">${others.map(x=>{const on=(sel.extra||[]).includes(x.id);return`<button class="addv-row" aria-pressed="${on}" data-act="extra:${x.id}"><span class="addv-ck" aria-hidden="true"></span><span><b>${esc(x.name)}</b><small>${order?'':durTxt(x.dur)+' · '}${listPrice(m,x)}</small></span></button>`}).join('')}</div></details>`:'';
+    const body=prog(s.qs.length+1,total,`Шаг ${s.qs.length+1} из ${total} · ${order?'дата':'время'}`)+`<div class="qhead"><h2>${order?'К какому дню?':'Когда удобно?'}</h2>${memoIcons()}</div>${addBlock}
       <div class="days">${days.map(([k,n])=>dayWin(k,n,sel.day,order?lPlace:lWin)).join('')}</div>
       ${sel.day?pickHtml:'<p class="muted">Свободных дат пока нет.</p>'}
       <button class="btn2" data-act="wl">${order?'Нет подходящей даты':'Нет подходящего времени'}? Встать в лист ожидания</button>
@@ -1313,10 +1357,11 @@ function clientScreen(){
       <div class="field"><label for="c-phone">или введите вручную</label><input id="c-phone" inputmode="tel" autocomplete="tel" placeholder="+7 900 000-00-00" value="${esc(c.phone)}" aria-describedby="c-phone-err"><span class="ferr" id="c-phone-err" ${c.phone&&!phoneOk(c.phone)?'':'hidden'}>Проверьте номер: нужно 11 цифр, чтобы мастер смог позвонить</span></div>`}
       <div class="field"><label for="c-comment">Комментарий мастеру</label><textarea id="c-comment" rows="2" placeholder="Всё, что не вошло в анкету">${esc(c.comment)}</textarea></div>
       <div class="sum"><div class="kv"><span>Когда</span><span>${fmtDay(sel.day)}, ${whenOf(m,sel)}</span></div><div class="kv"><span>${order?'Заказ':'Услуга'}</span><span>${esc(s.name)}</span></div>${opts?`<div class="kv"><span>Выбор</span><span>${esc(opts)}</span></div>`:''}<div class="kv"><span>Итого</span><span>${price}</span></div>${dep?`<div class="kv"><span>Предоплата сейчас</span><span>${rub(dep)}</span></div>`:''}</div>
+      ${dep&&refundTxt?`<div class="note">${refundTxt}</div>`:''}
       ${S.carryPaid?`<div class="note">Предоплата <b>${rub(S.carryPaid)}</b> уже внесена и переносится на новое время.</div>`:''}
       <div class="note">${hold?`Это бронь: мастер подтвердит её сам, ответ придёт в Telegram. ${order?'Дата':'Время'} пока за вами.`:dep?`${order?'Заказ':'Запись'} подтвердится сразу после предоплаты.`:`${order?'Заказ':'Запись'} подтвердится сразу.`} Анкету мастер увидит целиком.</div>`;
-    const label=!c.name.trim()?'Укажите имя':!phoneOk(c.phone)?'Укажите телефон':dep?'Оплатить '+rub(dep)+(hold?' и отправить бронь':order?' и оформить заказ':' и записаться'):hold?'Отправить бронь':order?'Оформить заказ':'Записаться';
-    return{body,foot:`${dep&&refundTxt?`<p class="foot-note">${refundTxt}</p>`:''}<button class="main-btn" data-act="${dep?'paysheet':'book'}" id="book" ${ok?'':'disabled'}>${label}</button>`};
+    const label=!c.name.trim()?'Укажите имя':!phoneOk(c.phone)?'Укажите телефон':dep?'Оплатить '+rub(dep)+(hold?' и отправить бронь':''):hold?'Отправить бронь':order?'Оформить заказ':'Записаться';
+    return{body,foot:`<button class="main-btn" data-act="${dep?'paysheet':'book'}" id="book" ${ok?'':'disabled'}>${label}</button>`};
   }
   const b=st.bookings.find(x=>x.id===st.lastNew);if(!b){S.step=0;return clientScreen()}
   const bs=svcOf(b.svc)||{name:b.svcName,est:false},hold=b.status==='hold';
@@ -1340,17 +1385,17 @@ function popStage(){
 }
 function memoModal(){
   const m=M(),st=St();
-  const order=m.mode==='order',hasQ=(svcOf(S.sel.svc)?.qs||[]).length>0;
+  const order=m.mode==='order',hasQ=(selSvc()?.qs||[]).length>0;
   const at=order?((S.step===1&&S.qi===0)||(S.step===2&&!hasQ)):(S.step===2||S.step===10);
   if(S.role!=='client'||!at||S.sheet)return'';
   const p=popStage();if(p>=2)return'';
   if(p===0){
-    const used=[...new Set((svcOf(S.sel.svc)?.qs||m.services.flatMap(x=>x.qs)).map(q=>m.q[q]&&m.q[q].hint).filter(Boolean).concat(m.after?[m.after]:[]))].filter(k=>m.hints[k]&&st.hintsOn[k]);
+    const used=[...new Set((selSvc()?.qs||m.services.flatMap(x=>x.qs)).map(q=>m.q[q]&&m.q[q].hint).filter(Boolean).concat(m.after?[m.after]:[]))].filter(k=>m.hints[k]&&st.hintsOn[k]);
     const slides=(used.length?used:Object.keys(m.hints).filter(k=>st.hintsOn[k])).slice(0,4).map(k=>[k,m.hints[k]]);
     const i=Math.min(S.slide||0,slides.length-1),[key,h]=slides[i],last=i===slides.length-1;
     const shapes=h.items.filter(it=>it.svg).slice(0,4);
     const rows=shapes.length?[]:h.items.slice(0,3);
-    const qs=svcOf(S.sel.svc)?.qs||[];
+    const qs=selSvc()?.qs||[];
     return`<div class="modal-back"><div class="modal pop story" role="dialog" aria-modal="true" aria-label="Памятка мастера: ${esc(h.name)}" tabindex="-1">
       <div class="st-bars" aria-hidden="true">${slides.map((_,j)=>`<i class="${j<i?'done':j===i?'now':''}"></i>`).join('')}</div>
       <div class="st-slide" data-k="${i}">
@@ -1416,12 +1461,15 @@ function dfScreen(){
       foot:`${sel.start!=null?`<p class="foot-note fsum"><span>${fmtDay(sel.day)}, ${fmtT(sel.start)}</span></p>`:''}<button class="main-btn" data-act="dfnext" ${sel.start!=null?'':'disabled'}>${sel.start!=null?'Выбрать процедуру':'Выберите время'}</button>`};
   }
   return{body:prog(2,4,'Шаг 2 из 4 · процедура')+`<h2>${fmtDay(sel.day)}, ${fmtT(sel.start)}</h2><p class="small muted" style="margin:0">Что делаем?</p>
-    <div class="list">${m.services.map(s=>{const fits=slotsFor(sel.day,s.dur).includes(sel.start);return`<button class="svc2" ${fits?`data-act="dfsvc:${s.id}"`:'disabled style="opacity:.5;cursor:not-allowed"'}><span class="nm">${esc(s.name)}</span><span class="pr">${listPrice(m,s)}</span><span class="meta"><span>${durTxt(s.dur)}</span><span>${fits?esc(s.note||''):'Не помещается в это окно'}</span></span></button>`}).join('')}</div>`,foot:''};
+    <p class="small muted" style="margin:0">Можно выбрать несколько — сделаем за один визит.</p>
+    <div class="list">${m.services.map(s=>{const pk=S.dfPick||[],on=pk.includes(s.id),dur=pk.filter(x=>x!==s.id).reduce((a,id)=>a+(svcOf(id)?.dur||60),0)+s.dur,fits=on||slotsFor(sel.day,dur).includes(sel.start);
+      return`<button class="svc2 pickable" aria-pressed="${on}" ${fits?`data-act="dfpick:${s.id}"`:'disabled style="opacity:.5;cursor:not-allowed"'}><span class="nm">${esc(s.name)}</span><span class="pr">${listPrice(m,s)}</span><span class="meta"><span>${durTxt(s.dur)}</span><span>${fits?esc(s.note||''):'Вместе с выбранным не помещается в это окно'}</span></span></button>`}).join('')}</div>`,
+    foot:(()=>{const pk=S.dfPick||[];if(!pk.length)return`<button class="main-btn" disabled>Выберите процедуру</button>`;const c=comboOf(m,pk);return`<p class="foot-note fsum"><span>${esc(c.name)} · ${durTxt(c.dur)}</span><b>${listPrice(m,c)}</b></p><button class="main-btn" data-act="dfgo">Дальше</button>`})()};
 }
 
 // ===== мастер =====
 function recCard(m,b){
-  const s=svcOf(b.svc)||{name:b.svcName||'Услуга',est:false},hold=b.status==='hold';
+  const s0=svcOf(b.svc)||{name:b.svcName||'Услуга',est:false},s={...s0,name:sName(b)},hold=b.status==='hold';
   return`<div class="rec ${b.isNew||hold?'new':''}"><div class="rec-top"><b>${hold?fmtDay(b.date)+', ':''}${rangeOf(m,b)}</b>${hold?'<span class="pill">бронь</span>':b.isNew?'<span class="pill">новая</span>':''}</div>
     <div><button class="cname" data-act="client:${b.id}" aria-label="Карточка клиента: ${esc(b.client)}">${esc(b.client)}</button> · ${esc(s.name)} · ${priceTxt(s,b.price)}</div>${(()=>{const c=cli(St(),b.client);return`<div class="cmeta"><span class="vis ${c.past?'':'first'}">${c.past?(c.past+1)+'-й визит':'Новый клиент'}</span>${c.note?`<span class="cnote">${esc(c.note)}</span>`:''}</div>`})()}<div class="answers">${answersHtml(m,b)}${b.comment?`<span>Комментарий: <b>${esc(b.comment)}</b></span>`:''}${b.paid?`<span>Предоплата: <b>${rub(b.paid)} получена</b></span>`:''}</div>
     <div class="small muted">${esc(b.phone||'телефон не указан')}</div>
@@ -1606,7 +1654,7 @@ function sheetHtml(){
       <h3>Какие дни</h3><div class="chips">${WLD.map((o,i)=>`<button class="chip" aria-pressed="${w.d===i}" data-act="wld:${i}">${o}</button>`).join('')}</div>
       <h3>Какое время</h3><div class="chips">${WLT.map((o,i)=>`<button class="chip" aria-pressed="${w.t===i}" data-act="wlt:${i}">${o}</button>`).join('')}</div>
       <button class="main-btn" data-act="wlgo">Встать в лист ожидания</button>`)}
-  if(S.sheet==='pay'){const s=svcOf(S.sel.svc),p=priceOf(m,s.id,S.sel.ans),dep=depOf(p),rb=refundBy(m,S.sel.day,S.sel.start),opts=ansShort(m,s.id,S.sel.ans),order=m.mode==='order';
+  if(S.sheet==='pay'){const s=selSvc(),p=priceOf(m,s.id,S.sel.ans),dep=depOf(p),rb=refundBy(m,S.sel.day,S.sel.start),opts=ansShort(m,s.id,S.sel.ans),order=m.mode==='order';
     return wrap(`<div class="master"><div class="ava" style="width:44px;height:44px;font-size:16px;overflow:hidden">${m.avatar?`<img src="${m.avatar}" alt="">`:m.ini}</div><div><b style="font-size:15px">${esc(m.name)}</b><span class="small muted">${fmtDay(S.sel.day)}, ${whenOf(m,S.sel)}</span></div></div>
       <h2>Предоплата ${rub(dep)}</h2><div class="sum"><div class="kv"><span>${esc(s.name)}</span><span>${priceTxt(s,p)}</span></div>${opts?`<div class="kv"><span>Выбор</span><span>${esc(opts)}</span></div>`:''}<div class="kv"><span>Сейчас</span><span>${rub(dep)}</span></div><div class="kv"><span>${order?'При получении':'На месте'}</span><span>${rub(Math.max(0,p-dep))}</span></div></div>
       ${needsConfirm(S.sel.day,S.sel.start)?`<div class="okline"><span class="win on" aria-hidden="true"></span><span><b>Если мастер не подтвердит — ${rub(dep)} вернутся сами</b><span class="small muted">Деньги придут обратно на карту, ничего делать не нужно.</span></span></div>`:''}
@@ -1614,7 +1662,7 @@ function sheetHtml(){
       <button class="main-btn" data-act="paid">Оплатить через СБП</button><button class="btn2" data-act="paid">Оплатить картой</button><button class="btn2" data-act="close">Не сейчас</button>
       <p class="small muted" style="margin:0">Демо: деньги не списываются. В рабочей версии здесь откроется окно ЮKassa, и деньги сразу уйдут мастеру за вычетом комиссии сервиса.</p>`)}
   const h=m.hints[S.sheet];if(!h)return'';
-  const qs=S.role==='client'&&S.step===1?svcOf(S.sel.svc).qs:[];
+  const qs=S.role==='client'&&S.step===1?selSvc().qs:[];
   const pickBtn=it=>!it.pick||!qs.includes(it.pick[0])?'':S.sel.ans[it.pick[0]]===it.pick[1]?`<span class="near pick">Выбрано</span>`:`<button class="btn2 acc pick" data-act="pick:${it.pick[0]}:${it.pick[1]}">Выбрать</button>`;
   const inner=h.items.some(it=>it.svg)
     ?`<div class="shapes">${h.items.map(it=>`<div class="shape"><svg viewBox="0 0 40 66" aria-hidden="true"><path d="${it.svg}"/></svg><div><b>${esc(it.n)}</b><span>${esc(it.t)}</span><br>${pickBtn(it)}</div></div>`).join('')}</div>`
@@ -1675,15 +1723,15 @@ let lastOv='';
 let toastT;
 function toast(t){
   const p=document.getElementById('phone');p.querySelector('.toast')?.remove();
-  const el=document.createElement('div');el.className='toast';el.textContent=t;p.appendChild(el);
+  const el=document.createElement('div');el.className='toast';el.setAttribute('role','status');el.setAttribute('aria-live','polite');el.textContent=t;p.appendChild(el);
   clearTimeout(toastT);toastT=setTimeout(()=>el.remove(),2400);
 }
 const scrollTop=()=>{document.getElementById('screen').scrollTop=0};
 
 function book(){
-  const m=M(),st=St(),sel=S.sel,s=svcOf(sel.svc),c=S.contact,order=m.mode==='order';
+  const m=M(),st=St(),sel=S.sel,s=selSvc(),c=S.contact,order=m.mode==='order';
   const hold=needsConfirm(sel.day,sel.start),files=Object.values(sel.files||{});
-  const b={id:'n'+Date.now(),date:sel.day,start:sel.start,svc:sel.svc,svcName:s.name,dur:s.dur||60,client:c.name.trim(),phone:c.phone.trim(),comment:c.comment.trim(),ans:{...sel.ans},files:{...sel.files},photo:files.length>0,photoUrl:files.find(f=>f!=='file')||null,isNew:true,price:priceOf(m,sel.svc,sel.ans),status:hold?'hold':'ok',paid:S.payNow||S.carryPaid||0};
+  const b={id:'n'+Date.now(),date:sel.day,start:sel.start,svc:sel.svc,extra:[...(sel.extra||[])],svcName:s.name,dur:s.dur||60,client:c.name.trim(),phone:c.phone.trim(),comment:c.comment.trim(),ans:{...sel.ans},files:{...sel.files},photo:files.length>0,photoUrl:files.find(f=>f!=='file')||null,isNew:true,price:priceOf(m,sel.svc,sel.ans),status:hold?'hold':'ok',paid:S.payNow||S.carryPaid||0};
   const old=S.reschedOf&&st.bookings.find(z=>z.id===S.reschedOf);
   if(old)st.bookings=st.bookings.filter(z=>z!==old);
   if(S.rebookOf)delete st.moved[S.rebookOf];
@@ -1737,20 +1785,20 @@ document.addEventListener('click',e=>{
       resetFlow();S.quick=[d,t];render();document.getElementById('svc-list')?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});toast(`Выберите услугу, время ${fmtT(t)} сохраним`);return}
     case'work':S.sheet='work-'+x;break;
     case'likework':{const w=m.works[+x];S.sheet=null;resetFlow();if(w&&w.svc)startFlow(w.svc,w.ans);break}
-    case'ans':{const p0=priceOf(m,S.sel.svc,S.sel.ans);S.sel.ans[x]=+y;const dp=priceOf(m,S.sel.svc,S.sel.ans)-p0;render();S.pDelta=dp;const qi=S.qi;setTimeout(()=>{if(S.step===1&&S.qi===qi&&svcOf(S.sel.svc).qs[qi]===x){advanceQ();render();scrollTop()}S.pDelta=0},matchMedia('(prefers-reduced-motion: reduce)').matches?0:240);return}
-    case'pick':{if(el.closest('.story')&&S.sel.ans[x]===+y){delete S.sel.ans[x];break}S.sel.ans[x]=+y;if(el.closest('.story')){toast('Отметили в анкете: '+ansText(m.q[x],+y));break}S.sheet=null;if(svcOf(S.sel.svc).qs[S.qi]===x)advanceQ();break}
+    case'ans':{const p0=priceOf(m,S.sel.svc,S.sel.ans);S.sel.ans[x]=+y;const dp=priceOf(m,S.sel.svc,S.sel.ans)-p0;render();S.pDelta=dp;const qi=S.qi;setTimeout(()=>{if(S.step===1&&S.qi===qi&&selSvc().qs[qi]===x){advanceQ();render();scrollTop()}S.pDelta=0},matchMedia('(prefers-reduced-motion: reduce)').matches?0:240);return}
+    case'pick':{if(el.closest('.story')&&S.sel.ans[x]===+y){delete S.sel.ans[x];break}S.sel.ans[x]=+y;if(el.closest('.story')){toast('Отметили в анкете: '+ansText(m.q[x],+y));break}S.sheet=null;if(selSvc().qs[S.qi]===x)advanceQ();break}
     case'hint':S.sheet=x;break;
     case'memos':S.sheet='memos';break;
     case'close':S.sheet=null;break;
     case'masters':S.sheet='masters';break;
     case'client':S.sheet='client-'+x;break;
     case'findone':st.fin=true;break;
-    case'next':if(S.step===1)advanceQ();else S.step++;break;
+    case'next':if(S.step===1)advanceQ();else if(S.step===2&&S.sel.start!=null)S.step=3;break;
     case'back':
       if(S.role==='master'){S.mview=S.mview==='mode'?'pick':null;break}
       if(S.step===1){if(S.qi>0)S.qi--;else{S.step=S.df?11:0;if(!S.step)resetFlow()}}
-      else if(S.step===2){const s=svcOf(S.sel.svc);S.sel.day=null;S.sel.start=null;if(s&&s.qs.length){S.step=1;S.qi=s.qs.length-1}else{S.step=0;resetFlow()}}
-      else if(S.step===3&&S.df){const s=svcOf(S.sel.svc);if(s.qs.length){S.step=1;S.qi=s.qs.length-1}else S.step=11}
+      else if(S.step===2){const s=selSvc();S.sel.day=null;S.sel.start=null;if(s&&s.qs.length){S.step=1;S.qi=s.qs.length-1}else{S.step=0;resetFlow()}}
+      else if(S.step===3&&S.df){const s=selSvc();if(s.qs.length){S.step=1;S.qi=s.qs.length-1}else S.step=11}
       else if(S.step===11)S.step=10;
       else if(S.step===10){S.step=0;resetFlow()}
       else S.step--;
@@ -1768,6 +1816,11 @@ document.addEventListener('click',e=>{
     case'dfstart':resetFlow();S.df=true;S.sel=blankSel();S.step=10;break;
     case'dfnext':S.step=11;break;
     case'dfsvc':{const d=S.sel.day,t=S.sel.start;startFlow(x);S.sel.day=d;S.sel.start=t;break}
+    case'dfpick':{const pk=S.dfPick||(S.dfPick=[]);const i=pk.indexOf(x);i>=0?pk.splice(i,1):pk.push(x);break}
+    case'dfgo':{const pk=S.dfPick||[];if(!pk.length)break;const d=S.sel.day,t=S.sel.start;startFlow(pk[0]);S.sel.extra=pk.slice(1);S.sel.day=d;S.sel.start=t;S.step=3;gotoQs();S.dfPick=[];break}
+    case'extra':{const ex=S.sel.extra||(S.sel.extra=[]);const i=ex.indexOf(x);i>=0?ex.splice(i,1):ex.push(x);const c=selSvc();
+      if(S.sel.day!=null&&S.sel.start!=null&&m.mode==='slot'&&!slotsFor(S.sel.day,c.dur).includes(S.sel.start))S.sel.start=null;
+      const wasAdd=i<0;gotoQs();if(wasAdd&&S.step===1)toast('Пара вопросов про «'+svcOf(x).name+'», и вернёмся к времени');else if(wasAdd)toast('Добавили «'+svcOf(x).name+'». Время пересчитали');break}
     case'paysheet':S.sheet='pay';document.querySelector('#phone .toast')?.remove();break;
     case'mcancel':S.reason=0;S.sheet='mcancel-'+x;break;
     case'mmove':S.reason=0;S.sheet='mmove-'+x;break;
@@ -1803,7 +1856,7 @@ document.addEventListener('click',e=>{
     case'st-noop':return;
     case'nopops':S.noPops=true;saveNoPops();S.slide=0;toast('Подсказки больше не всплывают. Памятка и работы остаются в кнопках сверху');break;
     case'togglepops':S.noPops=!S.noPops;saveNoPops();if(!S.noPops){for(const k in ST){ST[k].pop=0;ST[k].memoSeen=false}}toast(S.noPops?'Всплывающие подсказки выключены':'Подсказки снова будут всплывать перед записью');break;
-    case'paid':{const s=svcOf(S.sel.svc);S.payNow=depOf(priceOf(m,s.id,S.sel.ans));S.sheet=null;book();S.payNow=0;toast('Оплата прошла (демо)');break}
+    case'paid':{const s=selSvc();S.payNow=depOf(priceOf(m,s.id,S.sel.ans));S.sheet=null;book();S.payNow=0;toast('Оплата прошла (демо)');break}
     case'startbot':st.feed.push({me:true,when:'клиент',text:'/start'});st.feed.push({to:'Бот Окошка',when:'сразу',text:`Привет! Это запись к мастеру: ${m.name}. Здесь можно записаться в пару касаний, без переписки. Сюда же придут подтверждение и напоминание.`,btn:['Открыть запись','home']});renderFeed();break;
     case'calday':S.calDay=x;break;
     case'calm':S.calMonth=new Date(S.calMonth.getFullYear(),S.calMonth.getMonth()+(+x),1);break;
