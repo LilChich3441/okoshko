@@ -716,6 +716,15 @@ body.tgapp .foot .back-btn{display:none}
 .err-ico .ic,.btn2 .ic[data-plain]{--ic-acc:currentColor}
 .tabbar button[aria-pressed="false"] .ic{opacity:1;--ic-acc:var(--muted)}
 .tabbar button[aria-pressed="true"] .ic{--ic-acc:var(--light)}
+
+/* правки по проверке 3 */
+.addv-plus .ic{--ic-acc:currentColor}
+.share.big{background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.share.big span{opacity:.7}
+.decl{box-shadow:inset 0 0 0 1.5px var(--line),var(--shadow)}
+.decl-h .err-ico{color:var(--ink)!important}
+.rev.upc{background:var(--surface)}
+.mday.today small{font-weight:700;color:var(--ink)}
 </style>
 
 
@@ -1324,10 +1333,15 @@ const answered=(Q,v)=>Q.text?!!(v&&String(v).trim()):v!=null;
 const optName=o=>o.split(' · ')[0];
 const ansText=(Q,v)=>Q.text?v:optName(Q.opts[v]||'—');
 function hintFor(m,q,i){for(const h of Object.values(m.hints))for(const it of h.items)if(it.pick&&it.pick[0]===q&&it.pick[1]===i)return it;return null}
+const qLabel=t=>String(t).replace(/[?:\s]+$/,'');
+// ответы по услугам: [[название, 'ответ · ответ'], ...]; общий вопрос — у первой услуги
+function ansGroups(m,ids,ans){const seen=new Set(),out=[];for(const id of ids){const sv=m.services.find(x=>x.id===id);if(!sv)continue;
+  const t=sv.qs.filter(q=>!seen.has(q)&&m.q[q]&&m.q[q].opts&&ans[q]!=null).map(q=>{seen.add(q);const v=ansText(m.q[q],ans[q]);return /^(нет|да)/i.test(v)?qLabel(m.q[q].t)+': '+v.toLowerCase():v});if(t.length)out.push([sv.name,t.join(' · ')])}return out}
+const choiceRows=(m,ids,ans)=>{const g=ansGroups(m,ids,ans);if(!g.length)return'';if(g.length===1)return`<div class="kv"><span>Выбор</span><span>${esc(g[0][1])}</span></div>`;return g.map(([n,t])=>`<div class="kv"><span>${esc(n)}</span><span>${esc(t)}</span></div>`).join('')};
 function answersHtml(m,b){
   const s=m.services.find(x=>x.id===b.svc),ans=b.ans||{};
   const keys=[...new Set([...(s?s.qs:[]),...Object.keys(ans)])];
-  return keys.filter(q=>m.q[q]&&!m.q[q].photo&&answered(m.q[q],ans[q])).map(q=>`<span>${esc(m.q[q].t)}: <b>${esc(ansText(m.q[q],ans[q]))}</b></span>`).join('')
+  return keys.filter(q=>m.q[q]&&!m.q[q].photo&&answered(m.q[q],ans[q])).map(q=>`<span>${esc(qLabel(m.q[q].t))}: <b>${esc(ansText(m.q[q],ans[q]))}</b></span>`).join('')
     +(b.photo?'<span>Файл: <b>прикреплён</b></span>':'');
 }
 const prog=(pos,total,l)=>`<div class="prog"><div class="bar"><i style="width:${pos/total*100}%"></i></div><span>${l}</span></div>`;
@@ -1355,14 +1369,16 @@ function clientScreen(){
     const hasHints=Object.keys(m.hints).some(k=>st.hintsOn[k]);
     const dc=st.declined;
     return{body:`${heroHtml(m)}
-    ${dc?`<div class="decl"><div class="decl-h"><span class="err-ico" aria-hidden="true">${ic('warn',18)}</span><b>Мастер не сможет ${relDay(dc.date)}${m.mode==='slot'?' в '+fmtT(dc.start):''}</b><button class="sh-x" data-act="decldone" aria-label="Скрыть">${ic('close',14)}</button></div><span class="small muted">${esc(dc.name)}.${dc.paid?` Предоплата ${rub(dc.paid)} вернётся на карту в течение дня.`:''} Анкету сохранили — осталось выбрать другое время.</span><button class="main-btn" data-act="redecl">Выбрать другое время</button></div>`:''}
+    ${dc?`<div class="decl"><div class="decl-h"><span class="err-ico" aria-hidden="true">${ic('warn',18)}</span><b>Мастер не сможет ${relDay(dc.date)}${m.mode==='slot'?' в '+fmtT(dc.start):''}</b><button class="sh-x" data-act="decldone" aria-label="Скрыть">${ic('close',14)}</button></div><span class="small muted">${esc(dc.name)}.${dc.paid?` Предоплата ${rub(dc.paid)} вернётся на карту в течение дня.`:''} Анкету сохранили — осталось выбрать другое время.</span><button class="btn2 fill" data-act="redecl">Выбрать другое время</button></div>`:''}
     ${litHtml(m,st)}
-    ${(()=>{const nb=st.hist&&st.hist.bid&&st.bookings.find(z=>z.id===st.hist.bid&&visitTs(m,z)>Date.now());return nb?`<div class="rev" style="background:var(--accent-soft)"><b style="font-size:15px">${nb.status==='hold'?'Бронь ждёт ответа мастера':order?'Ваш заказ':'Ваша запись'}: ${relDay(nb.date)}, ${whenOf(m,nb)}</b><span>${esc(sName(nb))}${ansShort(m,nb.svc,nb.ans)?' · '+esc(ansShort(m,nb.svc,nb.ans)):''}</span><div class="row-btns"><button class="btn2" data-act="resched:${nb.id}">Перенести</button><button class="btn2" data-act="cancelask:${nb.id}">Отменить</button></div></div>`:''})()}
-    ${st.hist&&svcOf(st.hist.svc)&&!(st.hist.bid&&st.bookings.some(z=>z.id===st.hist.bid&&visitTs(m,z)>Date.now()))?`<div class="rev" style="background:var(--accent-soft)"><b style="font-size:15px">С возвращением, ${esc(S.contact.name)}!</b><span>В прошлый раз, ${st.hist.date}: ${esc(svcOf(st.hist.svc).name)}</span>${ansShort(m,st.hist.svc,st.hist.ans)?`<span class="small muted">${esc(ansShort(m,st.hist.svc,st.hist.ans))}</span>`:''}<button class="btn2 acc" data-act="repeat">Записаться так же</button></div>`:''}
+    ${(()=>{const mine=st.bookings.filter(z=>z.client===S.contact.name&&visitTs(m,z)>Date.now()).sort((a,b)=>visitTs(m,a)-visitTs(m,b));
+      return mine.map(nb=>`<div class="rev upc"><b style="font-size:15px">${nb.status==='hold'?'Бронь ждёт ответа мастера':order?'Ваш заказ':'Ваша запись'}: ${relDay(nb.date)}, ${whenOf(m,nb)}</b><span>${esc(sName(nb))}</span><div class="row-btns"><button class="btn2" data-act="resched:${nb.id}">Перенести</button><button class="btn2" data-act="cancelask:${nb.id}">Отменить</button></div></div>`).join('')})()}
+    ${(()=>{let h=st.hist;while(h&&h.bid&&!st.bookings.some(z=>z.id===h.bid&&visitTs(m,z)<=Date.now()))h=h.prev;if(!h||!svcOf(h.svc))return'';const nm=[h.svc,...(h.extra||[])].map(id=>svcOf(id)?.name).filter(Boolean).join(' + ');
+      return`<div class="rev upc"><b style="font-size:15px">С возвращением, ${esc(S.contact.name)}!</b><span>В прошлый раз, ${h.date}: ${esc(nm)}</span>${ansShort(m,h.svc,h.ans,[h.svc,...(h.extra||[])])?`<span class="small muted">${esc(ansShort(m,h.svc,h.ans,[h.svc,...(h.extra||[])]))}</span>`:''}<button class="btn2 acc" data-act="repeatp">Записаться так же</button></div>`})()}
     ${m.links.length?`<div class="links">${m.links.map(l=>`<button class="tag" data-act="toast:Откроет: ${esc(l)}">${esc(l)}</button>`).join('')}</div>`:''}
     ${hasHints?`<button class="memo" data-act="memos"><span class="q">?</span><span><b>Не знаете, что выбрать?</b><br><span class="small muted">${esc(m.memo)}</span></span></button>`:''}
     <h3 id="svc-list">${order?'Что можно заказать':'Услуги'}</h3>
-    ${svcGroups(m).map(([g,list])=>`${g?`<p class="sgrp">${esc(g)}</p>`:''}<div class="list svcs">${list.map(s=>{const n=nearest(s),wk=m.works.find(w=>w.svc===s.id);return`<button class="svc2" data-act="svc:${s.id}"><span class="sth" aria-hidden="true">${wk?artHtml(m,wk):`<span class="sth-ph">${esc(s.name.slice(0,1))}</span>`}</span><span class="nm">${esc(s.name)}</span><span class="pr">${listPrice(m,s)}</span>
+    ${svcGroups(m).map(([g,list])=>`${g?`<p class="sgrp">${esc(g)}</p>`:''}<div class="list svcs">${list.map(s=>{const n=nearest(s),wk=m.works.find(w=>w.svc===s.id);return`<button class="svc2" data-act="svc:${s.id}"><span class="sth" aria-hidden="true">${wk?artHtml(m,wk):m.works[0]?artHtml(m,{...m.works[0],bg:['#EFE9E4','#E2D8D0'],img:null}):`<span class="sth-ph">${esc(s.name.slice(0,1))}</span>`}</span><span class="nm">${esc(s.name)}</span><span class="pr">${listPrice(m,s)}</span>
       <span class="meta">${s.dur&&!order?`<span>${durTxt(s.dur)}</span>`:''}${s.note?`<span>${esc(s.note)}</span>`:''}<span class="${n?'nchip':'nnone'}">${n?'Ближайшее: '+n:'Свободного времени пока нет'}</span></span></button>`}).join('')}</div>`).join('')}
     ${m.reviews.length?`<h3 id="reviews">Отзывы</h3><div class="list">${m.reviews.map(([n,t])=>`<div class="rev"><span class="st">★★★★★</span><span>${esc(t)}</span><b>${esc(n)}</b></div>`).join('')}</div>`:''}${m.plan==='pro'?'':'<p class="made">Запись через Окошко</p>'}`,foot:`<button class="main-btn" data-act="gobook">${order?'Оформить заказ':st.flow==='date'?'Выбрать дату и время':'Записаться'}</button>`};
   }
@@ -1371,7 +1387,7 @@ function clientScreen(){
   if(step===1){
     const q=s.qs[S.qi],Q=m.q[q];
     const done=s.qs.slice(0,S.qi).filter(k=>!m.q[k].photo&&answered(m.q[k],sel.ans[k])).map(k=>ansText(m.q[k],sel.ans[k]));
-    let body=(S.df?prog(2+(S.qi+1)/s.qs.length,4,`Шаг 3 из 4 · вопрос ${S.qi+1} из ${s.qs.length}`):prog(S.qi+1,total,`Вопрос ${S.qi+1} из ${s.qs.length} · ${esc(s.name)}`))+`${order&&S.qi===0?memoIcons():''}<div class="qtitle"><div class="qhead"><h2>${esc(Q.t)}</h2>${Q.hint&&st.hintsOn[Q.hint]?`<button class="hint-btn" data-act="hint:${Q.hint}">${ic('help',16)}подсказка</button>`:''}</div>${done.length?`<span class="picked">Ваш выбор: ${esc(done.join(' · '))}</span>`:''}</div>`;
+    let body=(S.df?prog(2+(S.qi+1)/s.qs.length,4,`Шаг 3 из 4 · вопрос ${S.qi+1} из ${s.qs.length}`):((sel.extra||[]).length&&svcOf(sel.svc)&&!svcOf(sel.svc).qs.includes(q)?prog(S.qi+1,s.qs.length,`Пара вопросов про «${esc((sel.extra.map(svcOf).find(z=>z&&z.qs.includes(q))||{}).name||'')}»`):prog(S.qi+1,total,`Вопрос ${S.qi+1} из ${s.qs.length} · ${esc(svcOf(sel.svc)?svcOf(sel.svc).name:s.name)}`)))+`${order&&S.qi===0?memoIcons():''}<div class="qtitle"><div class="qhead"><h2>${esc(Q.t)}</h2>${Q.hint&&st.hintsOn[Q.hint]?`<button class="hint-btn" data-act="hint:${Q.hint}">${ic('help',16)}подсказка</button>`:''}</div>${done.length?`<span class="picked">Ваш выбор: ${esc(done.join(' · '))}</span>`:''}</div>`;
     let foot;
     if(Q.photo){
       const f=sel.files[q];
@@ -1406,7 +1422,7 @@ function clientScreen(){
       st.confirm==='manual'?(order?'Мастер подтверждает каждый заказ сам, до этого дата за вами.':'Мастер подтверждает каждую запись сам, до этого время за вами забронировано.'):st.confirm==='urgent'&&!(order&&st.leadDays*24>=st.urgentH)?`Если до ${order?'получения':'визита'} меньше ${st.urgentH} ч, мастер подтвердит ${order?'заказ':'запись'} сам.`:''].filter(Boolean).join(' ');
     const others=m.services.filter(x=>x.id!==sel.svc);
     const addBlock=others.length?`<details class="addv" ${(sel.extra||[]).length?'open':''}><summary><span class="addv-plus" aria-hidden="true">${ic('plus',14)}</span>${(sel.extra||[]).length?`К визиту добавлено: ${pl(sel.extra.length,'услуга','услуги','услуг')}`:'Добавить ещё услугу к этому визиту'}</summary><div class="addv-list">${others.map(x=>{const on=(sel.extra||[]).includes(x.id);return`<button class="addv-row" aria-pressed="${on}" data-act="extra:${x.id}"><span class="addv-ck" aria-hidden="true"></span><span><b>${esc(x.name)}</b><small>${order?'':durTxt(x.dur)+' · '}${listPrice(m,x)}</small></span></button>`}).join('')}</div></details>`:'';
-    const body=prog(s.qs.length+1,total,`Шаг ${s.qs.length+1} из ${total} · ${order?'дата':'время'}`)+`<div class="qhead"><h2>${order?'К какому дню?':'Когда удобно?'}</h2>${memoIcons()}</div>${addBlock}
+    const body=prog(total-1,total,`Почти готово · ${order?'дата':'время'}`)+`<div class="qhead"><h2>${order?'К какому дню?':'Когда удобно?'}</h2>${memoIcons()}</div>${addBlock}${(sel.extra||[]).length&&!order?`<p class="small muted" style="margin:0">Визит длинный — ${durTxt(s.dur)}. Показываем только дни, где столько свободно подряд.</p>`:''}
       <div class="days">${days.map(([k,n])=>dayWin(k,n,sel.day,order?lPlace:lWin)).join('')}</div>
       ${sel.day?pickHtml:'<p class="muted">Свободных дат пока нет.</p>'}
       ${sel.start!=null&&depOf(priceOf(m,s.id,sel.ans))&&st.refund==='day'&&!refundBy(m,sel.day,sel.start)?`<div class="warnline"><span class="err-ico" aria-hidden="true">${ic('warn',18)}</span><span>До ${order?'получения':'визита'} меньше суток: если отмените, предоплату ${rub(depOf(priceOf(m,s.id,sel.ans)))} не вернём. Если мастер откажет — вернём.</span></div>`:''}
@@ -1425,7 +1441,7 @@ function clientScreen(){
         :`<button class="share big" data-act="share"><b class="sh-row">${ic('phone',18)}Взять номер из Telegram</b><span>в одно касание</span></button>
       <div class="field"><label for="c-phone">или введите вручную</label><input id="c-phone" inputmode="tel" autocomplete="tel" placeholder="+7 900 000-00-00" value="${esc(c.phone)}" aria-describedby="c-phone-err"><span class="ferr" id="c-phone-err" ${c.phone&&!phoneOk(c.phone)?'':'hidden'}>Проверьте номер: нужно 11 цифр, чтобы мастер смог позвонить</span></div>`}
       <div class="field"><label for="c-comment">Комментарий мастеру</label><textarea id="c-comment" rows="2" placeholder="Всё, что не вошло в анкету">${esc(c.comment)}</textarea></div>
-      <div class="sum"><div class="kv"><span>Когда</span><span>${fmtDay(sel.day)}, ${whenOf(m,sel)}</span></div><div class="kv"><span>${order?'Заказ':'Услуга'}</span><span>${esc(s.name)}</span></div>${opts?`<div class="kv"><span>Выбор</span><span>${esc(opts)}</span></div>`:''}<div class="kv"><span>Итого</span><span>${price}</span></div>${dep?`<div class="kv"><span>Предоплата сейчас</span><span>${rub(dep)}</span></div>`:''}</div>
+      <div class="sum"><div class="kv"><span>Когда</span><span>${fmtDay(sel.day)}, ${whenOf(m,sel)}</span></div><div class="kv"><span>${order?'Заказ':'Услуга'}</span><span>${esc(s.name)}</span></div>${choiceRows(m,selIds(),S.sel.ans)}<div class="kv"><span>Итого</span><span>${price}</span></div>${dep?`<div class="kv"><span>Предоплата сейчас</span><span>${rub(dep)}</span></div>`:''}</div>
       ${dep&&refundTxt?`<div class="note">${refundTxt}</div>`:''}
       ${S.carryPaid?`<div class="note">Предоплата <b>${rub(S.carryPaid)}</b> уже внесена и переносится на новое время.</div>`:''}
       <div class="note">${hold?`Это бронь: мастер подтвердит её сам, ответ придёт в Telegram. ${order?'Дата':'Время'} пока за вами.`:dep?`${order?'Заказ':'Запись'} подтвердится сразу после предоплаты.`:`${order?'Заказ':'Запись'} подтвердится сразу.`} Анкету мастер увидит целиком.</div>`;
@@ -1433,13 +1449,14 @@ function clientScreen(){
     return{body,foot:`<button class="main-btn" data-act="${dep?'paysheet':'book'}" id="book" ${ok?'':'disabled'}>${label}</button>`};
   }
   const b=st.bookings.find(x=>x.id===st.lastNew);if(!b){S.step=0;return clientScreen()}
-  const bs=svcOf(b.svc)||{name:b.svcName,est:false},hold=b.status==='hold';
-  const bopts=ansShort(m,b.svc,b.ans||{});
+  const bs0=svcOf(b.svc)||{name:b.svcName,est:false},bs={...bs0,name:sName(b)},hold=b.status==='hold';
+  const bopts=choiceRows(m,[b.svc,...(b.extra||[])],b.ans||{});
   return{body:`<div class="done"><div class="bigwin ${hold?'half':''}" data-light="${b.id}${hold?'h':''}"><span class="d">${fmtDay(b.date)}</span><span class="tm">${order?esc(m.wins[b.start]):fmtT(b.start)}</span></div><h2>${hold?'Бронь отправлена':order?'Заказ принят':'Вы записаны'}</h2>
     ${hold?`<p class="muted small" style="margin:0">${esc(m.who)} обычно отвечает в течение часа. Ответ придёт в Telegram. Если мастер не сможет, ${b.paid?'предоплата вернётся автоматически, а ':''}бот предложит другое время.</p>`:''}
     ${b.paid?`<p class="small" style="margin:0">Предоплата <b>${rub(b.paid)}</b> внесена. На месте останется ${rub(Math.max(0,b.price-b.paid))}.</p>`:''}
-    <div class="sum"><div class="kv"><span>Когда</span><span>${fmtDay(b.date)}, ${whenOf(m,b)}</span></div><div class="kv"><span>${order?'Заказ':'Услуга'}</span><span>${esc(bs.name)}</span></div>${bopts?`<div class="kv"><span>Выбор</span><span>${esc(bopts)}</span></div>`:''}<div class="kv"><span class="kv-i">${ic('pin',16)}Адрес</span><span>${esc(m.addr)}</span></div><div class="kv"><span>Итого</span><span>${priceTxt(bs,b.price)}</span></div></div>
+    <div class="sum"><div class="kv"><span>Когда</span><span>${fmtDay(b.date)}, ${whenOf(m,b)}</span></div><div class="kv"><span>${order?'Заказ':'Услуга'}</span><span>${esc(bs.name)}</span></div>${bopts}<div class="kv"><span class="kv-i">${ic('pin',16)}Адрес</span><span>${esc(m.addr)}</span></div><div class="kv"><span>Итого</span><span>${priceTxt(bs,b.price)}</span></div></div>
     <p class="muted small">${bs.est?'Точную цену мастер назовёт после осмотра. ':''}Бот напомнит за день${order?'':' и за 2 часа'}. В напоминании будут кнопки «Всё в силе» и «Перенести».</p>
+    <div class="row-btns"><button class="btn2" data-act="toast:Добавили в календарь телефона (демо)">${ic('cal',16)}В календарь</button>${order?'':`<button class="btn2" data-act="toast:Откроется маршрут в Яндекс Картах">${ic('pin',16)}Маршрут</button>`}</div>
     <div class="row-btns"><button class="btn2" data-act="resched:${b.id}">Перенести</button><button class="btn2" data-act="cancelask:${b.id}">Отменить</button></div>
     ${m.after&&m.hints[m.after]?`<button class="btn2 acc" data-act="hint:${m.after}">Памятка: ${m.hints[m.after].name.toLowerCase()}</button>`:''}</div>`,
     foot:`<button class="main-btn" data-act="home">На главную</button>`};
@@ -1586,7 +1603,7 @@ function calScreen(tabs){
   const wl=st.waitlist.length?`<h3>Лист ожидания</h3>${st.waitlist.map(w=>`<div class="rec"><div><b>${esc(w.client)}</b> · ${esc(svcOf(w.svc)?.name||'любая услуга')}</div><span class="small muted">Удобно: ${esc(w.pref)}</span><div class="row-btns"><button class="btn2 acc" data-act="wloffer:${w.id}">Предложить время</button><button class="btn2" data-act="wldel:${w.id}">Убрать</button></div></div>`).join('')}`:'';
   if(hrs&&!dayB.length)day+=st.bookings.length?'<p class="muted small" style="margin:0">Записей на этот день пока нет.</p>':`<p class="muted small" style="margin:0">Записей пока нет. Отправьте ссылку ${linkOf(S.cur)} паре постоянных клиентов: первая запись появится здесь.</p>`;
   const wk=[];for(let i=0;i<14;i++){const dk=keyOf(addDays(today,i)),dd=parseKey(dk),cnt=st.bookings.filter(b=>b.date===dk).length,op=!!dayHours(dk),fr=op&&(order?orderLeft(dk):slotsFor(dk,minDur).length)>0;
-    wk.push(`<button class="day mday ${op?'':'off'}" aria-pressed="${dk===S.calDay}" data-act="calday:${dk}" aria-label="${fmtDay(dk)}: ${cnt?pl(cnt,'запись','записи','записей'):op?'записей нет':'выходной'}"><small>${i===0?'сег':WD[dd.getDay()].toLowerCase()}</small><b>${dd.getDate()}</b><span class="mday-n">${cnt?cnt:op?(fr?'<i class="fdot"></i>':''):'вых'}</span></button>`)}
+    wk.push(`<button class="day mday ${op?'':'off'}" aria-pressed="${dk===S.calDay}" data-act="calday:${dk}" aria-label="${fmtDay(dk)}: ${cnt?pl(cnt,'запись','записи','записей'):op?'записей нет':'выходной'}"><small>${WD[dd.getDay()].toLowerCase()}</small><b>${dd.getDate()}</b><span class="mday-n">${cnt?cnt:op?(fr?'<i class="fdot"></i>':''):'вых'}</span></button>`)}
   return{body:tabs+fin+setup+`<h2 class="mtitle">Записи</h2>`+(holds.length?`<h3>Ждут вашего ответа · ${holds.length}</h3>${holds.map(b=>recCard(m,b)).join('')}`:'')
     +`<div class="days mweek">${wk.join('')}</div>`
     +`<details class="monthcal"><summary>Весь месяц</summary><div class="cal-h"><button data-act="calm:-1" aria-label="Прошлый месяц">${ic('chevl',18)}</button><b>${mo.toLocaleDateString('ru-RU',{month:'long',year:'numeric'}).replace(' г.','')}</b><button data-act="calm:1" aria-label="Следующий месяц">${ic('chev',18)}</button></div><div class="cal">${cells}</div></details>`
@@ -1730,7 +1747,7 @@ function sheetHtml(){
       <button class="main-btn" data-act="wlgo">Встать в лист ожидания</button>`)}
   if(S.sheet==='pay'){const s=selSvc(),p=priceOf(m,s.id,S.sel.ans),dep=depOf(p),rb=refundBy(m,S.sel.day,S.sel.start),opts=ansShort(m,s.id,S.sel.ans),order=m.mode==='order';
     return wrap(`<div class="master"><div class="ava" style="width:44px;height:44px;font-size:16px;overflow:hidden">${m.avatar?`<img src="${m.avatar}" alt="">`:m.ini}</div><div><b style="font-size:15px">${esc(m.name)}</b><span class="small muted">${fmtDay(S.sel.day)}, ${whenOf(m,S.sel)}</span></div></div>
-      <h2>Предоплата ${rub(dep)}</h2><div class="sum"><div class="kv"><span>${esc(s.name)}</span><span>${priceTxt(s,p)}</span></div>${opts?`<div class="kv"><span>Выбор</span><span>${esc(opts)}</span></div>`:''}<div class="kv"><span>Сейчас</span><span>${rub(dep)}</span></div><div class="kv"><span>${order?'При получении':'На месте'}</span><span>${rub(Math.max(0,p-dep))}</span></div></div>
+      <h2>Предоплата ${rub(dep)}</h2><div class="sum"><div class="kv"><span>${esc(s.name)}</span><span>${priceTxt(s,p)}</span></div>${choiceRows(m,selIds(),S.sel.ans)}<div class="kv"><span>Сейчас</span><span>${rub(dep)}</span></div><div class="kv"><span>${order?'При получении':'На месте'}</span><span>${rub(Math.max(0,p-dep))}</span></div></div>
       ${needsConfirm(S.sel.day,S.sel.start)?`<div class="okline"><span class="win on" aria-hidden="true"></span><span><b>Если мастер не подтвердит — ${rub(dep)} вернутся сами</b><span class="small muted">Деньги придут обратно на карту, ничего делать не нужно.</span></span></div>`:''}
       <p class="small" style="margin:0">${St().refund!=='day'?'Если отмените вы, предоплата не вернётся.':rb?`Передумаете — вернём ${rub(dep)}, если отмените до ${rb}.`:`Если отмените вы, предоплата не вернётся: до ${order?'получения':'визита'} меньше суток.`}</p>
       <button class="main-btn" data-act="paid">Оплатить через СБП</button><button class="btn2" data-act="paid">Оплатить картой</button><button class="btn2" data-act="close">Не сейчас</button>
@@ -1826,9 +1843,9 @@ function book(){
   if(old)st.bookings=st.bookings.filter(z=>z!==old);
   if(S.rebookOf)delete st.moved[S.rebookOf];
   st.bookings.forEach(x=>x.isNew=false);st.bookings.push(b);st.lastNew=b.id;
-  st.hist={prev:st.hist&&old&&st.hist.bid===old.id?st.hist.prev:st.hist,svc:b.svc,ans:{...b.ans},date:fmtDay(b.date),bid:b.id,rep:(st.hist&&st.hist.rep)||['месяц','Пора записаться снова?']};
+  st.hist={prev:st.hist&&old&&st.hist.bid===old.id?st.hist.prev:st.hist,svc:b.svc,extra:[...(b.extra||[])],ans:{...b.ans},date:fmtDay(b.date),bid:b.id,rep:(st.hist&&st.hist.rep)||['месяц','Пора записаться снова?']};
   const when=fmtDay(b.date)+', '+whenOf(m,b);
-  const ans=s.qs.filter(q=>m.q[q]&&!m.q[q].photo&&answered(m.q[q],b.ans[q])).map(q=>m.q[q].t+': '+ansText(m.q[q],b.ans[q])).join('\n');
+  const ans=s.qs.filter(q=>m.q[q]&&!m.q[q].photo&&answered(m.q[q],b.ans[q])).map(q=>qLabel(m.q[q].t)+': '+ansText(m.q[q],b.ans[q])).join('\n');
   const body=`${when}\n${b.client} · ${s.name} · ${priceTxt(s,b.price)}\n${ans}${b.photo?'\nЕсть файл':''}${b.paid?`\nПредоплата ${rub(b.paid)} ${S.carryPaid?'перенесена с прошлой записи':`получена, вам ${rub(Math.round(b.paid*0.95))} (комиссия 5%)`}`:''}`;
   const head=old?`Перенос: было ${fmtDay(old.date)}, ${whenOf(m,old)}\n`:'';
   if(hold){
@@ -1939,7 +1956,8 @@ document.addEventListener('click',e=>{
     case'rebook':{const b=st.moved[x];if(!b){toast('Новое время уже выбрано');return}resetFlow();S.role='client';S.mview=null;S.sheet=null;
       S.nameBack=S.contact.name;S.contact.name=b.client;S.sel={svc:b.svc,ans:{...b.ans},files:{...(b.files||{})},day:null,start:null};S.carryPaid=b.carry||0;S.rebookOf=x;
       if(svcOf(b.svc))S.step=2;else{S.step=0;resetFlow();toast('Эту услугу мастер убрал, выберите другую')}break}
-    case'repeat':{const h=st.hist;S.role='client';resetFlow();if(!h||!svcOf(h.svc)){S.step=0;toast('Эту услугу мастер убрал, выберите другую');break}startFlow(h.svc,h.ans);if(svcOf(h.svc).qs.every(q=>!need(m.q[q])||answered(m.q[q],S.sel.ans[q])))S.step=2;break}
+    case'repeatp':{let h=st.hist;while(h&&h.bid&&!st.bookings.some(z=>z.id===h.bid&&visitTs(m,z)<=Date.now()))h=h.prev;S.role='client';resetFlow();if(!h||!svcOf(h.svc)){S.step=0;toast('Эту услугу мастер убрал, выберите другую');break}startFlow(h.svc,h.ans);S.sel.extra=(h.extra||[]).filter(id=>svcOf(id));gotoQs(2);if(S.step!==1)S.step=2;break}
+    case'repeat':{const h=st.hist;S.role='client';resetFlow();if(!h||!svcOf(h.svc)){S.step=0;toast('Эту услугу мастер убрал, выберите другую');break}startFlow(h.svc,h.ans);S.sel.extra=(h.extra||[]).filter(id=>svcOf(id));gotoQs(2);if(S.step!==1)S.step=2;break}
     case'wl':S.wl={d:0,t:0};S.sheet='wl';break;
     case'wld':S.wl.d=+x;break;
     case'wlt':S.wl.t=+x;break;
@@ -1978,7 +1996,10 @@ document.addEventListener('click',e=>{
     case'openrec':{S.role='master';S.mtab='rec';S.mview=null;S.sheet=null;const lb=st.bookings.find(b=>b.id===st.lastNew)||st.bookings.find(b=>b.status==='hold');if(lb){S.calDay=lb.date;const d=parseKey(lb.date);S.calMonth=new Date(d.getFullYear(),d.getMonth(),1)}break}
     case'confirm':{const b=st.bookings.find(z=>z.id===x);if(!b)break;b.status='ok';b.isNew=true;
       st.feed.push({to:'Клиенту',when:'сразу после ответа мастера',text:`Мастер подтвердил бронь: ${fmtDay(b.date)}, ${whenOf(m,b)}. Ждём вас!`});remind(m,st,b);renderFeed();toast('Подтверждено. Клиент получил сообщение');break}
-    case'decline':{const b=st.bookings.find(z=>z.id===x);if(!b)break;st.bookings=st.bookings.filter(z=>z!==b);
+    case'decline':{const b=st.bookings.find(z=>z.id===x);if(!b)break;
+      if(!S.askOk){S.ask={t:`Отклонить бронь: ${b.client}?`,d:`${fmtDay(b.date)}, ${whenOf(m,b)}. ${b.paid?`Предоплата ${rub(b.paid)} вернётся клиенту, `:'Клиенту '}придёт сообщение с предложением выбрать другое время. Это время закроем, чтобы его не заняли снова.`,yes:'decline:'+x,yl:'Да, отклонить'};S.sheet='ask';break}
+      st.bookings=st.bookings.filter(z=>z!==b);if(st.hist&&st.hist.bid===b.id)st.hist=st.hist.prev||null;
+      if(m.mode==='slot')(st.blocks[b.date]||(st.blocks[b.date]=[])).push([b.start,b.start+(b.dur||60)]);
       if(b.client===S.contact.name)st.declined={date:b.date,start:b.start,svc:b.svc,extra:b.extra||[],ans:{...b.ans},paid:b.paid||0,name:sName(b)};
       st.feed.push({to:'Клиенту',when:'сразу после ответа мастера',text:`К сожалению, мастер не сможет принять вас ${fmtDay(b.date)}.${b.paid?' Предоплата вернётся на карту.':''} Выберите другое время в приложении.`,btn:['Выбрать другое время','role:client']});renderFeed();toast('Отклонено. Клиенту предложено другое время');break}
     case'cancelask':S.sheet='cancelask-'+x;break;
